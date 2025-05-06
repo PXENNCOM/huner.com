@@ -461,3 +461,58 @@ exports.getMessageStats = async (req, res) => {
     res.status(500).json({ message: 'Sunucu hatası oluştu' });
   }
 };
+
+
+
+// controllers/admin.controller.js
+// Detaylı öğrenci bilgilerini getir
+exports.getStudentDetails = async (req, res) => {
+  try {
+    const studentId = req.params.id;
+    
+    // Öğrenci profilini al
+    const student = await db.StudentProfile.findOne({
+      where: { id: studentId },
+      include: [
+        {
+          model: db.User,
+          attributes: ['id', 'email', 'createdAt', 'isActive', 'approvalStatus', 'rejectionReason']
+        }
+      ]
+    });
+    
+    if (!student) {
+      return res.status(404).json({ message: 'Öğrenci bulunamadı' });
+    }
+    
+    res.status(200).json(student);
+  } catch (error) {
+    console.error('Öğrenci detayları getirme hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
+};
+
+// Öğrencinin projelerini getir
+exports.getStudentProjects = async (req, res) => {
+  try {
+    const studentId = req.params.id;
+    
+    // Öğrenci profilini kontrol et
+    const student = await db.StudentProfile.findByPk(studentId);
+    
+    if (!student) {
+      return res.status(404).json({ message: 'Öğrenci bulunamadı' });
+    }
+    
+    // Projeleri getir
+    const projects = await db.StudentProject.findAll({
+      where: { studentId: studentId },
+      order: [['createdAt', 'DESC']]
+    });
+    
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error('Öğrenci projeleri getirme hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
+};

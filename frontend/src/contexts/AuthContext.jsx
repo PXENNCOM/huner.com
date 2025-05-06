@@ -87,8 +87,8 @@ useEffect(() => {
     } catch (error) {
       console.error('Register error:', error);
       return {
-         success: false,
-         message: error.response?.data?.message || 'Kayıt başarısız'
+        success: false,
+        message: error.response?.data?.message || 'Kayıt başarısız'
       };
     }
   };

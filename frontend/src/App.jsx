@@ -33,6 +33,8 @@ import EmployerDashboard from './pages/employer/Dashboard';
 // Admin sayfaları
 import AdminDashboard from './pages/admin/Dashboard';
 import AdminStudents from './pages/admin/Students';
+import AdminStudentDetail from './pages/admin/AdminStudentDetail';
+import AdminPendingStudents from './pages/admin/AdminStudents';
 import AdminEmployers from './pages/admin/Employers';
 import AdminJobs from './pages/admin/Jobs';
 import AdminJobAssignment from './pages/admin/JobAssignment';
@@ -132,6 +134,16 @@ function App() {
         <Route path="/admin/students" element={
           <ProtectedRoute requiredRole="admin">
             <AdminStudents />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/students/pending" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminPendingStudents />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/students/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminStudentDetail />
           </ProtectedRoute>
         } />
         <Route path="/admin/employers" element={

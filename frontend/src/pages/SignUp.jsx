@@ -7,6 +7,9 @@ const SignUp = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    fullName: '',
+    linkedinProfile: '',
+    githubProfile: '',
     userType: 'student' // Varsayılan olarak öğrenci seçildi
   });
   const [error, setError] = useState('');
@@ -43,6 +46,24 @@ const SignUp = () => {
       return false;
     }
     
+    // İsim kontrolü
+    if (!formData.fullName || formData.fullName.trim() === '') {
+      setError('İsim alanı boş bırakılamaz!');
+      return false;
+    }
+    
+    // LinkedIn URL kontrolü (opsiyonel alan, doldurulduysa kontrol et)
+    if (formData.linkedinProfile && !formData.linkedinProfile.includes('linkedin.com')) {
+      setError('Geçerli bir LinkedIn profil URL\'si girin!');
+      return false;
+    }
+    
+    // GitHub URL kontrolü (opsiyonel alan, doldurulduysa kontrol et)
+    if (formData.githubProfile && !formData.githubProfile.includes('github.com')) {
+      setError('Geçerli bir GitHub profil URL\'si girin!');
+      return false;
+    }
+    
     return true;
   };
 
@@ -62,6 +83,9 @@ const SignUp = () => {
       const userData = {
         email: formData.email,
         password: formData.password,
+        fullName: formData.fullName,
+        linkedinProfile: formData.linkedinProfile || null,
+        githubProfile: formData.githubProfile || null,
         userType: formData.userType
       };
       
@@ -114,6 +138,20 @@ const SignUp = () => {
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
+            <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">Ad Soyad</label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="Ad Soyad"
+            />
+          </div>
+          
+          <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">E-posta</label>
             <input
               type="email"
@@ -125,6 +163,34 @@ const SignUp = () => {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="ornek@email.com"
             />
+          </div>
+          
+          <div>
+            <label htmlFor="linkedinProfile" className="block text-sm font-medium text-gray-700">LinkedIn Profili</label>
+            <input
+              type="url"
+              id="linkedinProfile"
+              name="linkedinProfile"
+              value={formData.linkedinProfile}
+              onChange={handleChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="https://www.linkedin.com/in/kullaniciadi"
+            />
+            <p className="mt-1 text-xs text-gray-500">Opsiyonel</p>
+          </div>
+          
+          <div>
+            <label htmlFor="githubProfile" className="block text-sm font-medium text-gray-700">GitHub Profili</label>
+            <input
+              type="url"
+              id="githubProfile"
+              name="githubProfile"
+              value={formData.githubProfile}
+              onChange={handleChange}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="https://github.com/kullaniciadi"
+            />
+            <p className="mt-1 text-xs text-gray-500">Opsiyonel</p>
           </div>
           
           <div>

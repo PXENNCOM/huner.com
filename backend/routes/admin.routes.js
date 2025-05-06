@@ -21,11 +21,14 @@ router.get('/students/pending', adminController.getPendingStudents);
 router.get('/students/rejected', adminController.getRejectedStudents);
 router.put('/students/:id/approve', adminController.approveStudent);
 router.put('/students/:id/reject', adminController.rejectStudent);
+// Yeni eklenen rotalar
+router.get('/students/:id', adminController.getStudentDetails);
+router.get('/students/:id/projects', adminController.getStudentProjects);
 
 // İş veren yönetimi
 router.get('/employers', adminController.getAllEmployers);
 
-// MESAJ YÖNETİMİ - YENİ EKLENECEK
+// MESAJ YÖNETİMİ
 router.post('/messages', adminController.sendMessage);
 router.get('/messages', adminController.getSentMessages);
 router.get('/messages/:id/stats', adminController.getMessageStats);

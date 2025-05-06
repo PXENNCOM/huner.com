@@ -1,5 +1,4 @@
 // services/adminApi.js
-
 import api from './api';
 
 // Öğrenci yönetimi
@@ -8,7 +7,10 @@ export const ogrenciYonetimi = {
   bekleyenOgrencileriGetir: () => api.get('/admin/students/pending'),
   reddedilenOgrencileriGetir: () => api.get('/admin/students/rejected'),
   ogrenciOnayla: (kullaniciId) => api.put(`/admin/students/${kullaniciId}/approve`),
-  ogrenciReddet: (kullaniciId, sebep) => api.put(`/admin/students/${kullaniciId}/reject`, { reason: sebep })
+  ogrenciReddet: (kullaniciId, sebep) => api.put(`/admin/students/${kullaniciId}/reject`, { reason: sebep }),
+  // Yeni eklenen servisler
+  ogrenciDetayGetir: (ogrenciId) => api.get(`/admin/students/${ogrenciId}`),
+  ogrenciProjeleriGetir: (ogrenciId) => api.get(`/admin/students/${ogrenciId}/projects`)
 };
 
 // İş ilanı yönetimi

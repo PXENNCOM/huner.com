@@ -8,7 +8,7 @@ const config = require('../config/config');
 // controllers/auth.controller.js - register fonksiyonunda
 exports.register = async (req, res) => {
   try {
-    const { email, password, userType } = req.body;
+    const { email, password, userType, fullName, linkedinProfile, githubProfile } = req.body;
     
     // E-posta kontrolü
     const existingUser = await User.findOne({ where: { email } });
@@ -31,8 +31,11 @@ exports.register = async (req, res) => {
     if (userType === 'student') {
       await db.StudentProfile.create({
         userId: user.id,
-        // Boş değerlerle profil oluştur
-        fullName: null,
+        // Gönderilen bilgileri kullan, yoksa null set et
+        fullName: fullName || null,
+        linkedinProfile: linkedinProfile || null,
+        githubProfile: githubProfile || null,
+        // Diğer alanlar için boş değerler
         age: null,
         city: null,
         school: null,
@@ -40,8 +43,6 @@ exports.register = async (req, res) => {
         currentGrade: null,
         department: null,
         languages: null,
-        linkedinProfile: null,
-        githubProfile: null,
         studentDocument: null,
         skills: null,
         profileImage: null,
