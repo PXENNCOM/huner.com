@@ -29,6 +29,10 @@ import StudentMessage from './pages/student/Messages';
 
 // İşveren sayfaları
 import EmployerDashboard from './pages/employer/Dashboard';
+import EmployerProfile from './pages/employer/Profile';
+import EmployerJobs from './pages/employer/Jops';
+import CreateJob from './pages/employer/CreateJob';
+import EmployerJobDetail from './pages/employer/JobDetail';
 
 // Admin sayfaları
 import AdminDashboard from './pages/admin/Dashboard';
@@ -124,6 +128,27 @@ function App() {
             <EmployerDashboard />
           </ProtectedRoute>
         } />
+        <Route path="/employer/profile" element={
+          <ProtectedRoute requiredRole="employer">
+            <EmployerProfile />
+          </ProtectedRoute>
+        } />
+        <Route path="/employer/jobs" element={
+          <ProtectedRoute requiredRole="employer">
+            <EmployerJobs />
+          </ProtectedRoute>
+        } />
+        <Route path="/employer/jobs/create" element={
+          <ProtectedRoute requiredRole="employer">
+            <CreateJob />
+          </ProtectedRoute>
+        } />
+        <Route path="/employer/jobs/:id" element={
+          <ProtectedRoute requiredRole="employer">
+            <EmployerJobDetail />
+          </ProtectedRoute>
+        } />
+
         
         {/* Protected admin routes */}
         <Route path="/admin/dashboard" element={

@@ -130,7 +130,16 @@ const AdminStudentDetail = () => {
     if (!skills) return <p>Belirtilmemiş</p>;
     
     try {
-      const skillsArray = typeof skills === 'string' ? JSON.parse(skills) : skills;
+      // Önce JSON olarak parse etmeyi dene
+      let skillsArray = [];
+      
+      try {
+        skillsArray = JSON.parse(skills);
+      } catch (e) {
+        // JSON parse hatası, düz string olabilir
+        // Virgülle ayrılmış değerleri dizi olarak böl
+        skillsArray = skills.split(',').map(skill => skill.trim());
+      }
       
       if (!Array.isArray(skillsArray) || skillsArray.length === 0) {
         return <p>Belirtilmemiş</p>;
@@ -150,13 +159,26 @@ const AdminStudentDetail = () => {
       );
     } catch (e) {
       console.error('Beceriler işlenirken hata oluştu:', e);
-      return <p>Biçim Hatası</p>;
+      // Hata durumunda, metni doğrudan gösterelim
+      return <p className="text-gray-600">{skills}</p>;
     }
   };
 
-  // Projeleri görüntüle
+  const parseTechnologies = (technologies) => {
+    if (!technologies) return [];
+    
+    try {
+      // Önce JSON olarak parse etmeyi dene
+      return JSON.parse(technologies);
+    } catch (e) {
+      // JSON parse hatası, düz string olabilir
+      // Virgülle ayrılmış değerleri dizi olarak böl
+      return technologies.split(',').map(tech => tech.trim());
+    }
+  };
+
   // renderProjects fonksiyonu - düzeltilmiş versiyon
-const renderProjects = () => {
+  const renderProjects = () => {
     if (!projects || projects.length === 0) {
       return (
         <div className="text-center py-10">
@@ -208,9 +230,7 @@ const renderProjects = () => {
                 <div className="flex flex-wrap">
                   {(() => {
                     try {
-                      const techArray = project.technologies && typeof project.technologies === 'string' 
-                        ? JSON.parse(project.technologies)
-                        : [];
+                      const techArray = parseTechnologies(project.technologies);
                       
                       return Array.isArray(techArray) && techArray.length > 0
                         ? techArray.map((tech, index) => (
@@ -220,7 +240,7 @@ const renderProjects = () => {
                           ))
                         : <span className="text-gray-500 text-xs">Teknoloji belirtilmemiş</span>;
                     } catch (e) {
-                      console.error('Technologies JSON parsing hatası:', e);
+                      console.error('Technologies işlenirken hata oluştu:', e);
                       return <span className="text-gray-500 text-xs">Format hatası</span>;
                     }
                   })()}

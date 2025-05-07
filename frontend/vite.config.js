@@ -25,5 +25,19 @@ export default defineConfig({
     commonjsOptions: {
       transformMixedEsModules: true,
     }
-  } 
+  },
+  server: {
+    proxy: {
+      // API isteklerini backend'e yönlendir
+      '/api': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+      // Statik dosyaları da backend'den al
+      '/uploads': {
+        target: 'http://localhost:3001',
+        changeOrigin: true,
+      },
+    },
+  }
 })

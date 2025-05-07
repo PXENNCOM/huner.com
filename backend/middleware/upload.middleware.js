@@ -1,4 +1,3 @@
-// middleware/upload.middleware.js
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -13,6 +12,7 @@ const jobMediaDir = 'uploads/job-media';
 [profileImagesDir, studentDocumentsDir, projectMediaDir, jobMediaDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
+    console.log(`Directory created: ${dir}`);
   }
 });
 
@@ -36,7 +36,11 @@ const profileImageStorage = multer.diskStorage({
     cb(null, profileImagesDir);
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${req.user.id}${path.extname(file.originalname)}`);
+    // Hataları önlemek için dosya adında user.id kontrolü yapın
+    const userId = req.user?.id || 'unknown';
+    const fileName = `${Date.now()}-${userId}${path.extname(file.originalname)}`;
+    console.log(`Creating profile image: ${fileName}`);
+    cb(null, fileName);
   }
 });
 
@@ -73,7 +77,7 @@ const jobMediaStorage = multer.diskStorage({
 // Upload middlewares
 exports.uploadProfileImage = multer({
   storage: profileImageStorage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limiti (arttırıldı)
   fileFilter
 }).single('profileImage');
 

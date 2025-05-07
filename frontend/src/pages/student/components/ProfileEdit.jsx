@@ -92,7 +92,7 @@ const ProfileEdit = ({ profile, onSubmit, onCancel }) => {
 
   // Profil resmini yükle
   const handleImageUpload = async () => {
-    if (!profileImage) return;
+    if (!profileImage) return null;
     
     setUploadingImage(true);
     
@@ -100,11 +100,27 @@ const ProfileEdit = ({ profile, onSubmit, onCancel }) => {
       const formData = new FormData();
       formData.append('profileImage', profileImage);
       
-      const response = await uploadProfileImage(formData);
-      setPreviewImage(`/uploads/profile-images/${response.data.filename}`);
-      setUploadingImage(false);
+      // Debug için
+      console.log('FormData içeriği:');
+      for (let pair of formData.entries()) {
+        console.log(pair[0], pair[1]);
+      }
       
-      return response.data.filename;
+      const response = await uploadProfileImage(formData);
+      console.log('Upload response:', response);
+      
+      // Response'dan filename'i doğru şekilde al
+      if (response.data && response.data.filename) {
+        setPreviewImage(`/uploads/profile-images/${response.data.filename}`);
+        setUploadingImage(false);
+        
+        return response.data.filename;
+      } else {
+        console.error('Profile image upload response invalid:', response);
+        setErrors(prev => ({ ...prev, image: 'Profil resmi yüklenirken hata oluştu - geçersiz yanıt' }));
+        setUploadingImage(false);
+        return null;
+      }
     } catch (err) {
       console.error('Profile image upload error:', err);
       setErrors(prev => ({ ...prev, image: 'Profil resmi yüklenirken hata oluştu' }));
@@ -138,22 +154,34 @@ const ProfileEdit = ({ profile, onSubmit, onCancel }) => {
     
     setIsSubmitting(true);
     
-    // Profil resmi yüklendiyse dosya adını al
-    let profileImageFilename = null;
-    if (profileImage) {
-      profileImageFilename = await handleImageUpload();
+    try {
+      // Profil resmi yüklendiyse dosya adını al
+      let profileImageFilename = null;
+      if (profileImage) {
+        console.log('Uploading profile image...');
+        profileImageFilename = await handleImageUpload();
+        console.log('Profile image uploaded, filename:', profileImageFilename);
+      }
+      
+      // Form verilerini gönder
+      const updatedFormData = {
+        ...formData
+      };
+      
+      if (profileImageFilename) {
+        updatedFormData.profileImage = profileImageFilename;
+        console.log('Adding profileImage to form data:', profileImageFilename);
+      }
+      
+      console.log('Submitting form data:', updatedFormData);
+      await onSubmit(updatedFormData);
+      console.log('Form submitted successfully');
+    } catch (error) {
+      console.error('Error during form submission:', error);
+      setErrors(prev => ({ ...prev, submit: 'Form gönderilirken bir hata oluştu' }));
+    } finally {
+      setIsSubmitting(false);
     }
-    
-    // Form verilerini gönder
-    const updatedFormData = {
-      ...formData
-    };
-    
-    if (profileImageFilename) {
-      updatedFormData.profileImage = profileImageFilename;
-    }
-    
-    onSubmit(updatedFormData);
   };
 
   return (
@@ -438,6 +466,12 @@ const ProfileEdit = ({ profile, onSubmit, onCancel }) => {
         </div>
         {errors.language && <p className="mt-1 text-sm text-red-500">{errors.language}</p>}
       </div>
+
+      {errors.submit && (
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+          <p>{errors.submit}</p>
+        </div>
+      )}
 
       <div className="pt-5 flex justify-end space-x-3">
         <button

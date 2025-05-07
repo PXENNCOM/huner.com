@@ -30,32 +30,34 @@ const StudentPortfolio = () => {
       console.log('Raw projects from API:', response.data);
       
       // Projelerdeki medya URL'lerini düzelt
-      const projectsWithFixedUrls = response.data.map(project => {
-        console.log('Processing project:', project.id, 'with media:', project.media);
-        
-        let parsedMedia = [];
-        try {
-          if (project.media) {
-            // JSON string'i parse et
-            parsedMedia = JSON.parse(project.media);
-            console.log('Parsed media for project', project.id, ':', parsedMedia);
-            
-            // Her media URL'sine API base URL'ini ekle
-            parsedMedia = parsedMedia.map((url, index) => {
-              const fullUrl = API_BASE_URL + url;
-              console.log(`Media ${index} conversion: ${url} -> ${fullUrl}`);
-              return fullUrl;
-            });
-          }
-        } catch (e) {
-          console.error('Error parsing media for project', project.id, ':', e);
-        }
-        
-        return {
-          ...project,
-          media: parsedMedia // Artık array olarak
-        };
+const projectsWithFixedUrls = response.data.map(project => {
+  console.log('Processing project:', project.id, 'with media:', project.media);
+  
+  let parsedMedia = [];
+  try {
+    if (project.media) {
+      // JSON string'i parse et
+      parsedMedia = JSON.parse(project.media);
+      console.log('Parsed media for project', project.id, ':', parsedMedia);
+      
+      // Her media URL'sine API base URL'ini ekle
+      parsedMedia = parsedMedia.map(mediaPath => {
+        // Medya yolunun başında / karakteri var mı kontrol et
+        const path = mediaPath.startsWith('/') ? mediaPath : `/uploads/project-media/${mediaPath}`;
+        // Tam URL'yi oluştur
+        return `${API_BASE_URL}${path}`;
       });
+    }
+  } catch (e) {
+    console.error('Error parsing media for project', project.id, ':', e);
+    parsedMedia = []; // Hata durumunda boş array
+  }
+  
+  return {
+    ...project,
+    media: parsedMedia // Artık URL'leri içeren array
+  };
+});
       
       console.log('Projects with fixed URLs:', projectsWithFixedUrls);
       setProjects(projectsWithFixedUrls);
