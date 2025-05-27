@@ -583,9 +583,6 @@ exports.getEmployerDetails = async (req, res) => {
 };
 
 
-
-
-
 // controllers/student.controller.js - getMyMessages fonksiyonu ekle
 exports.getMyMessages = async (req, res) => {
   try {
@@ -618,7 +615,6 @@ exports.getMyMessages = async (req, res) => {
   }
 };
 
-// Mesajı okundu olarak işaretle
 exports.markMessageAsRead = async (req, res) => {
   try {
     const messageId = req.params.id;
@@ -646,4 +642,378 @@ exports.markMessageAsRead = async (req, res) => {
     console.error('Mesaj okuma hatası:', error);
     res.status(500).json({ message: 'Sunucu hatası oluştu' });
   }
+}; 
+
+exports.getEventDetails = async (req, res) => {
+  try {
+    const eventId = req.params.id;
+    
+    const event = await db.Event.findOne({
+      where: {
+        id: eventId,
+        status: 'active' // Sadece aktif etkinlikler görüntülenebilir
+      }
+    });
+    
+    if (!event) {
+      return res.status(404).json({ message: 'Etkinlik bulunamadı veya aktif değil' });
+    }
+    
+    const eventData = event.toJSON();
+    
+    // Etkinlik tarihini analiz et
+    const today = new Date();
+    const eventDate = new Date(event.eventDate);
+    const diffTime = eventDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // Zaman bilgisi ekle
+    let timeInfo = '';
+    let timeStatus = '';
+    let canParticipate = true;
+    
+    if (diffDays < 0) {
+      timeInfo = 'Etkinlik sona erdi';
+      timeStatus = 'ended';
+      canParticipate = false;
+    } else if (diffDays === 0) {
+      timeInfo = 'Bugün';
+      timeStatus = 'today';
+    } else if (diffDays === 1) {
+      timeInfo = 'Yarın';
+      timeStatus = 'tomorrow';
+    } else {
+      timeInfo = `${diffDays} gün sonra`;
+      timeStatus = 'future';
+    }
+    
+    // Tarih formatla
+    const formattedDate = eventDate.toLocaleDateString('tr-TR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    
+    const formattedTime = eventDate.toLocaleTimeString('tr-TR', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    eventData.timeInfo = timeInfo;
+    eventData.timeStatus = timeStatus;
+    eventData.formattedDate = formattedDate;
+    eventData.formattedTime = formattedTime;
+    eventData.daysUntilEvent = diffDays;
+    eventData.canParticipate = canParticipate;
+    
+    res.status(200).json(eventData);
+  } catch (error) {
+    console.error('Etkinlik detayı getirme hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
 };
+
+
+exports.getActiveEvents = async (req, res) => {
+  try {
+    const today = new Date();
+    
+    const events = await db.Event.findAll({
+      where: {
+        status: 'active',
+        eventDate: {
+          [db.Sequelize.Op.gte]: today // Bugün ve sonrasındaki etkinlikler
+        }
+      },
+      order: [['eventDate', 'ASC']],
+      attributes: [
+        'id',
+        'title', 
+        'description', 
+        'image', 
+        'eventDate', 
+        'location', 
+        'organizer',
+        'createdAt'
+      ]
+    });
+    
+    // Etkinlikleri işle ve ek bilgiler ekle
+    const processedEvents = events.map(event => {
+      const eventData = event.toJSON();
+      
+      // Etkinlik tarihini analiz et
+      const eventDate = new Date(event.eventDate);
+      const diffTime = eventDate - today;
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      // Zaman bilgisi ekle
+      let timeInfo = '';
+      let timeStatus = '';
+      
+      if (diffDays === 0) {
+        timeInfo = 'Bugün';
+        timeStatus = 'today';
+      } else if (diffDays === 1) {
+        timeInfo = 'Yarın';
+        timeStatus = 'tomorrow';
+      } else if (diffDays <= 7) {
+        timeInfo = `${diffDays} gün sonra`;
+        timeStatus = 'this-week';
+      } else if (diffDays <= 30) {
+        timeInfo = `${diffDays} gün sonra`;
+        timeStatus = 'this-month';
+      } else {
+        timeInfo = `${diffDays} gün sonra`;
+        timeStatus = 'future';
+      }
+      
+      // Tarih formatla (Türkçe)
+      const formattedDate = eventDate.toLocaleDateString('tr-TR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      
+      const formattedTime = eventDate.toLocaleTimeString('tr-TR', {
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      
+      eventData.timeInfo = timeInfo;
+      eventData.timeStatus = timeStatus;
+      eventData.formattedDate = formattedDate;
+      eventData.formattedTime = formattedTime;
+      eventData.daysUntilEvent = diffDays;
+      
+      return eventData;
+    });
+    
+    res.status(200).json(processedEvents);
+  } catch (error) {
+    console.error('Etkinlikleri getirme hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
+};
+
+
+// Aktif proje fikirlerini getir (öğrenci görünümü)
+exports.getActiveProjectIdeas = async (req, res) => {
+  try {
+    const { category, difficulty, search } = req.query;
+    
+    // Filtreleme için where koşulları
+    let whereConditions = {
+      status: 'active'
+    };
+    
+    // Kategori filtresi
+    if (category && category !== 'all') {
+      whereConditions.category = category;
+    }
+    
+    // Zorluk filtresi
+    if (difficulty && difficulty !== 'all') {
+      whereConditions.difficulty = difficulty;
+    }
+    
+    // Arama filtresi
+    if (search) {
+      whereConditions[db.Sequelize.Op.or] = [
+        { title: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { description: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { technologies: { [db.Sequelize.Op.like]: `%${search}%` } }
+      ];
+    }
+    
+    const projectIdeas = await db.ProjectIdea.findAll({
+      where: whereConditions,
+      order: [['createdAt', 'DESC']],
+      attributes: [
+        'id',
+        'title', 
+        'description', 
+        'category',
+        'difficulty',
+        'estimatedDays',
+        'technologies',
+        'image',
+        'createdAt'
+      ]
+    });
+    
+    // Proje fikirlerini işle ve ek bilgiler ekle
+    const processedProjectIdeas = projectIdeas.map(project => {
+      const projectData = project.toJSON();
+      
+      // Teknolojileri array'e çevir
+      if (projectData.technologies) {
+        projectData.technologiesArray = projectData.technologies
+          .split(',')
+          .map(tech => tech.trim())
+          .filter(tech => tech.length > 0);
+      } else {
+        projectData.technologiesArray = [];
+      }
+      
+      // Zorluk seviyesi rengini belirle
+      const difficultyColors = {
+        'Kolay': 'green',
+        'Orta': 'yellow', 
+        'Zor': 'red'
+      };
+      projectData.difficultyColor = difficultyColors[projectData.difficulty] || 'gray';
+      
+      // Kategori ikonu belirle
+      const categoryIcons = {
+        'Web Development': '🌐',
+        'Mobile Development': '📱',
+        'Artificial Intelligence': '🤖',
+        'Game Development': '🎮',
+        'Data Science': '📊',
+        'Cybersecurity': '🔐',
+        'Cloud & DevOps': '☁️',
+        'System Design': '🏗️'
+      };
+      projectData.categoryIcon = categoryIcons[projectData.category] || '💻';
+      
+      // Açıklamayı kısalt (liste görünümü için)
+      if (projectData.description && projectData.description.length > 150) {
+        projectData.shortDescription = projectData.description.substring(0, 150) + '...';
+      } else {
+        projectData.shortDescription = projectData.description;
+      }
+      
+      return projectData;
+    });
+    
+    res.status(200).json(processedProjectIdeas);
+  } catch (error) {
+    console.error('Proje fikirlerini getirme hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
+};
+
+// Proje fikri detaylarını getir (öğrenci görünümü)
+exports.getProjectIdeaDetails = async (req, res) => {
+  try {
+    const projectIdeaId = req.params.id;
+    
+    const projectIdea = await db.ProjectIdea.findOne({
+      where: {
+        id: projectIdeaId,
+        status: 'active' // Sadece aktif proje fikirleri görüntülenebilir
+      }
+    });
+    
+    if (!projectIdea) {
+      return res.status(404).json({ message: 'Proje fikri bulunamadı veya aktif değil' });
+    }
+    
+    const projectData = projectIdea.toJSON();
+    
+    // Teknolojileri array'e çevir
+    if (projectData.technologies) {
+      projectData.technologiesArray = projectData.technologies
+        .split(',')
+        .map(tech => tech.trim())
+        .filter(tech => tech.length > 0);
+    } else {
+      projectData.technologiesArray = [];
+    }
+    
+    // Kaynakları array'e çevir
+    if (projectData.resources) {
+      projectData.resourcesArray = projectData.resources
+        .split('\n')
+        .map(resource => resource.trim())
+        .filter(resource => resource.length > 0);
+    } else {
+      projectData.resourcesArray = [];
+    }
+    
+    // Gereksinimleri array'e çevir (satır satır)
+    if (projectData.requirements) {
+      projectData.requirementsArray = projectData.requirements
+        .split('\n')
+        .map(req => req.trim())
+        .filter(req => req.length > 0);
+    } else {
+      projectData.requirementsArray = [];
+    }
+    
+    // Zorluk seviyesi bilgisi
+    const difficultyInfo = {
+      'Kolay': { color: 'green', description: 'Başlangıç seviyesi, temel kavramlar' },
+      'Orta': { color: 'yellow', description: 'Orta seviye, entegrasyon gerekli' },
+      'Zor': { color: 'red', description: 'İleri seviye, karmaşık yapı' }
+    };
+    
+    projectData.difficultyInfo = difficultyInfo[projectData.difficulty] || difficultyInfo['Orta'];
+    
+    // Kategori ikonu
+    const categoryIcons = {
+      'Web Development': '🌐',
+      'Mobile Development': '📱',
+      'Artificial Intelligence': '🤖',
+      'Game Development': '🎮',
+      'Data Science': '📊',
+      'Cybersecurity': '🔐',
+      'Cloud & DevOps': '☁️',
+      'System Design': '🏗️'
+    };
+    projectData.categoryIcon = categoryIcons[projectData.category] || '💻';
+    
+    // Tahmini süre açıklaması
+    if (projectData.estimatedDays <= 7) {
+      projectData.timeCategory = 'Kısa Vadeli';
+      projectData.timeDescription = 'Hızlıca tamamlanabilir';
+    } else if (projectData.estimatedDays <= 30) {
+      projectData.timeCategory = 'Orta Vadeli';
+      projectData.timeDescription = 'Bir aya kadar sürebilir';
+    } else {
+      projectData.timeCategory = 'Uzun Vadeli';
+      projectData.timeDescription = 'Detaylı planlama gerekir';
+    }
+    
+    res.status(200).json(projectData);
+  } catch (error) {
+    console.error('Proje fikri detayı getirme hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
+};
+
+// Benzer proje fikirlerini getir
+exports.getSimilarProjectIdeas = async (req, res) => {
+  try {
+    const projectIdeaId = req.params.id;
+    
+    // Mevcut proje fikrini bul
+    const currentProject = await db.ProjectIdea.findByPk(projectIdeaId);
+    
+    if (!currentProject) {
+      return res.status(404).json({ message: 'Proje fikri bulunamadı' });
+    }
+    
+    // Aynı kategori ve yakın zorluk seviyesindeki projeleri getir
+    const similarProjects = await db.ProjectIdea.findAll({
+      where: {
+        status: 'active',
+        category: currentProject.category,
+        id: { [db.Sequelize.Op.ne]: projectIdeaId } // Mevcut projeyi hariç tut
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 4,
+      attributes: ['id', 'title', 'category', 'difficulty', 'estimatedDays', 'image']
+    });
+    
+    res.status(200).json(similarProjects);
+  } catch (error) {
+    console.error('Benzer projeler getirme hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
+};
+
+

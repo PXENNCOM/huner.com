@@ -25,6 +25,8 @@ const AdminLayout = ({ children }) => {
     },
     { path: '/admin/employers', label: 'İşveren Yönetimi', icon: '🏢' },
     { path: '/admin/jobs', label: 'İş İlanları', icon: '💼' },
+    { path: '/admin/events', label: 'Etkinlik Yönetimi', icon: '🎯' },
+    { path: '/admin/project-ideas', label: 'Proje Fikri Kütüphanesi', icon: '💡' },
     { path: '/admin/messages', label: 'Mesajlar', icon: '✉️' }
   ];
 

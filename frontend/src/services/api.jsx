@@ -168,6 +168,7 @@ export const uploadProjectMedia = (projectId, formData) => {
   return api.post(`/student/projects/${projectId}/media`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
+      
     },
   });
 };
@@ -189,5 +190,36 @@ export const getStudentMessages = () => {
 export const markMessageAsRead = (messageId) => {
   return api.put(`/student/messages/${messageId}/read`);
 };
+
+// services/adminApi.js'ye eklenecek
+export const getEvents = () => api.get('/admin/events');
+export const createEvent = (eventData) => api.post('/admin/events', eventData);
+export const updateEvent = (id, eventData) => api.put(`/admin/events/${id}`, eventData);
+export const deleteEvent = (id) => api.delete(`/admin/events/${id}`);
+
+// services/studentApi.js'ye eklenecek  
+export const getActiveEvents = () => api.get('/student/events');
+export const getEventDetails = (id) => api.get(`/student/events/${id}`);
+
+export const getActiveProjectIdeas = (params = {}) => {
+  const searchParams = new URLSearchParams();
+  if (params.category && params.category !== 'all') searchParams.append('category', params.category);
+  if (params.difficulty && params.difficulty !== 'all') searchParams.append('difficulty', params.difficulty);
+  if (params.search) searchParams.append('search', params.search);
+  
+  const queryString = searchParams.toString();
+  const url = queryString ? `/student/project-ideas?${queryString}` : '/student/project-ideas';
+  
+  return api.get(url);
+};
+
+export const getProjectIdeaDetails = (id) => {
+  return api.get(`/student/project-ideas/${id}`);
+};
+
+export const getSimilarProjectIdeas = (id) => {
+  return api.get(`/student/project-ideas/${id}/similar`);
+};
+
 
 export default api;

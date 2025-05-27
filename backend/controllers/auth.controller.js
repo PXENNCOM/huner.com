@@ -50,14 +50,39 @@ exports.register = async (req, res) => {
       });
     }
     
+    // İşveren için otomatik profil oluştur
+    if (userType === 'employer') {
+      await db.EmployerProfile.create({
+        userId: user.id,
+        fullName: fullName || null,
+        companyName: null,
+        phoneNumber: null,
+        city: null,
+        address: null,
+        age: null,
+        profileImage: null
+      });
+    }
+    
+    // Token oluştur (isteğe bağlı)
+    const token = jwt.sign(
+      { id: user.id, userType: user.userType, email: user.email },
+      config.jwtSecret,
+      { expiresIn: '24h' }
+    );
+    
     res.status(201).json({
       message: 'Kullanıcı kaydı başarıyla tamamlandı',
       userId: user.id,
-      approvalStatus: user.approvalStatus
+      approvalStatus: user.approvalStatus,
+      token: token // isteğe bağlı, otomatik giriş için
     });
   } catch (error) {
     console.error('Kayıt hatası:', error);
-    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+    res.status(500).json({ 
+      message: 'Sunucu hatası oluştu',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

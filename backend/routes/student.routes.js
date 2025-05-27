@@ -1,4 +1,4 @@
-// routes/student.routes.js
+// Tam routes dosyası:
 const express = require('express');
 const router = express.Router();
 const studentController = require('../controllers/student.controller');
@@ -29,7 +29,17 @@ router.post('/projects/:projectId/media', uploadMiddleware.uploadProjectMedia, u
 router.get('/assigned-jobs', studentController.getAssignedJobs);
 router.get('/assigned-jobs/:id', studentController.getJobDetails);
 
-router.get('/messages', studentController.getMyMessages); 
+// Mesajlar
+router.get('/messages', studentController.getMyMessages);
 router.put('/messages/:id/read', studentController.markMessageAsRead);
+
+// Etkinlikler
+router.get('/events', studentController.getActiveEvents);
+router.get('/events/:id', studentController.getEventDetails);
+
+// PROJE FİKRİ GÖRÜNTÜLEME (öğrenci için sadece okuma)
+router.get('/project-ideas', studentController.getActiveProjectIdeas);
+router.get('/project-ideas/:id', studentController.getProjectIdeaDetails);
+router.get('/project-ideas/:id/similar', studentController.getSimilarProjectIdeas);
 
 module.exports = router;

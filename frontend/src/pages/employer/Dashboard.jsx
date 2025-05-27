@@ -13,11 +13,11 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        
+
         // Profil ve iş ilanlarını getir
         const profileResponse = await getEmployerProfile();
         const jobsResponse = await getEmployerJobs();
-        
+
         setProfile(profileResponse.data);
         setJobs(jobsResponse.data);
         setLoading(false);
@@ -43,7 +43,7 @@ const Dashboard = () => {
     };
 
     const statusInfo = statusMap[status] || { color: 'bg-gray-100 text-gray-800', label: status };
-    
+
     return (
       <span className={`px-2 py-1 rounded-full text-xs ${statusInfo.color}`}>
         {statusInfo.label}
@@ -69,9 +69,9 @@ const Dashboard = () => {
           <div className="flex items-center mb-4">
             <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 mr-4">
               {profile?.profileImage ? (
-                <img 
-                  src={`/uploads/profile-images/${profile.profileImage}`} 
-                  alt={profile.fullName} 
+                <img
+                  src={`/uploads/profile-images/${profile.profileImage}`}
+                  alt={profile.fullName}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     e.target.onerror = null;
@@ -124,14 +124,20 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold mb-4">Hızlı İşlemler</h3>
           <div className="space-y-3">
-            <Link 
-              to="/employer/jobs/create" 
+            <Link
+              to="/employer/jobs/create"
               className="block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors text-center"
             >
               + Yeni İş İlanı Oluştur
             </Link>
-            <Link 
-              to="/employer/messages" 
+            <Link
+              to="/employer/developer-request"
+              className="block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md transition-colors text-center"
+            >
+              + Yazılımcı Talep Et
+            </Link>
+            <Link
+              to="/employer/messages"
               className="block bg-gray-100 hover:bg-gray-200 text-gray-800 py-2 px-4 rounded-md transition-colors text-center"
             >
               Mesajları Görüntüle
@@ -152,8 +158,8 @@ const Dashboard = () => {
         {jobs.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
             <p className="mb-4">Henüz bir iş ilanı oluşturmadınız.</p>
-            <Link 
-              to="/employer/jobs/create" 
+            <Link
+              to="/employer/jobs/create"
               className="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md transition-colors"
             >
               İlk İlanınızı Oluşturun

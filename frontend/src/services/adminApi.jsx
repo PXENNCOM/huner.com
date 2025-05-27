@@ -35,9 +35,70 @@ export const mesajSistemi = {
   mesajIstatistikleriGetir: (mesajId) => api.get(`/admin/messages/${mesajId}/stats`)
 };
 
+// Etkinlik yönetimi
+export const getEvents = () => {
+  return api.get('/admin/events');
+};
+
+export const createEvent = (eventData) => {
+  return api.post('/admin/events', eventData);
+};
+
+export const getEventById = (id) => {
+  return api.get(`/admin/events/${id}`);
+};
+
+export const updateEvent = (id, eventData) => {
+  return api.put(`/admin/events/${id}`, eventData);
+};
+
+export const deleteEvent = (id) => {
+  return api.delete(`/admin/events/${id}`);
+};
+
+export const updateEventStatus = (id, status) => {
+  return api.put(`/admin/events/${id}/status`, { status });
+};
+
+// PROJE FİKRİ YÖNETİMİ
+export const projeYonetimi = {
+  tumProjeleriGetir: () => api.get('/admin/project-ideas'),
+  projeOlustur: (projeVerisi) => api.post('/admin/project-ideas', projeVerisi),
+  projeDetayGetir: (projeId) => api.get(`/admin/project-ideas/${projeId}`),
+  projeGuncelle: (projeId, projeVerisi) => api.put(`/admin/project-ideas/${projeId}`, projeVerisi),
+  projeSil: (projeId) => api.delete(`/admin/project-ideas/${projeId}`),
+  projeDurumunuGuncelle: (projeId, durum) => api.put(`/admin/project-ideas/${projeId}/status`, { status: durum })
+};
+
+// Proje fikri API fonksiyonları (alternatif kullanım için)
+export const getProjectIdeas = () => {
+  return api.get('/admin/project-ideas');
+};
+
+export const createProjectIdea = (projectData) => {
+  return api.post('/admin/project-ideas', projectData);
+};
+
+export const getProjectIdeaById = (id) => {
+  return api.get(`/admin/project-ideas/${id}`);
+};
+
+export const updateProjectIdea = (id, projectData) => {
+  return api.put(`/admin/project-ideas/${id}`, projectData);
+};
+
+export const deleteProjectIdea = (id) => {
+  return api.delete(`/admin/project-ideas/${id}`);
+};
+
+export const updateProjectIdeaStatus = (id, status) => {
+  return api.put(`/admin/project-ideas/${id}/status`, { status });
+};
+
 export default {
   ogrenciYonetimi,
   isYonetimi,
   isverenYonetimi,
-  mesajSistemi
+  mesajSistemi,
+  projeYonetimi
 };

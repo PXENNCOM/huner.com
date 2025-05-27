@@ -52,13 +52,26 @@ const SignUp = () => {
       return false;
     }
     
-    // LinkedIn URL kontrolü (opsiyonel alan, doldurulduysa kontrol et)
+    // Öğrenci seçildiyse LinkedIn ve GitHub zorunlu
+    if (formData.userType === 'student') {
+      if (!formData.linkedinProfile || formData.linkedinProfile.trim() === '') {
+        setError('Öğrenci hesabı için LinkedIn profili zorunludur!');
+        return false;
+      }
+      
+      if (!formData.githubProfile || formData.githubProfile.trim() === '') {
+        setError('Öğrenci hesabı için GitHub profili zorunludur!');
+        return false;
+      }
+    }
+    
+    // LinkedIn URL kontrolü (doldurulduysa kontrol et)
     if (formData.linkedinProfile && !formData.linkedinProfile.includes('linkedin.com')) {
       setError('Geçerli bir LinkedIn profil URL\'si girin!');
       return false;
     }
     
-    // GitHub URL kontrolü (opsiyonel alan, doldurulduysa kontrol et)
+    // GitHub URL kontrolü (doldurulduysa kontrol et)
     if (formData.githubProfile && !formData.githubProfile.includes('github.com')) {
       setError('Geçerli bir GitHub profil URL\'si girin!');
       return false;
@@ -84,8 +97,8 @@ const SignUp = () => {
         email: formData.email,
         password: formData.password,
         fullName: formData.fullName,
-        linkedinProfile: formData.linkedinProfile || null,
-        githubProfile: formData.githubProfile || null,
+        linkedinProfile: formData.userType === 'student' ? formData.linkedinProfile : null,
+        githubProfile: formData.userType === 'student' ? formData.githubProfile : null,
         userType: formData.userType
       };
       
@@ -166,32 +179,60 @@ const SignUp = () => {
           </div>
           
           <div>
-            <label htmlFor="linkedinProfile" className="block text-sm font-medium text-gray-700">LinkedIn Profili</label>
-            <input
-              type="url"
-              id="linkedinProfile"
-              name="linkedinProfile"
-              value={formData.linkedinProfile}
+            <label htmlFor="userType" className="block text-sm font-medium text-gray-700">Hesap Türü</label>
+            <select
+              id="userType"
+              name="userType"
+              value={formData.userType}
               onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="https://www.linkedin.com/in/kullaniciadi"
-            />
-            <p className="mt-1 text-xs text-gray-500">Opsiyonel</p>
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            >
+              <option value="student">Öğrenci</option>
+              <option value="employer">İşveren</option>
+            </select>
+            {formData.userType === 'student' && (
+              <p className="mt-1 text-xs text-gray-500">Öğrenci hesapları admin onayından sonra aktif olacaktır.</p>
+            )}
           </div>
           
-          <div>
-            <label htmlFor="githubProfile" className="block text-sm font-medium text-gray-700">GitHub Profili</label>
-            <input
-              type="url"
-              id="githubProfile"
-              name="githubProfile"
-              value={formData.githubProfile}
-              onChange={handleChange}
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="https://github.com/kullaniciadi"
-            />
-            <p className="mt-1 text-xs text-gray-500">Opsiyonel</p>
-          </div>
+          {/* LinkedIn ve GitHub alanları sadece öğrenci seçildiğinde gösteriliyor */}
+          {formData.userType === 'student' && (
+            <>
+              <div>
+                <label htmlFor="linkedinProfile" className="block text-sm font-medium text-gray-700">
+                  LinkedIn Profili <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  id="linkedinProfile"
+                  name="linkedinProfile"
+                  value={formData.linkedinProfile}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="https://www.linkedin.com/in/kullaniciadi"
+                />
+                <p className="mt-1 text-xs text-gray-500">Zorunlu alan</p>
+              </div>
+              
+              <div>
+                <label htmlFor="githubProfile" className="block text-sm font-medium text-gray-700">
+                  GitHub Profili <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="url"
+                  id="githubProfile"
+                  name="githubProfile"
+                  value={formData.githubProfile}
+                  onChange={handleChange}
+                  required
+                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="https://github.com/kullaniciadi"
+                />
+                <p className="mt-1 text-xs text-gray-500">Zorunlu alan</p>
+              </div>
+            </>
+          )}
           
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">Şifre</label>
@@ -220,23 +261,6 @@ const SignUp = () => {
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="••••••••"
             />
-          </div>
-          
-          <div>
-            <label htmlFor="userType" className="block text-sm font-medium text-gray-700">Hesap Türü</label>
-            <select
-              id="userType"
-              name="userType"
-              value={formData.userType}
-              onChange={handleChange}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
-            >
-              <option value="student">Öğrenci</option>
-              <option value="employer">İşveren</option>
-            </select>
-            {formData.userType === 'student' && (
-              <p className="mt-1 text-xs text-gray-500">Öğrenci hesapları admin onayından sonra aktif olacaktır.</p>
-            )}
           </div>
           
           <div>

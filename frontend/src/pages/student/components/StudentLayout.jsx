@@ -2,17 +2,17 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
-import Header from '../../../partials/Header';
 import Footer from '../../../partials/Footer';
 
-// Icon import ediyoruz (React Icons kullanıyoruz)
 import { 
   MdDashboard, 
   MdPerson, 
   MdWorkOutline, 
   MdCollections,
   MdMessage,
-  MdSettings
+  MdSettings,
+  MdEventNote,
+  MdContactSupport 
 } from 'react-icons/md';
 
 const StudentLayout = ({ children }) => {
@@ -39,6 +39,16 @@ const StudentLayout = ({ children }) => {
       path: '/student/jobs', 
       name: 'İşler', 
       icon: <MdWorkOutline className="w-5 h-5 mr-2" /> 
+    },
+    { 
+      path: '/student/events', 
+      name: 'Etkinlikler', 
+      icon: <MdEventNote className="w-5 h-5 mr-2" /> 
+    },
+    { 
+      path: '/student/project-ideas', 
+      name: 'Proje Fikirleri', 
+      icon: <MdContactSupport  className="w-5 h-5 mr-2" /> 
     },
     { 
       path: '/student/messages', 

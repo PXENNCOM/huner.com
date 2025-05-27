@@ -26,6 +26,10 @@ import StudentJobs from './pages/student/Jobs';
 import StudentJobDetail from './pages/student/JobDetail';
 import StudentSettings from './pages/student/Settings';
 import StudentMessage from './pages/student/Messages';
+import StudentEvents from './pages/student/Events';
+import StudentEventDetail from './pages/student/EventDetail';
+import StudentProjectIdeas from './pages/student/ProjectIdeas';
+import StudentProjectIdeaDetail from './pages/student/ProjectIdeaDetail';
 
 // İşveren sayfaları
 import EmployerDashboard from './pages/employer/Dashboard';
@@ -33,6 +37,12 @@ import EmployerProfile from './pages/employer/Profile';
 import EmployerJobs from './pages/employer/Jops';
 import CreateJob from './pages/employer/CreateJob';
 import EmployerJobDetail from './pages/employer/JobDetail';
+import EmployerMessages from './pages/employer/Messages';
+import DeveloperRequestForm from './pages/employer/DeveloperRequestForm';
+import DeveloperRequests from './pages/employer/DeveloperRequests';
+import DeveloperRequestDetail from './pages/employer/DeveloperRequestDetail';
+import DeveloperRequestEdit from './pages/employer/DeveloperRequestEdit';
+
 
 // Admin sayfaları
 import AdminDashboard from './pages/admin/Dashboard';
@@ -43,6 +53,16 @@ import AdminEmployers from './pages/admin/Employers';
 import AdminJobs from './pages/admin/Jobs';
 import AdminJobAssignment from './pages/admin/JobAssignment';
 import AdminMessages from './pages/admin/Messages';
+import AdminEvents from './pages/admin/Events';
+import AdminCreateEvent from './pages/admin/CreateEvent';
+import AdminEditEvent from './pages/admin/EditEvent';
+import AdminProjectIdeas from './pages/admin/ProjectIdeas';
+import AdminCreateProjectIdea from './pages/admin/CreateProjectIdea';
+import AdminEditProjectIdea from './pages/admin/EditProjectIdea';
+
+//test
+import Test from './test';
+
 
 // Auth Provider
 import { AuthProvider } from './contexts/AuthContext';
@@ -74,7 +94,7 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/reset-password" element={<ResetPassword />} />
-        
+
         {/* Protected student routes */}
         <Route path="/student/dashboard" element={
           <ProtectedRoute requiredRole="student">
@@ -111,9 +131,19 @@ function App() {
             <StudentJobDetail />
           </ProtectedRoute>
         } />
-         <Route path="/student/messages" element={
+        <Route path="/student/messages" element={
           <ProtectedRoute requiredRole="student">
             <StudentMessage />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/events" element={
+          <ProtectedRoute requiredRole="student">
+            <StudentEvents />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/events/:id" element={
+          <ProtectedRoute requiredRole="student">
+            <StudentEventDetail />
           </ProtectedRoute>
         } />
         <Route path="/student/settings" element={
@@ -121,8 +151,18 @@ function App() {
             <StudentSettings />
           </ProtectedRoute>
         } />
-        
-        {/* Protected employer routes */}
+
+        <Route path="/student/project-ideas" element={
+          <ProtectedRoute requiredRole="student">
+            <StudentProjectIdeas />
+          </ProtectedRoute>
+        } />
+        <Route path="/student/project-ideas/:id" element={
+          <ProtectedRoute requiredRole="student">
+            <StudentProjectIdeaDetail />
+          </ProtectedRoute>
+        } />
+
         <Route path="/employer/dashboard" element={
           <ProtectedRoute requiredRole="employer">
             <EmployerDashboard />
@@ -148,8 +188,37 @@ function App() {
             <EmployerJobDetail />
           </ProtectedRoute>
         } />
+        <Route path="/employer/messages" element={
+          <ProtectedRoute requiredRole="employer">
+            <EmployerMessages />
+          </ProtectedRoute>
+        } />
 
-        
+        <Route path="/employer/developer-request" element={
+          <ProtectedRoute requiredRole="employer">
+            <DeveloperRequestForm />
+          </ProtectedRoute>
+        } />
+        <Route path="/employer/developer-requests" element={
+          <ProtectedRoute requiredRole="employer">
+            <DeveloperRequests />
+          </ProtectedRoute>
+        } />
+        <Route path="/employer/developer-requests/:id" element={
+          <ProtectedRoute requiredRole="employer">
+            <DeveloperRequestDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/employer/developer-requests/:id/edit" element={
+          <ProtectedRoute requiredRole="employer">
+            <DeveloperRequestEdit />
+          </ProtectedRoute>
+        } />
+
+
+
+
+
         {/* Protected admin routes */}
         <Route path="/admin/dashboard" element={
           <ProtectedRoute requiredRole="admin">
@@ -191,6 +260,39 @@ function App() {
             <AdminMessages />
           </ProtectedRoute>
         } />
+        <Route path="/admin/events" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminEvents />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/events/create" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminCreateEvent />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/events/edit/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminEditEvent />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/project-ideas" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminProjectIdeas />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/project-ideas/create" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminCreateProjectIdea />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/project-ideas/edit/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminEditProjectIdea />
+          </ProtectedRoute>
+        } />
+
+        <Route path="/test" element={<Test />} />
+
       </Routes>
     </AuthProvider>
   );

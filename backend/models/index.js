@@ -1,4 +1,4 @@
-// models/index.js
+// models/index.js - ProjectIdea modelini ekleyin
 const { Sequelize, DataTypes } = require('sequelize');
 const config = require('../config/config');
 
@@ -25,6 +25,10 @@ db.Job = require('./job.model')(sequelize, DataTypes);
 db.StudentProject = require('./studentProject.model')(sequelize, DataTypes);
 db.AdminMessage = require('./AdminMessage')(sequelize, DataTypes);
 db.MessageRecipient = require('./MessageRecipient')(sequelize, DataTypes);
+db.Event = require('./Event')(sequelize, DataTypes);
+db.ProjectIdea = require('./ProjectIdea')(sequelize, DataTypes); 
+db.DeveloperRequest = require('./developerRequest.model')(sequelize, DataTypes);
+
 
 // İlişkileri tanımla
 db.User.hasOne(db.EmployerProfile, { foreignKey: 'userId' });
@@ -46,5 +50,12 @@ db.StudentProfile.hasMany(db.Job, { foreignKey: 'assignedTo', as: 'AssignedJobs'
 // AdminMessage ilişkileri
 db.AdminMessage.hasMany(db.MessageRecipient, { foreignKey: 'messageId' });
 db.MessageRecipient.belongsTo(db.AdminMessage, { foreignKey: 'messageId' });
+
+// DeveloperRequest ilişkileri
+db.EmployerProfile.hasMany(db.DeveloperRequest, { foreignKey: 'employerId' });
+db.DeveloperRequest.belongsTo(db.EmployerProfile, { foreignKey: 'employerId' });
+
+// Event modeli için ilişkiler (gelecekte kullanım için hazırlandı)
+// ProjectIdea modeli için ilişkiler (gelecekte kullanım için hazırlandı)
 
 module.exports = db;

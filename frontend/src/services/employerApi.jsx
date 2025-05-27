@@ -3,6 +3,10 @@ import api from './api';
 
 // İşveren profil hizmetleri
 export const getEmployerProfile = () => {
+  console.log('Calling getEmployerProfile, API base URL:', api.defaults.baseURL);
+  const fullUrl = `${api.defaults.baseURL}/employer/profile`;
+  console.log('Full URL being called:', fullUrl);
+  
   return api.get('/employer/profile');
 };
 
@@ -51,6 +55,27 @@ export const markMessageAsRead = (messageId) => {
   return api.put(`/employer/messages/${messageId}/read`);
 };
 
+// Yazılımcı talep fonksiyonları
+export const createDeveloperRequest = (requestData) => {
+  return api.post('/employer/developer-requests', requestData);
+};
+
+export const getDeveloperRequests = (params = {}) => {
+  return api.get('/employer/developer-requests', { params });
+};
+
+export const getDeveloperRequestById = (id) => {
+  return api.get(`/employer/developer-requests/${id}`);
+};
+
+export const updateDeveloperRequest = (id, requestData) => {
+  return api.put(`/employer/developer-requests/${id}`, requestData);
+};
+
+export const cancelDeveloperRequest = (id) => {
+  return api.delete(`/employer/developer-requests/${id}`);
+};
+
 export default {
   getEmployerProfile,
   updateEmployerProfile,
@@ -60,5 +85,10 @@ export default {
   uploadJobMedia,
   getStudentDetails,
   getEmployerMessages,
-  markMessageAsRead
+  markMessageAsRead,
+   createDeveloperRequest,
+  getDeveloperRequests,
+  getDeveloperRequestById,
+  updateDeveloperRequest,
+  cancelDeveloperRequest
 };
