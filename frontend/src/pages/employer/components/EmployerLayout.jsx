@@ -1,134 +1,251 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import {
+  MdDashboard,
+  MdPerson,
+  MdCode,
+  MdMessage,
+  MdWork,
+  MdLogout
+} from 'react-icons/md';
 
-const EmployerLayout = ({ children }) => {
-  const { user, logout } = useAuth();
-  const location = useLocation();
+import EmployerProfilePanel from './Profile/EmployerProfilePanel';
+import DeveloperRequestsPanel from './DeveloperRequests/DeveloperRequestsPanel';
+import MessagesPanel from './Messages/MessagesPanel';
+import JobsPanel from './jops/JobsPanel';
+
+const EmployerLayout = ({ 
+  children,
+  // Dashboard'dan gelen panel state'leri (opsiyonel)
+  isProfilePanelOpen: externalIsProfilePanelOpen,
+  setIsProfilePanelOpen: externalSetIsProfilePanelOpen,
+  isDeveloperRequestsPanelOpen: externalIsDeveloperRequestsPanelOpen,
+  setIsDeveloperRequestsPanelOpen: externalSetIsDeveloperRequestsPanelOpen,
+  isJobsPanelOpen: externalIsJobsPanelOpen,
+  setIsJobsPanelOpen: externalSetIsJobsPanelOpen,
+  isMessagesPanelOpen: externalIsMessagesPanelOpen,
+  setIsMessagesPanelOpen: externalSetIsMessagesPanelOpen
+}) => {
   const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const { user, logout } = useAuth();
+  
+  // Internal state'ler (fallback olarak)
+  const [internalIsProfilePanelOpen, setInternalIsProfilePanelOpen] = useState(false);
+  const [internalIsDeveloperRequestsPanelOpen, setInternalIsDeveloperRequestsPanelOpen] = useState(false);
+  const [internalIsJobsPanelOpen, setInternalIsJobsPanelOpen] = useState(false);
+  const [internalIsMessagesPanelOpen, setInternalIsMessagesPanelOpen] = useState(false);
 
-  const menuItems = [
-    { path: '/employer/dashboard', label: 'Ana Sayfa', icon: '📊' },
-    { path: '/employer/profile', label: 'Profil', icon: '👤' },
-    { path: '/employer/jobs', label: 'İş İlanları', icon: '💼' },
-    { path: '/employer/jobs/create', label: 'Yeni İlan', icon: '➕' },
-    { path: '/employer/messages', label: 'Mesajlar', icon: '✉️' }
+  // External props varsa onları kullan, yoksa internal state'leri kullan
+  const isProfilePanelOpen = externalIsProfilePanelOpen !== undefined ? externalIsProfilePanelOpen : internalIsProfilePanelOpen;
+  const setIsProfilePanelOpen = externalSetIsProfilePanelOpen || setInternalIsProfilePanelOpen;
+  
+  const isDeveloperRequestsPanelOpen = externalIsDeveloperRequestsPanelOpen !== undefined ? externalIsDeveloperRequestsPanelOpen : internalIsDeveloperRequestsPanelOpen;
+  const setIsDeveloperRequestsPanelOpen = externalSetIsDeveloperRequestsPanelOpen || setInternalIsDeveloperRequestsPanelOpen;
+  
+  const isJobsPanelOpen = externalIsJobsPanelOpen !== undefined ? externalIsJobsPanelOpen : internalIsJobsPanelOpen;
+  const setIsJobsPanelOpen = externalSetIsJobsPanelOpen || setInternalIsJobsPanelOpen;
+  
+  const isMessagesPanelOpen = externalIsMessagesPanelOpen !== undefined ? externalIsMessagesPanelOpen : internalIsMessagesPanelOpen;
+  const setIsMessagesPanelOpen = externalSetIsMessagesPanelOpen || setInternalIsMessagesPanelOpen;
+
+  const navigationLinks = [
+    { 
+      path: '/employer/dashboard', 
+      name: 'Ana Sayfa', 
+      icon: MdDashboard
+    },
+    { 
+      path: '/employer/profile', 
+      name: 'Profil', 
+      icon: MdPerson,
+      isProfile: true 
+    },
+    { 
+      path: '/employer/developer-requests', 
+      name: 'Yazılımcı Taleplerim', 
+      icon: MdCode,
+      isDeveloperRequests: true
+    },
+    { 
+      path: '/employer/jobs', 
+      name: 'İş İlanları', 
+      icon: MdWork,
+      isJobs: true
+    },
+    { 
+      path: '/employer/messages', 
+      name: 'Mesajlar', 
+      icon: MdMessage,
+      isMessages: true
+    }
   ];
 
-  const isActive = (path) => location.pathname === path;
-
-  const handleLogout = () => {
-    logout();
-    navigate('/signin');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/signin');
+    } catch (error) {
+      console.error('Çıkış yapılırken hata:', error);
+    }
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  const isActivePath = (path) => {
+    return location.pathname === path;
+  };
+
+  const handleNavigation = (link) => {
+    if (link.isProfile) {
+      setIsProfilePanelOpen(true);
+      setIsDeveloperRequestsPanelOpen(false);
+      setIsMessagesPanelOpen(false);
+      setIsJobsPanelOpen(false);
+    } else if (link.isDeveloperRequests) {
+      setIsDeveloperRequestsPanelOpen(true);
+      setIsProfilePanelOpen(false);
+      setIsMessagesPanelOpen(false);
+      setIsJobsPanelOpen(false);
+    } else if (link.isJobs) {
+      setIsJobsPanelOpen(true);
+      setIsProfilePanelOpen(false);
+      setIsDeveloperRequestsPanelOpen(false);
+      setIsMessagesPanelOpen(false);
+    } else if (link.isMessages) {
+      setIsMessagesPanelOpen(true);
+      setIsProfilePanelOpen(false);
+      setIsDeveloperRequestsPanelOpen(false);
+      setIsJobsPanelOpen(false);
+    } else {
+      navigate(link.path);
+      setIsProfilePanelOpen(false);
+      setIsDeveloperRequestsPanelOpen(false);
+      setIsMessagesPanelOpen(false);
+      setIsJobsPanelOpen(false);
+    }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
-      {/* Header (Mobile) */}
-      <header className="bg-white shadow-sm py-4 px-6 md:hidden">
-        <div className="flex justify-between items-center">
-          <h1 className="text-xl font-bold text-blue-600">Hüner İşveren</h1>
-          <button
-            onClick={toggleMobileMenu}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
-          >
-            <svg
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              {isMobileMenuOpen ? (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              ) : (
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M4 6h16M4 12h16M4 18h16"
-                />
-              )}
-            </svg>
-          </button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900 relative">
+      <main className="w-full px-4 py-6 pb-40">
+        {children}
+      </main>
+
+      {/* Panels */}
+      <EmployerProfilePanel 
+        isOpen={isProfilePanelOpen}
+        onClose={() => setIsProfilePanelOpen(false)}
+      />
+      
+      <DeveloperRequestsPanel 
+        isOpen={isDeveloperRequestsPanelOpen}
+        onClose={() => setIsDeveloperRequestsPanelOpen(false)}
+      />
+
+      <JobsPanel 
+        isOpen={isJobsPanelOpen}
+        onClose={() => setIsJobsPanelOpen(false)}
+      />
+
+      <MessagesPanel 
+        isOpen={isMessagesPanelOpen}
+        onClose={() => setIsMessagesPanelOpen(false)}
+      />
+
+      {/* Bottom Navigation */}
+      <div className="fixed bottom-14 left-0 right-0 z-40">
+        <div className="relative max-w-lg mx-auto px-4 py-3">
+          <nav className="flex items-center justify-center">
+            <div className="flex items-center bg-blue-800/90 backdrop-blur-xl rounded-3xl shadow-2xl border border-blue-700/50 p-1.5 space-x-1">
+              {/* Left side icons (first 3) */}
+              <div className="flex items-center space-x-1">
+                {navigationLinks.slice(0, 3).map((link) => {
+                  const IconComponent = link.icon;
+                  const isActive = isActivePath(link.path) || 
+                                  (link.isProfile && isProfilePanelOpen) ||
+                                  (link.isDeveloperRequests && isDeveloperRequestsPanelOpen);
+                  
+                  return (
+                    <button
+                      key={link.path}
+                      onClick={() => handleNavigation(link)}
+                      className={`relative p-3 rounded-2xl transition-all duration-300 group ${
+                        isActive
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 transform scale-105'
+                          : 'text-blue-200 hover:text-blue-100 hover:bg-blue-700/50 hover:scale-105'
+                      }`}
+                      title={link.name}
+                    >
+                      <IconComponent className="w-6 h-6" />
+                      
+                      {/* Active indicator dot */}
+                      {isActive && (
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-300 rounded-full animate-pulse"></div>
+                      )}
+                      
+                      {/* Ripple effect */}
+                      <div className={`absolute inset-0 rounded-2xl transition-all duration-300 ${
+                        isActive ? '' : 'group-hover:bg-blue-500/10'
+                      }`}></div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Center logout button */}
+              <div className="mx-2">
+                <button
+                  onClick={handleLogout}
+                  className="p-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full shadow-xl shadow-red-500/30 hover:shadow-2xl hover:shadow-red-500/40 transform hover:scale-110 transition-all duration-300 group relative overflow-hidden"
+                  title="Çıkış Yap"
+                >
+                  <MdLogout className="w-6 h-6 relative z-10 group-hover:rotate-12 transition-transform duration-300" />
+                  
+                  {/* Animated background */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-red-600 to-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  
+                  {/* Pulse ring */}
+                  <div className="absolute inset-0 rounded-full bg-red-400 opacity-0 group-hover:opacity-30 animate-ping"></div>
+                </button>
+              </div>
+
+              {/* Right side icons (last 2) */}
+              <div className="flex items-center space-x-1">
+                {navigationLinks.slice(3).map((link) => {
+                  const IconComponent = link.icon;
+                  const isActive = isActivePath(link.path) || 
+                                  (link.isJobs && isJobsPanelOpen) ||
+                                  (link.isMessages && isMessagesPanelOpen);
+                  
+                  return (
+                    <button
+                      key={link.path}
+                      onClick={() => handleNavigation(link)}
+                      className={`relative p-3 rounded-2xl transition-all duration-300 group ${
+                        isActive
+                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 transform scale-105'
+                          : 'text-blue-200 hover:text-blue-100 hover:bg-blue-700/50 hover:scale-105'
+                      }`}
+                      title={link.name}
+                    >
+                      <IconComponent className="w-6 h-6" />
+                      
+                      {/* Active indicator dot */}
+                      {isActive && (
+                        <div className="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-300 rounded-full animate-pulse"></div>
+                      )}
+                      
+                      {/* Ripple effect */}
+                      <div className={`absolute inset-0 rounded-2xl transition-all duration-300 ${
+                        isActive ? '' : 'group-hover:bg-blue-500/10'
+                      }`}></div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </nav>
         </div>
-
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <nav className="mt-4 space-y-1">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  isActive(item.path)
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <span className="mr-3">{item.icon}</span>
-                {item.label}
-              </Link>
-            ))}
-            <button
-              onClick={handleLogout}
-              className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100"
-            >
-              <span className="mr-3">🚪</span>
-              Çıkış Yap
-            </button>
-          </nav>
-        )}
-      </header>
-
-      <div className="flex flex-1">
-        {/* Sidebar (Desktop) */}
-        <aside className="hidden md:block w-64 bg-white shadow-md">
-          <div className="p-4 border-b">
-            <h1 className="text-2xl font-bold text-blue-600">Hüner İşveren</h1>
-            <p className="text-sm text-gray-600">{user?.email}</p>
-          </div>
-
-          <nav className="mt-6 px-4 space-y-1">
-            {menuItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center px-4 py-3 rounded-md font-medium ${
-                  isActive(item.path)
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <span className="mr-3">{item.icon}</span>
-                <span>{item.label}</span>
-              </Link>
-            ))}
-
-            <button
-              onClick={handleLogout}
-              className="flex items-center w-full text-left px-4 py-3 mt-4 rounded-md font-medium text-gray-700 hover:bg-gray-100"
-            >
-              <span className="mr-3">🚪</span>
-              <span>Çıkış Yap</span>
-            </button>
-          </nav>
-        </aside>
-
-        {/* Main Content */}
-        <main className="flex-1 p-6 overflow-auto">
-          {children}
-        </main>
       </div>
     </div>
   );

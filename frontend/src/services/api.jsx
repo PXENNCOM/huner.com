@@ -113,7 +113,55 @@ export const authService = {
   getCurrentUser: () => {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
+  },
+
+   // Şifre sıfırlama fonksiyonları
+  requestPasswordReset: async (email) => {
+    const response = await api.post('/auth/request-password-reset', { email });
+    return response.data;
+  },
+  
+  verifyResetCode: async (resetToken, code) => {
+    const response = await api.post('/auth/verify-reset-code', { 
+      resetToken, 
+      code 
+    });
+    return response.data;
+  },
+  
+  resetPassword: async (resetToken, newPassword, confirmPassword) => {
+    const response = await api.post('/auth/reset-password', { 
+      resetToken, 
+      newPassword, 
+      confirmPassword 
+    });
+    return response.data;
   }
+};
+
+// Şifre sıfırlama isteği gönder
+export const requestPasswordReset = async (email) => {
+  const response = await api.post('/auth/request-password-reset', { email });
+  return response.data;
+};
+
+// SMS kodunu doğrula
+export const verifyResetCode = async (resetToken, code) => {
+  const response = await api.post('/auth/verify-reset-code', { 
+    resetToken, 
+    code 
+  });
+  return response.data;
+};
+
+// Yeni şifre belirle
+export const resetPassword = async (resetToken, newPassword, confirmPassword) => {
+  const response = await api.post('/auth/reset-password', { 
+    resetToken, 
+    newPassword, 
+    confirmPassword 
+  });
+  return response.data;
 };
 
 // Öğrenci profili al
@@ -219,6 +267,32 @@ export const getProjectIdeaDetails = (id) => {
 
 export const getSimilarProjectIdeas = (id) => {
   return api.get(`/student/project-ideas/${id}/similar`);
+};
+
+
+// İş deneyimlerini al
+export const getWorkExperiences = () => {
+  return api.get('/student/work-experiences');
+};
+
+// Tek iş deneyimi al
+export const getWorkExperience = (experienceId) => {
+  return api.get(`/student/work-experiences/${experienceId}`);
+};
+
+// Yeni iş deneyimi ekle
+export const addWorkExperience = (experienceData) => {
+  return api.post('/student/work-experiences', experienceData);
+};
+
+// İş deneyimi güncelle
+export const updateWorkExperience = (experienceId, experienceData) => {
+  return api.put(`/student/work-experiences/${experienceId}`, experienceData);
+};
+
+// İş deneyimi sil
+export const deleteWorkExperience = (experienceId) => {
+  return api.delete(`/student/work-experiences/${experienceId}`);
 };
 
 

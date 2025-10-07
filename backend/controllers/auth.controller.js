@@ -2,40 +2,350 @@
 const db = require('../models');
 const User = db.User;
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
+const nodemailer = require('nodemailer'); 
 
-// controllers/auth.controller.js - register fonksiyonunda
+// controllers/auth.controller.js
 exports.register = async (req, res) => {
+ try {
+   const { 
+     email, 
+     password, 
+     userType, 
+     fullName, 
+     linkedinProfile, 
+     githubProfile,
+     companyName,
+     position,
+     industry,
+     companyWebsite,
+     phoneNumber
+   } = req.body;
+   
+   // E-posta kontrolü
+   const existingUser = await User.findOne({ where: { email } });
+   if (existingUser) {
+     return res.status(400).json({ 
+       success: false,
+       message: 'Bu e-posta adresi zaten kullanılıyor.' 
+     });
+   }
+   
+   // Genel validasyonlar
+   if (!email || email.trim() === '') {
+     return res.status(400).json({
+       success: false,
+       message: 'E-posta adresi gereklidir'
+     });
+   }
+   
+   // Email format kontrolü
+   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+   if (!emailRegex.test(email)) {
+     return res.status(400).json({
+       success: false,
+       message: 'Geçerli bir e-posta adresi girin'
+     });
+   }
+   
+   if (!password || password.length < 6) {
+     return res.status(400).json({
+       success: false,
+       message: 'Şifre en az 6 karakter olmalıdır'
+     });
+   }
+   
+   if (!fullName || fullName.trim() === '') {
+     return res.status(400).json({
+       success: false,
+       message: 'Ad Soyad gereklidir'
+     });
+   }
+   
+   // Öğrenci için validasyon
+   if (userType === 'student') {
+     if (!linkedinProfile || !linkedinProfile.includes('linkedin.com')) {
+       return res.status(400).json({
+         success: false,
+         message: 'Geçerli bir LinkedIn profili gereklidir'
+       });
+     }
+     
+     if (!githubProfile || !githubProfile.includes('github.com')) {
+       return res.status(400).json({
+         success: false,
+         message: 'Geçerli bir GitHub profili gereklidir'
+       });
+     }
+
+     if (!phoneNumber || phoneNumber.trim() === '') {
+       return res.status(400).json({
+         success: false,
+         message: 'Telefon numarası gereklidir'
+       });
+     }
+     
+     // Telefon numarası format kontrolü
+     const phoneRegex = /^[0-9+\-\s()]{10,}$/;
+     if (!phoneRegex.test(phoneNumber)) {
+       return res.status(400).json({
+         success: false,
+         message: 'Geçerli bir telefon numarası girin'
+       });
+     }
+   }
+   
+   // İşveren için validasyon
+   if (userType === 'employer') {
+     if (!companyName || companyName.trim() === '') {
+       return res.status(400).json({
+         success: false,
+         message: 'Şirket adı gereklidir'
+       });
+     }
+     
+     if (!position || position.trim() === '') {
+       return res.status(400).json({
+         success: false,
+         message: 'Pozisyon bilgisi gereklidir'
+       });
+     }
+     
+     if (!industry || industry.trim() === '') {
+       return res.status(400).json({
+         success: false,
+         message: 'Sektör bilgisi gereklidir'
+       });
+     }
+     
+     if (!companyWebsite || companyWebsite.trim() === '') {
+       return res.status(400).json({
+         success: false,
+         message: 'Şirket web sitesi gereklidir'
+       });
+     }
+     
+     if (!phoneNumber || phoneNumber.trim() === '') {
+       return res.status(400).json({
+         success: false,
+         message: 'Telefon numarası gereklidir'
+       });
+     }
+     
+     // Telefon numarası format kontrolü
+     const phoneRegex = /^[0-9+\-\s()]{10,}$/;
+     if (!phoneRegex.test(phoneNumber)) {
+       return res.status(400).json({
+         success: false,
+         message: 'Geçerli bir telefon numarası girin'
+       });
+     }
+   }
+   
+   // Şifre hashleme
+   const hashedPassword = await bcrypt.hash(password, 10);
+   
+   // 6 haneli email doğrulama kodu oluştur
+   const emailVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+   const emailVerificationExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 dakika geçerli
+   
+   // Kullanıcı oluşturma - email doğrulanmamış olarak
+   const user = await User.create({
+     email,
+     password: hashedPassword,
+     userType,
+     approvalStatus: userType === 'student' ? 'pending' : 'approved',
+     isEmailVerified: false,
+     emailVerificationCode: emailVerificationCode,
+     emailVerificationExpires: emailVerificationExpires
+   });
+   
+   // Profil bilgilerini geçici olarak kaydet (email doğrulandıktan sonra kullanılacak)
+   const tempProfileData = {
+     userId: user.id,
+     fullName: fullName,
+     phoneNumber: phoneNumber,
+     ...(userType === 'student' && {
+       linkedinProfile: linkedinProfile,
+       githubProfile: githubProfile
+     }),
+     ...(userType === 'employer' && {
+       companyName: companyName,
+       position: position,
+       industry: industry,
+       companyWebsite: companyWebsite
+     })
+   };
+   
+   // Geçici profil verilerini kullanıcıya kaydet
+   await user.update({
+     tempProfileData: JSON.stringify(tempProfileData)
+   });
+   
+   // Email doğrulama kodu gönder
+   try {
+     const emailResult = await sendVerificationEmail(email, emailVerificationCode, fullName);
+     
+     if (emailResult.success) {
+       res.status(201).json({
+         success: true,
+         message: 'Kayıt başarılı! Email adresinize gönderilen 6 haneli kodu girerek hesabınızı doğrulayın.',
+         userId: user.id,
+         emailSent: true,
+         needsEmailVerification: true
+       });
+     } else {
+       throw new Error('Email gönderilemedi');
+     }
+   } catch (emailError) {
+     console.error('Email gönderme hatası:', emailError);
+     
+     // Email gönderilemese bile kullanıcı oluşturuldu
+     res.status(201).json({
+       success: true,
+       message: 'Kayıt başarılı ancak doğrulama emaili gönderilemedi. Lütfen destek ekibi ile iletişime geçin.',
+       userId: user.id,
+       emailSent: false,
+       needsEmailVerification: true
+     });
+   }
+   
+ } catch (error) {
+   console.error('Kayıt hatası:', error);
+   res.status(500).json({ 
+     success: false,
+     message: 'Sunucu hatası oluştu',
+     error: process.env.NODE_ENV === 'development' ? error.message : undefined
+   });
+ }
+};
+
+exports.resendVerificationCode = async (req, res) => {
   try {
-    const { email, password, userType, fullName, linkedinProfile, githubProfile } = req.body;
+    const { userId } = req.body;
     
-    // E-posta kontrolü
-    const existingUser = await User.findOne({ where: { email } });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Bu e-posta adresi zaten kullanılıyor.' });
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kullanıcı ID gereklidir'
+      });
     }
     
-    // Şifre hashleme
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.findOne({ where: { id: userId } });
     
-    // Kullanıcı oluşturma
-    const user = await User.create({
-      email,
-      password: hashedPassword,
-      userType,
-      approvalStatus: userType === 'student' ? 'pending' : 'approved'
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Kullanıcı bulunamadı'
+      });
+    }
+    
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email adresi zaten doğrulanmış'
+      });
+    }
+    
+    // Yeni kod oluştur
+    const emailVerificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const emailVerificationExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 dakika geçerli
+    
+    await user.update({
+      emailVerificationCode: emailVerificationCode,
+      emailVerificationExpires: emailVerificationExpires
     });
     
-    // Öğrenci için otomatik profil oluştur
-    if (userType === 'student') {
+    // Profil bilgilerini al
+    const tempProfileData = JSON.parse(user.tempProfileData);
+    const fullName = tempProfileData.fullName;
+    
+    // Email gönder
+    try {
+      const emailResult = await sendVerificationEmail(user.email, emailVerificationCode, fullName);
+      
+      if (emailResult.success) {
+        res.status(200).json({
+          success: true,
+          message: 'Doğrulama kodu yeniden gönderildi'
+        });
+      } else {
+        throw new Error('Email gönderilemedi');
+      }
+    } catch (emailError) {
+      console.error('Email gönderme hatası:', emailError);
+      res.status(500).json({
+        success: false,
+        message: 'Email gönderilemedi, lütfen tekrar deneyin'
+      });
+    }
+    
+  } catch (error) {
+    console.error('Kod yeniden gönderme hatası:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Sunucu hatası oluştu'
+    });
+  }
+};
+
+
+// Email doğrulama kodu doğrulama
+exports.verifyEmail = async (req, res) => {
+  try {
+    const { userId, verificationCode } = req.body;
+    
+    if (!userId || !verificationCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kullanıcı ID ve doğrulama kodu gereklidir'
+      });
+    }
+    
+    // Kullanıcıyı bulma
+    const user = await User.findOne({
+      where: {
+        id: userId,
+        emailVerificationExpires: {
+          [db.Sequelize.Op.gt]: new Date()
+        }
+      }
+    });
+    
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Kullanıcı bulunamadı veya doğrulama kodu süresi dolmuş'
+      });
+    }
+    
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email adresi zaten doğrulanmış'
+      });
+    }
+    
+    // Kodu doğrula
+    if (user.emailVerificationCode !== verificationCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'Geçersiz doğrulama kodu'
+      });
+    }
+    
+    // Email doğrulandı, profilleri oluştur
+    const tempProfileData = JSON.parse(user.tempProfileData);
+    
+    if (user.userType === 'student') {
       await db.StudentProfile.create({
         userId: user.id,
-        // Gönderilen bilgileri kullan, yoksa null set et
-        fullName: fullName || null,
-        linkedinProfile: linkedinProfile || null,
-        githubProfile: githubProfile || null,
-        // Diğer alanlar için boş değerler
+        fullName: tempProfileData.fullName,
+        phoneNumber: tempProfileData.phoneNumber,
+        linkedinProfile: tempProfileData.linkedinProfile,
+        githubProfile: tempProfileData.githubProfile,
         age: null,
         city: null,
         school: null,
@@ -50,13 +360,15 @@ exports.register = async (req, res) => {
       });
     }
     
-    // İşveren için otomatik profil oluştur
-    if (userType === 'employer') {
+    if (user.userType === 'employer') {
       await db.EmployerProfile.create({
         userId: user.id,
-        fullName: fullName || null,
-        companyName: null,
-        phoneNumber: null,
+        fullName: tempProfileData.fullName,
+        companyName: tempProfileData.companyName,
+        position: tempProfileData.position,
+        industry: tempProfileData.industry,
+        companyWebsite: tempProfileData.companyWebsite,
+        phoneNumber: tempProfileData.phoneNumber,
         city: null,
         address: null,
         age: null,
@@ -64,27 +376,41 @@ exports.register = async (req, res) => {
       });
     }
     
-    // Token oluştur (isteğe bağlı)
+    // Email doğrulandı olarak işaretle ve geçici verileri temizle
+    await user.update({
+      isEmailVerified: true,
+      emailVerificationCode: null,
+      emailVerificationExpires: null,
+      tempProfileData: null
+    });
+    
+    // Token oluştur
     const token = jwt.sign(
       { id: user.id, userType: user.userType, email: user.email },
       config.jwtSecret,
       { expiresIn: '24h' }
     );
     
-    res.status(201).json({
-      message: 'Kullanıcı kaydı başarıyla tamamlandı',
+    res.status(200).json({
+      success: true,
+      message: user.userType === 'student' 
+        ? 'Email doğrulandı! Admin onayı bekleniyor.' 
+        : 'Email doğrulandı! Hesabınız aktif edildi.',
       userId: user.id,
       approvalStatus: user.approvalStatus,
-      token: token // isteğe bağlı, otomatik giriş için
+      token: token,
+      emailVerified: true
     });
+    
   } catch (error) {
-    console.error('Kayıt hatası:', error);
-    res.status(500).json({ 
-      message: 'Sunucu hatası oluştu',
-      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    console.error('Email doğrulama hatası:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Sunucu hatası oluştu'
     });
   }
 };
+
 
 // Kullanıcı girişi
 exports.login = async (req, res) => {
@@ -142,3 +468,373 @@ exports.login = async (req, res) => {
   }
 };
 
+
+
+
+exports.requestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    
+    // Email validasyonu
+    if (!email || email.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: 'E-posta adresi gereklidir'
+      });
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Geçerli bir e-posta adresi girin'
+      });
+    }
+    
+    // Kullanıcıyı bulma
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        message: 'Eğer bu e-posta adresine kayıtlı bir hesap varsa, şifre sıfırlama kodu gönderildi.'
+      });
+    }
+    
+    // 6 haneli güvenli kod oluştur
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 dakika geçerli
+    
+    // Kullanıcıya reset bilgilerini kaydet
+    await user.update({
+      resetPasswordToken: resetToken,
+      resetPasswordCode: resetCode,
+      resetPasswordExpires: resetTokenExpiry
+    });
+    
+    // Email gönderimi
+    try {
+      // Kullanıcı bilgilerini al
+      let userProfile = null;
+      if (user.userType === 'employer') {
+        userProfile = await db.EmployerProfile.findOne({ where: { userId: user.id } });
+      } else if (user.userType === 'student') {
+        userProfile = await db.StudentProfile.findOne({ where: { userId: user.id } });
+      }
+      
+      const userName = userProfile?.fullName || 'Değerli Kullanıcı';
+      
+      console.log('Email gönderiliyor:', email, 'Kod:', resetCode);
+      
+      // Email gönder
+      const emailResult = await sendResetCodeEmail(email, resetCode, userName);
+      
+      if (emailResult.success) {
+        res.status(200).json({
+          success: true,
+          message: 'Şifre sıfırlama kodu email adresinize gönderildi.',
+          resetToken: resetToken
+        });
+      } else {
+        throw new Error('Email gönderilemedi');
+      }
+      
+    } catch (emailError) {
+      console.error('Email gönderme hatası:', emailError);
+      
+      res.status(200).json({
+        success: true,
+        message: 'Şifre sıfırlama kodu gönderildi.',
+        resetToken: resetToken
+      });
+    }
+    
+  } catch (error) {
+    console.error('Şifre sıfırlama isteği hatası:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Sunucu hatası oluştu'
+    });
+  }
+};
+
+// Şifre sıfırlama kodunu doğrula
+exports.verifyResetCode = async (req, res) => {
+  try {
+    const { resetToken, code } = req.body;
+    
+    if (!resetToken || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token ve kod gereklidir'
+      });
+    }
+    
+    // Token'a göre kullanıcıyı bulma
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: {
+          [db.Sequelize.Op.gt]: new Date()
+        }
+      }
+    });
+    
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Geçersiz veya süresi dolmuş token'
+      });
+    }
+    
+    // Kodu doğrula
+    if (user.resetPasswordCode !== code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Geçersiz doğrulama kodu'
+      });
+    }
+    
+    res.status(200).json({
+      success: true,
+      message: 'Kod doğrulandı. Yeni şifrenizi belirleyebilirsiniz.',
+      verified: true
+    });
+    
+  } catch (error) {
+    console.error('Kod doğrulama hatası:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Sunucu hatası oluştu'
+    });
+  }
+};
+
+// Yeni şifre belirleme
+exports.resetPassword = async (req, res) => {
+  try {
+    const { resetToken, newPassword, confirmPassword } = req.body;
+    
+    // Validasyonlar
+    if (!resetToken || !newPassword || !confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Tüm alanlar gereklidir'
+      });
+    }
+    
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Şifreler eşleşmiyor'
+      });
+    }
+    
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'Şifre en az 6 karakter olmalıdır'
+      });
+    }
+    
+    // Token'a göre kullanıcıyı bulma
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: resetToken,
+        resetPasswordExpires: {
+          [db.Sequelize.Op.gt]: new Date()
+        }
+      }
+    });
+    
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Geçersiz veya süresi dolmuş token'
+      });
+    }
+    
+    // Yeni şifreyi hashle
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    // Şifreyi güncelle ve reset bilgilerini temizle
+    await user.update({
+      password: hashedPassword,
+      resetPasswordToken: null,
+      resetPasswordCode: null,
+      resetPasswordExpires: null
+    });
+    
+    res.status(200).json({
+      success: true,
+      message: 'Şifre başarıyla güncellendi. Artık yeni şifrenizle giriş yapabilirsiniz.'
+    });
+    
+  } catch (error) {
+    console.error('Şifre güncelleme hatası:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Sunucu hatası oluştu'
+    });
+  }
+};
+
+const sendVerificationEmail = async (email, verificationCode, userName) => {
+  try {
+    const transporter = createEmailTransporter();
+    
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: 'HÜNER - Email Doğrulama Kodu',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+            .header { background: linear-gradient(135deg, #004493, #0158C1); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+            .code-box { background: #004493; color: white; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0; border-radius: 10px; }
+            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
+            .warning { background: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; color: #155724; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>HÜNER</h1>
+              <h2>Email Doğrulama</h2>
+            </div>
+            <div class="content">
+              <p>Merhaba ${userName},</p>
+              <p>HÜNER platformuna hoş geldiniz! Hesabınızı aktifleştirmek için aşağıdaki 6 haneli kodu girin:</p>
+              
+              <div class="code-box">${verificationCode}</div>
+              
+              <div class="warning">
+                <strong>Önemli Bilgiler:</strong>
+                <ul>
+                  <li>Bu kod <strong>10 dakika</strong> geçerlidir</li>
+                  <li>Kodu kimseyle paylaşmayın</li>
+                  <li>Bu emaili siz almadıysanız, güvenliğiniz için bizimle iletişime geçin</li>
+                </ul>
+              </div>
+              
+              <p>Email doğrulamanızı tamamladıktan sonra hesabınızı kullanmaya başlayabilirsiniz.</p>
+              
+              <div class="footer">
+                <p>Bu otomatik bir mesajdır, lütfen yanıt vermeyiniz.</p>
+                <p>&copy; 2025 HÜNER Platform. Tüm hakları saklıdır.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Doğrulama emaili gönderildi:', info.messageId);
+    
+    return {
+      success: true,
+      messageId: info.messageId
+    };
+    
+  } catch (error) {
+    console.error('Email gönderme hatası:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};
+
+// Email transporter oluştur
+const createEmailTransporter = () => {
+  return nodemailer.createTransporter({
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: true, // SSL kullan
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+};
+
+// Email gönderme fonksiyonu
+const sendResetCodeEmail = async (email, resetCode, userName) => {
+  try {
+    const transporter = createEmailTransporter();
+    
+    const mailOptions = {
+      from: process.env.EMAIL_FROM,
+      to: email,
+      subject: 'HÜNER - Şifre Sıfırlama Kodu',
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <style>
+            .container { max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; }
+            .header { background: linear-gradient(135deg, #004493, #0158C1); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+            .content { background: #f8f9fa; padding: 30px; border-radius: 0 0 10px 10px; }
+            .code-box { background: #004493; color: white; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 20px 0; border-radius: 10px; }
+            .footer { text-align: center; color: #666; font-size: 12px; margin-top: 20px; }
+            .warning { background: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; color: #856404; margin: 20px 0; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>HÜNER</h1>
+              <h2>Şifre Sıfırlama İsteği</h2>
+            </div>
+            <div class="content">
+              <p>Merhaba ${userName || 'Değerli Kullanıcı'},</p>
+              <p>Hesabınız için şifre sıfırlama isteği aldık. Aşağıdaki 6 haneli kodu kullanarak yeni şifrenizi belirleyebilirsiniz:</p>
+              
+              <div class="code-box">${resetCode}</div>
+              
+              <div class="warning">
+                <strong>Önemli Uyarılar:</strong>
+                <ul>
+                  <li>Bu kod <strong>10 dakika</strong> geçerlidir</li>
+                  <li>Kodu kimseyle paylaşmayın</li>
+                  <li>Bu isteği siz yapmadıysanız, bu emaili dikkate almayın</li>
+                </ul>
+              </div>
+              
+              <p>Şifre sıfırlama işlemini tamamlamak için kodu girin ve yeni şifrenizi belirleyin.</p>
+              
+              <div class="footer">
+                <p>Bu otomatik bir mesajdır, lütfen yanıt vermeyiniz.</p>
+                <p>&copy; 2025 HÜNER Platform. Tüm hakları saklıdır.</p>
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `
+    };
+    
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email gönderildi:', info.messageId);
+    
+    return {
+      success: true,
+      messageId: info.messageId
+    };
+    
+  } catch (error) {
+    console.error('Email gönderme hatası:', error);
+    return {
+      success: false,
+      error: error.message
+    };
+  }
+};

@@ -9,6 +9,9 @@ const Profile = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     companyName: '',
+    position: '',
+    industry: '',
+    companyWebsite: '',
     phoneNumber: '',
     city: '',
     address: '',
@@ -33,10 +36,24 @@ const Profile = () => {
       setProfile(response.data);
       
       // Form verilerini doldur
-      const { fullName, companyName, phoneNumber, city, address, age, profileImage } = response.data;
+      const { 
+        fullName, 
+        companyName, 
+        position, 
+        industry, 
+        companyWebsite, 
+        phoneNumber, 
+        city, 
+        address, 
+        age, 
+        profileImage 
+      } = response.data;
       setFormData({
         fullName: fullName || '',
         companyName: companyName || '',
+        position: position || '',
+        industry: industry || '',
+        companyWebsite: companyWebsite || '',
         phoneNumber: phoneNumber || '',
         city: city || '',
         address: address || '',
@@ -59,6 +76,9 @@ const Profile = () => {
       setProfile({
         fullName: '',
         companyName: '',
+        position: '',
+        industry: '',
+        companyWebsite: '',
         phoneNumber: '',
         city: '',
         address: '',
@@ -250,6 +270,49 @@ const Profile = () => {
                   required
                 />
               </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="position">
+                  Pozisyon
+                </label>
+                <input
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  id="position"
+                  name="position"
+                  type="text"
+                  placeholder="İnsan Kaynakları Uzmanı, CTO, vs."
+                  value={formData.position}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="industry">
+                  Sektör
+                </label>
+                <select
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  id="industry"
+                  name="industry"
+                  value={formData.industry}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">Sektör Seçin</option>
+                  <option value="Teknoloji">🚀 Teknoloji</option>
+                  <option value="Finans">💰 Finans</option>
+                  <option value="Sağlık">🏥 Sağlık</option>
+                  <option value="E-ticaret">🛍️ E-ticaret</option>
+                  <option value="Eğitim">📚 Eğitim</option>
+                  <option value="İmalat">🏭 İmalat</option>
+                  <option value="İnşaat">🏗️ İnşaat</option>
+                  <option value="Otomotiv">🚗 Otomotiv</option>
+                  <option value="Medya">📺 Medya</option>
+                  <option value="Turizm">✈️ Turizm</option>
+                  <option value="Diğer">⚡ Diğer</option>
+                </select>
+              </div>
               
               <div>
                 <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="phoneNumber">
@@ -263,6 +326,7 @@ const Profile = () => {
                   placeholder="Telefon Numarası"
                   value={formData.phoneNumber}
                   onChange={handleChange}
+                  required
                 />
               </div>
               
@@ -278,6 +342,7 @@ const Profile = () => {
                   placeholder="Şehir"
                   value={formData.city}
                   onChange={handleChange}
+                  required
                 />
               </div>
               
@@ -298,6 +363,21 @@ const Profile = () => {
                 />
               </div>
             </div>
+
+            <div className="mt-6">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="companyWebsite">
+                Şirket Web Sitesi
+              </label>
+              <input
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="companyWebsite"
+                name="companyWebsite"
+                type="url"
+                placeholder="https://sirketiniz.com"
+                value={formData.companyWebsite}
+                onChange={handleChange}
+              />
+            </div>
             
             <div className="mt-6">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="address">
@@ -311,6 +391,7 @@ const Profile = () => {
                 placeholder="Adres"
                 value={formData.address}
                 onChange={handleChange}
+                required
               ></textarea>
             </div>
             
@@ -371,6 +452,13 @@ const Profile = () => {
                 <div>
                   <h2 className="text-xl font-semibold">{profile.fullName || 'İsim belirtilmemiş'}</h2>
                   <p className="text-gray-600">
+                    {profile.position ? (
+                      <span>{profile.position}</span>
+                    ) : (
+                      <span className="text-gray-400 italic">Pozisyon belirtilmemiş</span>
+                    )}
+                  </p>
+                  <p className="text-gray-600">
                     {profile.companyName ? (
                       <span>{profile.companyName}</span>
                     ) : (
@@ -410,13 +498,40 @@ const Profile = () => {
                         )}
                       </p>
                     </div>
+
+                    <div>
+                      <p className="text-sm text-gray-500">Şirket Web Sitesi</p>
+                      <p className="font-medium">
+                        {profile.companyWebsite ? (
+                          <a 
+                            href={profile.companyWebsite} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:underline"
+                          >
+                            {profile.companyWebsite}
+                          </a>
+                        ) : (
+                          <span className="text-gray-400 italic">Belirtilmemiş</span>
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h3 className="text-lg font-medium text-gray-800 mb-4">Diğer Bilgiler</h3>
+                  <h3 className="text-lg font-medium text-gray-800 mb-4">Şirket Bilgileri</h3>
                   
                   <div className="space-y-3">
+                    <div>
+                      <p className="text-sm text-gray-500">Sektör</p>
+                      <p className="font-medium">
+                        {profile.industry || (
+                          <span className="text-gray-400 italic">Belirtilmemiş</span>
+                        )}
+                      </p>
+                    </div>
+
                     <div>
                       <p className="text-sm text-gray-500">Yaş</p>
                       <p className="font-medium">

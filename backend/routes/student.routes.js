@@ -6,6 +6,8 @@ const uploadController = require('../controllers/upload.controller');
 const authMiddleware = require('../middleware/auth.middleware');
 const uploadMiddleware = require('../middleware/upload.middleware');
 
+
+
 // Tüm rotaları koruma
 router.use(authMiddleware.verifyToken, authMiddleware.isStudent);
 
@@ -41,5 +43,13 @@ router.get('/events/:id', studentController.getEventDetails);
 router.get('/project-ideas', studentController.getActiveProjectIdeas);
 router.get('/project-ideas/:id', studentController.getProjectIdeaDetails);
 router.get('/project-ideas/:id/similar', studentController.getSimilarProjectIdeas);
+
+
+// İş deneyimi yönetimi
+router.post('/work-experiences', studentController.addWorkExperience);
+router.get('/work-experiences', studentController.getWorkExperiences);
+router.get('/work-experiences/:id', studentController.getWorkExperience);
+router.put('/work-experiences/:id', studentController.updateWorkExperience);
+router.delete('/work-experiences/:id', studentController.deleteWorkExperience);
 
 module.exports = router;

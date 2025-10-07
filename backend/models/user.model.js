@@ -1,40 +1,51 @@
-// user.model.js
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true
-    },
+module.exports = (sequelize, Sequelize) => {
+  const User = sequelize.define("User", {
     email: {
-      type: DataTypes.STRING(100),
+      type: Sequelize.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
+      validate: {
+        isEmail: true
+      }
     },
     password: {
-      type: DataTypes.STRING(100),
+      type: Sequelize.STRING,
       allowNull: false
     },
     userType: {
-      type: DataTypes.ENUM('student', 'employer', 'admin'),
+      type: Sequelize.ENUM('student', 'employer', 'admin'),
+      allowNull: false,
       defaultValue: 'student'
     },
     approvalStatus: {
-      type: DataTypes.ENUM('pending', 'approved', 'rejected'),
+      type: Sequelize.ENUM('pending', 'approved', 'rejected'),
+      allowNull: false,
       defaultValue: 'pending'
     },
     rejectionReason: {
-      type: DataTypes.TEXT,
+      type: Sequelize.TEXT,
       allowNull: true
     },
-    isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true
+    resetPasswordToken: {
+      type: Sequelize.STRING,
+      allowNull: true
+    },
+    resetPasswordCode: {
+      type: Sequelize.STRING(6),
+      allowNull: true
+    },
+    resetPasswordExpires: {
+      type: Sequelize.DATE,
+      allowNull: true
+    },
+    createdAt: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
+    },
+    updatedAt: {
+      type: Sequelize.DATE,
+      defaultValue: Sequelize.NOW
     }
-  }, {
-    tableName: 'users',
-    timestamps: true
   });
-  
   return User;
 };

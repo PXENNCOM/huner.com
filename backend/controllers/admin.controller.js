@@ -284,40 +284,7 @@ exports.approveStudent = async (req, res) => {
   try {
     const userId = req.params.id;
     
-    const user = await db.User.findOne({
-      where: {
-        id: userId,
-        userType: 'student',
-        approvalStatus: 'pending'
-      }
-    });
-    
-    if (!user) {
-      return res.status(404).json({ message: 'Onay bekleyen öğrenci bulunamadı' });
-    }
-    
-    // Öğrenciyi onayla
-    await user.update({ approvalStatus: 'approved', rejectionReason: null });
-    
-    res.status(200).json({
-      message: 'Öğrenci kaydı başarıyla onaylandı',
-      user: {
-        id: user.id,
-        email: user.email,
-        approvalStatus: user.approvalStatus
-      }
-    });
-  } catch (error) {
-    console.error('Öğrenci onaylama hatası:', error);
-    res.status(500).json({ message: 'Sunucu hatası oluştu' });
-  }
-};
-
-// Öğrenci kaydını reddet
-exports.rejectStudent = async (req, res) => {
-  try {
-    const userId = req.params.id;
-    const { reason } = req.body;
+    console.log('Onaylama isteği alındı, User ID:', userId);
     
     const user = await db.User.findOne({
       where: {
@@ -327,8 +294,66 @@ exports.rejectStudent = async (req, res) => {
     });
     
     if (!user) {
+      console.log('Öğrenci bulunamadı, ID:', userId);
       return res.status(404).json({ message: 'Öğrenci bulunamadı' });
     }
+    
+    console.log('Bulunan kullanıcı:', {
+      id: user.id,
+      email: user.email,
+      approvalStatus: user.approvalStatus
+    });
+    
+    // Öğrenciyi onayla
+    await user.update({ 
+      approvalStatus: 'approved', 
+      rejectionReason: null 
+    });
+    
+    console.log('Öğrenci başarıyla onaylandı');
+    
+    res.status(200).json({
+      message: 'Öğrenci kaydı başarıyla onaylandı',
+      user: {
+        id: user.id,
+        email: user.email,
+        approvalStatus: 'approved'
+      }
+    });
+  } catch (error) {
+    console.error('Öğrenci onaylama hatası:', error);
+    res.status(500).json({ 
+      message: 'Sunucu hatası oluştu',
+      error: error.message 
+    });
+  }
+};
+
+// Öğrenci kaydını reddet
+exports.rejectStudent = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const { reason } = req.body;
+    
+    console.log('Reddetme isteği alındı, User ID:', userId, 'Sebep:', reason);
+    
+    const user = await db.User.findOne({
+      where: {
+        id: userId,
+        userType: 'student'
+      }
+    });
+    
+    if (!user) {
+      console.log('Öğrenci bulunamadı, ID:', userId);
+      return res.status(404).json({ message: 'Öğrenci bulunamadı' });
+    }
+    
+    console.log('Bulunan kullanıcı:', {
+      id: user.id,
+      email: user.email,
+      approvalStatus: user.approvalStatus
+    });
     
     // Öğrenciyi reddet
     await user.update({ 
@@ -336,18 +361,23 @@ exports.rejectStudent = async (req, res) => {
       rejectionReason: reason || 'Belirtilmemiş'
     });
     
+    console.log('Öğrenci başarıyla reddedildi');
+    
     res.status(200).json({
       message: 'Öğrenci kaydı reddedildi',
       user: {
         id: user.id,
         email: user.email,
-        approvalStatus: user.approvalStatus,
+        approvalStatus: 'rejected',
         rejectionReason: user.rejectionReason
       }
     });
   } catch (error) {
     console.error('Öğrenci reddetme hatası:', error);
-    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+    res.status(500).json({ 
+      message: 'Sunucu hatası oluştu',
+      error: error.message 
+    });
   }
 };
 
@@ -905,6 +935,10 @@ exports.updateProjectIdeaStatus = async (req, res) => {
   }
 };
 
+
+
+
+
 // Tüm yazılımcı taleplerini getir (Admin paneli için)
 exports.getAllDeveloperRequests = async (req, res) => {
   try {
@@ -936,11 +970,12 @@ exports.getAllDeveloperRequests = async (req, res) => {
     // Arama parametresi
     const search = req.query.search;
     if (search) {
-      whereClause[db.Sequelize.Op.or] = [
-        { projectTitle: { [db.Sequelize.Op.like]: `%${search}%` } },
-        { projectDescription: { [db.Sequelize.Op.like]: `%${search}%` } }
-      ];
-    }
+  const { Op } = db.Sequelize; // Bu satırı ekleyin
+  whereClause[Op.or] = [
+    { projectTitle: { [Op.like]: `%${search}%` } },
+    { projectDescription: { [Op.like]: `%${search}%` } }
+  ];
+}
 
     // Yazılımcı taleplerini getir
     const { count, rows: requests } = await db.DeveloperRequest.findAndCountAll({
@@ -954,17 +989,6 @@ exports.getAllDeveloperRequests = async (req, res) => {
       include: [
         {
           model: db.EmployerProfile,
-          include: [
-            {
-              model: db.User,
-              attributes: ['email']
-            }
-          ]
-        },
-        {
-          model: db.StudentProfile,
-          as: 'AssignedDeveloper',
-          required: false,
           include: [
             {
               model: db.User,
@@ -1010,17 +1034,6 @@ exports.getDeveloperRequestByIdAdmin = async (req, res) => {
       include: [
         {
           model: db.EmployerProfile,
-          include: [
-            {
-              model: db.User,
-              attributes: ['email']
-            }
-          ]
-        },
-        {
-          model: db.StudentProfile,
-          as: 'AssignedDeveloper',
-          required: false,
           include: [
             {
               model: db.User,
@@ -1199,6 +1212,52 @@ exports.assignDeveloperToRequest = async (req, res) => {
 
   } catch (error) {
     console.error('Yazılımcı atama hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+  }
+};
+
+// İşveren detaylarını görüntüleme (Admin)
+exports.getEmployerDetails = async (req, res) => {
+  try {
+    const employerId = req.params.id;
+    
+    const employerProfile = await db.EmployerProfile.findByPk(employerId, {
+      include: [
+        {
+          model: db.User,
+          attributes: ['email', 'createdAt', 'approvalStatus', 'isActive']
+        }
+      ]
+    });
+    
+    if (!employerProfile) {
+      return res.status(404).json({ message: 'İşveren profili bulunamadı' });
+    }
+
+    // İşverenin toplam talep sayısı
+    const totalRequests = await db.DeveloperRequest.count({
+      where: { employerId: employerId }
+    });
+
+    // İşverenin iş ilanları
+    const jobs = await db.Job.findAll({
+      where: { employerId: employerId },
+      attributes: ['id', 'title', 'status', 'createdAt'],
+      limit: 10,
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.status(200).json({
+      employer: employerProfile,
+      stats: {
+        totalRequests,
+        totalJobs: jobs.length
+      },
+      recentJobs: jobs
+    });
+
+  } catch (error) {
+    console.error('İşveren detayları getirme hatası:', error);
     res.status(500).json({ message: 'Sunucu hatası oluştu' });
   }
 };

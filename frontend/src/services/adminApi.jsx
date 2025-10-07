@@ -95,10 +95,33 @@ export const updateProjectIdeaStatus = (id, status) => {
   return api.put(`/admin/project-ideas/${id}/status`, { status });
 };
 
+export const yazilimciTalepleri = {
+  tumTalepleriGetir: (params = {}) => api.get('/admin/developer-requests', { params }),
+  talepDetayiGetir: (talepId) => api.get(`/admin/developer-requests/${talepId}`),
+  durumGuncelle: (talepId, veri) => api.put(`/admin/developer-requests/${talepId}/status`, veri),
+  istatistikleriGetir: () => api.get('/admin/developer-requests/stats'),
+  yazilimciAta: (talepId, veri) => api.post(`/admin/developer-requests/${talepId}/assign`, veri)
+};
+
+// İşveren detayları
+export const isverenDetay = {
+  isverenBilgisiGetir: (isverenId) => api.get(`/admin/employers/${isverenId}`)
+};
+
+
+export const talentArama = {
+  yetenekAra: (filtreler) => api.post('/talent/search', filtreler),
+  yetenekDetayiGetir: (ogrenciId) => api.get(`/talent/${ogrenciId}`),
+  filtreSecenekleriGetir: () => api.get('/talent/filters/options')
+};
+
 export default {
   ogrenciYonetimi,
   isYonetimi,
   isverenYonetimi,
   mesajSistemi,
-  projeYonetimi
+  projeYonetimi,
+   yazilimciTalepleri, 
+  isverenDetay,
+  talentArama       
 };

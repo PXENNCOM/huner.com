@@ -13,35 +13,16 @@ import AOS from 'aos';
 // Ana sayfalar
 import Home from './pages/Home';
 import SignIn from './pages/SignIn';
-import SignUp from './pages/SignUp';
+import StudentSignUp  from './pages/StudentSignUp';
+import EmployerSignUp from './pages/EmployerSignUp';
 import ResetPassword from './pages/ResetPassword';
 
 // Öğrenci sayfaları
 import StudentDashboard from './pages/student/Dashboard';
-import StudentProfile from './pages/student/Profile';
-import StudentPortfolio from './pages/student/Portfolio';
-import StudentAddProject from './pages/student/AddProject';
-import StudentEditProject from './pages/student/EditProject';
-import StudentJobs from './pages/student/Jobs';
-import StudentJobDetail from './pages/student/JobDetail';
-import StudentSettings from './pages/student/Settings';
-import StudentMessage from './pages/student/Messages';
-import StudentEvents from './pages/student/Events';
-import StudentEventDetail from './pages/student/EventDetail';
-import StudentProjectIdeas from './pages/student/ProjectIdeas';
-import StudentProjectIdeaDetail from './pages/student/ProjectIdeaDetail';
+
 
 // İşveren sayfaları
 import EmployerDashboard from './pages/employer/Dashboard';
-import EmployerProfile from './pages/employer/Profile';
-import EmployerJobs from './pages/employer/Jops';
-import CreateJob from './pages/employer/CreateJob';
-import EmployerJobDetail from './pages/employer/JobDetail';
-import EmployerMessages from './pages/employer/Messages';
-import DeveloperRequestForm from './pages/employer/DeveloperRequestForm';
-import DeveloperRequests from './pages/employer/DeveloperRequests';
-import DeveloperRequestDetail from './pages/employer/DeveloperRequestDetail';
-import DeveloperRequestEdit from './pages/employer/DeveloperRequestEdit';
 
 
 // Admin sayfaları
@@ -59,10 +40,11 @@ import AdminEditEvent from './pages/admin/EditEvent';
 import AdminProjectIdeas from './pages/admin/ProjectIdeas';
 import AdminCreateProjectIdea from './pages/admin/CreateProjectIdea';
 import AdminEditProjectIdea from './pages/admin/EditProjectIdea';
-
-//test
-import Test from './test';
-
+import AdminDeveloperRequests from './pages/admin/DeveloperRequests';
+import AdminDeveloperRequestDetail from './pages/admin/DeveloperRequestDetail';
+import AdminEmployerDetail from './pages/admin/EmployerDetail';
+import AdminTalentSearch from './pages/admin/AdminTalentSearch';
+import AdminTalentDetail from './pages/admin/AdminTalentDetail';
 
 // Auth Provider
 import { AuthProvider } from './contexts/AuthContext';
@@ -92,7 +74,8 @@ function App() {
         {/* Public routes */}
         <Route exact path="/" element={<Home />} />
         <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/student/signup" element={<StudentSignUp  />} />
+        <Route path="/employer/signup" element={<EmployerSignUp  />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
         {/* Protected student routes */}
@@ -101,121 +84,18 @@ function App() {
             <StudentDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/student/profile" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentProfile />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/portfolio" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentPortfolio />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/portfolio/add" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentAddProject />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/portfolio/edit/:id" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentEditProject />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/jobs" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentJobs />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/jobs/:id" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentJobDetail />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/messages" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentMessage />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/events" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentEvents />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/events/:id" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentEventDetail />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/settings" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentSettings />
-          </ProtectedRoute>
-        } />
-
-        <Route path="/student/project-ideas" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentProjectIdeas />
-          </ProtectedRoute>
-        } />
-        <Route path="/student/project-ideas/:id" element={
-          <ProtectedRoute requiredRole="student">
-            <StudentProjectIdeaDetail />
-          </ProtectedRoute>
-        } />
-
+        
+       
+        
+        
         <Route path="/employer/dashboard" element={
           <ProtectedRoute requiredRole="employer">
             <EmployerDashboard />
           </ProtectedRoute>
         } />
-        <Route path="/employer/profile" element={
-          <ProtectedRoute requiredRole="employer">
-            <EmployerProfile />
-          </ProtectedRoute>
-        } />
-        <Route path="/employer/jobs" element={
-          <ProtectedRoute requiredRole="employer">
-            <EmployerJobs />
-          </ProtectedRoute>
-        } />
-        <Route path="/employer/jobs/create" element={
-          <ProtectedRoute requiredRole="employer">
-            <CreateJob />
-          </ProtectedRoute>
-        } />
-        <Route path="/employer/jobs/:id" element={
-          <ProtectedRoute requiredRole="employer">
-            <EmployerJobDetail />
-          </ProtectedRoute>
-        } />
-        <Route path="/employer/messages" element={
-          <ProtectedRoute requiredRole="employer">
-            <EmployerMessages />
-          </ProtectedRoute>
-        } />
+       
 
-        <Route path="/employer/developer-request" element={
-          <ProtectedRoute requiredRole="employer">
-            <DeveloperRequestForm />
-          </ProtectedRoute>
-        } />
-        <Route path="/employer/developer-requests" element={
-          <ProtectedRoute requiredRole="employer">
-            <DeveloperRequests />
-          </ProtectedRoute>
-        } />
-        <Route path="/employer/developer-requests/:id" element={
-          <ProtectedRoute requiredRole="employer">
-            <DeveloperRequestDetail />
-          </ProtectedRoute>
-        } />
-        <Route path="/employer/developer-requests/:id/edit" element={
-          <ProtectedRoute requiredRole="employer">
-            <DeveloperRequestEdit />
-          </ProtectedRoute>
-        } />
-
-
+      
 
 
 
@@ -290,9 +170,31 @@ function App() {
             <AdminEditProjectIdea />
           </ProtectedRoute>
         } />
-
-        <Route path="/test" element={<Test />} />
-
+        <Route path="/admin/developer-requests" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDeveloperRequests />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/developer-requests/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminDeveloperRequestDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/employers/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminEmployerDetail />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/talent-search" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminTalentSearch />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin/talent/:id" element={
+          <ProtectedRoute requiredRole="admin">
+            <AdminTalentDetail />
+          </ProtectedRoute>
+        } />
       </Routes>
     </AuthProvider>
   );

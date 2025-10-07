@@ -49,14 +49,35 @@ const AdminStudents = () => {
     return matchesSearch && matchesFilter;
   });
 
-  // Öğrenci onaylama işlemi
-  const handleApprove = async (userId) => {
+const handleApprove = async (userId) => {
     try {
-      await ogrenciYonetimi.ogrenciOnayla(userId);
+      console.log('Onaylama işlemi başlatıldı, User ID:', userId);
+      const response = await ogrenciYonetimi.ogrenciOnayla(userId);
+      console.log('Onaylama response:', response);
       fetchStudents(); // Listeyi yenile
+      setError(null); // Önceki hataları temizle
     } catch (err) {
-      setError('Öğrenci onaylanırken bir hata oluştu.');
       console.error('Öğrenci onaylama hatası:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      setError('Öğrenci onaylanırken bir hata oluştu: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  // Öğrenci reddetme işlemi
+  const handleReject = async () => {
+    try {
+      console.log('Reddetme işlemi başlatıldı, User ID:', selectedStudentId, 'Sebep:', rejectionReason);
+      const response = await ogrenciYonetimi.ogrenciReddet(selectedStudentId, rejectionReason);
+      console.log('Reddetme response:', response);
+      setShowRejectModal(false);
+      fetchStudents(); // Listeyi yenile
+      setError(null); // Önceki hataları temizle
+    } catch (err) {
+      console.error('Öğrenci reddetme hatası:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      setError('Öğrenci reddedilirken bir hata oluştu: ' + (err.response?.data?.message || err.message));
     }
   };
 
@@ -67,17 +88,6 @@ const AdminStudents = () => {
     setShowRejectModal(true);
   };
 
-  // Öğrenci reddetme işlemi
-  const handleReject = async () => {
-    try {
-      await ogrenciYonetimi.ogrenciReddet(selectedStudentId, rejectionReason);
-      setShowRejectModal(false);
-      fetchStudents(); // Listeyi yenile
-    } catch (err) {
-      setError('Öğrenci reddedilirken bir hata oluştu.');
-      console.error('Öğrenci reddetme hatası:', err);
-    }
-  };
 
   // Status badge renk ve metin ayarları
   const getStatusBadge = (status) => {

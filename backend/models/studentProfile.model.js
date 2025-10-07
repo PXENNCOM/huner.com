@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     age: {
       type: DataTypes.INTEGER
     },
+    phoneNumber: {
+  type: DataTypes.STRING(20), // STRING olarak değiştir
+     allowNull: true
+   },
     city: {
       type: DataTypes.STRING(50)
     },

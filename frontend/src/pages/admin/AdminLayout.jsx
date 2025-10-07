@@ -12,24 +12,27 @@ const AdminLayout = ({ children }) => {
     jobs: false
   });
 
-  const menuItems = [
-    { path: '/admin/dashboard', label: 'Ana Sayfa', icon: '📊' },
-    { 
-      path: '/admin/students', 
-      label: 'Öğrenci Yönetimi', 
-      icon: '👨‍🎓',
-      subItems: [
-        { path: '/admin/students', label: 'Tüm Öğrenciler' },
-        { path: '/admin/students/pending', label: 'Onay Bekleyenler' }
-      ]
-    },
-    { path: '/admin/employers', label: 'İşveren Yönetimi', icon: '🏢' },
-    { path: '/admin/jobs', label: 'İş İlanları', icon: '💼' },
-    { path: '/admin/events', label: 'Etkinlik Yönetimi', icon: '🎯' },
-    { path: '/admin/project-ideas', label: 'Proje Fikri Kütüphanesi', icon: '💡' },
-    { path: '/admin/messages', label: 'Mesajlar', icon: '✉️' }
-  ];
-
+ const menuItems = [
+  { path: '/admin/dashboard', label: 'Ana Sayfa', icon: '📊' },
+  { 
+    path: '/admin/students', 
+    label: 'Öğrenci Yönetimi', 
+    icon: '👨‍🎓',
+    subItems: [
+      { path: '/admin/students', label: 'Tüm Öğrenciler' },
+      { path: '/admin/students/pending', label: 'Onay Bekleyenler' }
+    ]
+  },
+  { path: '/admin/employers', label: 'İşveren Yönetimi', icon: '🏢' },
+  { path: '/admin/jobs', label: 'İş İlanları', icon: '💼' },
+  
+  // YENİ EKLENEN
+  { path: '/admin/talent-search', label: 'Yetenek Arama', icon: '🎯' },
+  
+  { path: '/admin/events', label: 'Etkinlik Yönetimi', icon: '🎯' },
+  { path: '/admin/project-ideas', label: 'Proje Fikri Kütüphanesi', icon: '💡' },
+  { path: '/admin/messages', label: 'Mesajlar', icon: '✉️' }
+];
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
   
   const isSubActive = (path) => {

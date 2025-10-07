@@ -1,4 +1,4 @@
-// app.js
+// app.js - Debug iyileştirmeli versiyon
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -25,7 +25,7 @@ uploadDirs.forEach(dir => {
 
 // Middleware
 app.use(cors({
-  origin: '*', // Geliştirme aşamasında tüm originlere izin verir
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -34,7 +34,7 @@ app.use(cors({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Statik dosyalar için klasörler
+// Statik dosyalar
 app.use('/uploads', express.static('uploads'));
 app.use('/uploads/profile-images', express.static('uploads/profile-images'));
 app.use('/uploads/project-media', express.static('uploads/project-media'));
@@ -43,62 +43,188 @@ app.use('/uploads/job-media', express.static('uploads/job-media'));
 
 // Veritabanı senkronizasyonu
 db.sequelize.sync({ 
-  alter: false, // Bu seçeneği false yapın
-  force: false  // Bu da false olmalı
+  alter: false,
+  force: false
 }).then(() => {
   console.log('Veritabanı tabloları güncellendi.');
 });
 
-// Request logger (diğer middleware'lerden önce olmalı)
+// Detaylı request logger
 app.use((req, res, next) => {
-  console.log('Request received:', req.method, req.path);
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  console.log('Headers:', JSON.stringify(req.headers, null, 2));
+  if (req.body && Object.keys(req.body).length > 0) {
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+  }
   next();
 });
 
-// Rotalar
+// Ana sayfa
 app.get('/', (req, res) => {
   res.json({ message: 'Hüner API çalışıyor!' });
 });
 
-// API rotaları
-app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/employer', require('./routes/employer.routes'));
-app.use('/api/student', require('./routes/student.routes'));
-app.use('/api/admin', require('./routes/admin.routes'));
+// API rotaları - Bu sıralama önemli!
+console.log('📍 Mounting routes...');
 
-// Genel iş ilanları için public rota
-app.use('/api/jobs', require('./routes/job.routes'));
+// Auth routes
+const authRoutes = require('./routes/auth.routes');
+app.use('/api/auth', authRoutes);
+console.log('✅ Auth routes mounted on /api/auth');
 
-// Hata yakalama middleware'i (en son olmalı)
+// Employer routes
+const employerRoutes = require('./routes/employer.routes');
+app.use('/api/employer', employerRoutes);
+console.log('✅ Employer routes mounted on /api/employer');
+
+// Student routes
+const studentRoutes = require('./routes/student.routes');
+app.use('/api/student', studentRoutes);
+console.log('✅ Student routes mounted on /api/student');
+
+// Admin routes
+const adminRoutes = require('./routes/admin.routes');
+app.use('/api/admin', adminRoutes);
+console.log('✅ Admin routes mounted on /api/admin');
+
+// Job routes (public)
+const jobRoutes = require('./routes/job.routes');
+app.use('/api/jobs', jobRoutes);
+console.log('✅ Job routes mounted on /api/jobs');
+
+const talentRoutes = require('./routes/talent.routes');
+app.use('/api/talent', talentRoutes);
+console.log('✅ Talent routes mounted on /api/talent');
+
+
+// Route listesini detaylı göster
+console.log('\n🔍 Registered routes:');
+function printRoutes(app, basePath = '') {
+  const routes = [];
+  
+  app._router.stack.forEach(middleware => {
+    if (middleware.route) {
+      // Direct routes
+      const path = basePath + middleware.route.path;
+      const methods = Object.keys(middleware.route.methods);
+      routes.push({ path, methods, type: 'direct' });
+    } else if (middleware.name === 'router') {
+      // Router middleware
+      const layerRegex = middleware.regexp.toString();
+      let extractedPath = '';
+      
+      // /api/employer pattern extraction
+      if (layerRegex.includes('api')) {
+        if (layerRegex.includes('auth')) extractedPath = '/api/auth';
+        else if (layerRegex.includes('employer')) extractedPath = '/api/employer';
+        else if (layerRegex.includes('student')) extractedPath = '/api/student';
+        else if (layerRegex.includes('admin')) extractedPath = '/api/admin';
+        else if (layerRegex.includes('jobs')) extractedPath = '/api/jobs';
+      }
+      
+      // Router içindeki route'ları göster
+      if (middleware.handle && middleware.handle.stack) {
+        middleware.handle.stack.forEach(handler => {
+          if (handler.route) {
+            const fullPath = extractedPath + handler.route.path;
+            const methods = Object.keys(handler.route.methods);
+            routes.push({ path: fullPath, methods, type: 'router' });
+          }
+        });
+      }
+    }
+  });
+  
+  // Route'ları kategorize et
+  const employerRoutes = routes.filter(r => r.path.startsWith('/api/employer'));
+  const authRoutes = routes.filter(r => r.path.startsWith('/api/auth'));
+  const studentRoutes = routes.filter(r => r.path.startsWith('/api/student'));
+  const adminRoutes = routes.filter(r => r.path.startsWith('/api/admin'));
+  const jobRoutes = routes.filter(r => r.path.startsWith('/api/jobs'));
+  
+  console.log('\n🔐 Auth Routes:');
+  authRoutes.forEach(route => {
+    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
+  });
+  
+  console.log('\n💼 Employer Routes:');
+  employerRoutes.forEach(route => {
+    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
+  });
+  
+  console.log('\n🎓 Student Routes:');
+  studentRoutes.forEach(route => {
+    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
+  });
+  
+  console.log('\n⚙️ Admin Routes:');
+  adminRoutes.forEach(route => {
+    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
+  });
+  
+  console.log('\n📋 Job Routes:');
+  jobRoutes.forEach(route => {
+    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
+  });
+  
+  return routes;
+}
+
+// Middleware mount sonrası route'ları göster
+setTimeout(() => {
+  printRoutes(app);
+}, 100);
+
+// 404 handler - Tüm route'lardan sonra
+app.use('*', (req, res) => {
+  console.log(`❌ 404 - Route not found: ${req.method} ${req.originalUrl}`);
+  console.log('Available routes for this method:');
+  
+  const availableRoutes = [];
+  app._router.stack.forEach(middleware => {
+    if (middleware.route) {
+      const methods = Object.keys(middleware.route.methods);
+      if (methods.includes(req.method.toLowerCase())) {
+        availableRoutes.push(middleware.route.path);
+      }
+    } else if (middleware.name === 'router' && middleware.handle && middleware.handle.stack) {
+      middleware.handle.stack.forEach(handler => {
+        if (handler.route) {
+          const methods = Object.keys(handler.route.methods);
+          if (methods.includes(req.method.toLowerCase())) {
+            // Base path extraction
+            const layerRegex = middleware.regexp.toString();
+            let basePath = '';
+            if (layerRegex.includes('employer')) basePath = '/api/employer';
+            else if (layerRegex.includes('student')) basePath = '/api/student';
+            else if (layerRegex.includes('admin')) basePath = '/api/admin';
+            else if (layerRegex.includes('auth')) basePath = '/api/auth';
+            else if (layerRegex.includes('jobs')) basePath = '/api/jobs';
+            
+            availableRoutes.push(basePath + handler.route.path);
+          }
+        }
+      });
+    }
+  });
+  
+  console.log('Available routes:', availableRoutes);
+  
+  res.status(404).json({
+    message: `Route not found: ${req.method} ${req.originalUrl}`,
+    availableRoutes: availableRoutes,
+    suggestion: 'Check the endpoint URL and HTTP method'
+  });
+});
+
+// Hata yakalama middleware'i
 app.use((err, req, res, next) => {
+  console.error('💥 Error occurred:');
   console.error(err.stack);
   res.status(500).json({
     message: 'Sunucu hatası!',
     error: process.env.NODE_ENV === 'development' ? err.message : {}
   });
-});
-
-// Tüm rotaları konsolda göster (Hata ayıklama için)
-app._router.stack.forEach(function(r){
-  if (r.route && r.route.path){
-    console.log("Route: ", r.route.path);
-  }
-});
-
-// Router middleware rotalarını göster
-app._router.stack.forEach(middleware => {
-  if(middleware.route) { // Rotalar
-    console.log('Route:', middleware.route.path, 'Methods:', Object.keys(middleware.route.methods));
-  } else if(middleware.name === 'router') { // Router middleware
-    middleware.handle.stack.forEach(handler => {
-      if(handler.route) {
-        const basePath = Object.keys(middleware.keys).length > 0 ? `/api${Object.keys(middleware.keys)[0]}` : '';
-        const fullPath = basePath + handler.route.path;
-        const methods = Object.keys(handler.route.methods);
-        console.log(`Router Route: ${fullPath}, Methods: ${methods}`);
-      }
-    });
-  }
 });
 
 module.exports = app;

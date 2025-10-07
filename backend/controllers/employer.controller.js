@@ -10,6 +10,9 @@ exports.updateProfile = async (req, res) => {
     const profileData = {
       fullName: req.body.fullName,
       companyName: req.body.companyName,
+      position: req.body.position,
+      industry: req.body.industry,
+      companyWebsite: req.body.companyWebsite,
       phoneNumber: req.body.phoneNumber,
       city: req.body.city,
       address: req.body.address,
@@ -47,7 +50,7 @@ exports.getProfile = async (req, res) => {
     const userId = req.user.id;
     console.log('Getting profile for userId:', userId);
     
-    const profile = await EmployerProfile.findOne({ 
+    let profile = await EmployerProfile.findOne({ 
       where: { userId },
       include: [
         {
@@ -60,7 +63,33 @@ exports.getProfile = async (req, res) => {
     console.log('Profile found:', profile ? 'Yes' : 'No');
     
     if (!profile) {
-      return res.status(404).json({ message: 'Profil bulunamadı' });
+      console.log('Profile not found, creating default profile for userId:', userId);
+      
+      // Kullanıcı bilgilerini al
+      const user = await db.User.findByPk(userId);
+      if (!user) {
+        return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
+      }
+      
+      // Varsayılan profil oluştur
+      profile = await EmployerProfile.create({
+        userId: userId,
+        fullName: null,
+        companyName: null,
+        position: null,
+        industry: null,
+        companyWebsite: null,
+        phoneNumber: null,
+        city: null,
+        address: null,
+        age: null,
+        profileImage: null
+      });
+      
+      // User ilişkisini manuel olarak ekle
+      profile.User = user;
+      
+      console.log('Default profile created:', profile.id);
     }
     
     res.status(200).json(profile);
@@ -102,15 +131,33 @@ exports.createJob = async (req, res) => {
 // İşveren iş ilanlarını getir
 exports.getJobs = async (req, res) => {
   try {
-    // İşveren profilini bul
-    const employerProfile = await EmployerProfile.findOne({ where: { userId: req.user.id } });
+    // İşveren profilini bul veya oluştur
+    let employerProfile = await EmployerProfile.findOne({ where: { userId: req.user.id } });
     
     if (!employerProfile) {
-      return res.status(404).json({ message: 'İşveren profili bulunamadı' });
+      console.log('Employer profile not found, creating for userId:', req.user.id);
+      
+      // Varsayılan profil oluştur
+      employerProfile = await EmployerProfile.create({
+        userId: req.user.id,
+        fullName: null,
+        companyName: null,
+        position: null,
+        industry: null,
+        companyWebsite: null,
+        phoneNumber: null,
+        city: null,
+        address: null,
+        age: null,
+        profileImage: null
+      });
     }
     
     // İş ilanlarını getir
-    const jobs = await Job.findAll({ where: { employerId: employerProfile.id } });
+    const jobs = await Job.findAll({ 
+      where: { employerId: employerProfile.id },
+      order: [['createdAt', 'DESC']]
+    });
     
     res.status(200).json(jobs);
   } catch (error) {
@@ -294,9 +341,9 @@ exports.createDeveloperRequest = async (req, res) => {
       technologies,
       experienceLevel,
       workType,
-      duration,
       startDate,
       workStyle,
+      duration,
       location,
       workHours,
       teamSize,
@@ -308,11 +355,11 @@ exports.createDeveloperRequest = async (req, res) => {
 
     // Zorunlu alanları kontrol et
     if (!projectTitle || !projectDescription || !projectType || !experienceLevel || 
-        !workType || !duration || !startDate || !workStyle || !workHours || !teamSize) {
+        !workType || !startDate || !duration || !workStyle || !workHours || !teamSize) {
       return res.status(400).json({ 
         message: 'Zorunlu alanlar eksik',
         required: ['projectTitle', 'projectDescription', 'projectType', 'experienceLevel', 
-                  'workType', 'duration', 'startDate', 'workStyle', 'workHours', 'teamSize']
+                  'workType', 'startDate','duration', 'workStyle', 'workHours', 'teamSize']
       });
     }
 
@@ -325,8 +372,8 @@ exports.createDeveloperRequest = async (req, res) => {
       technologies: technologies || [],
       experienceLevel,
       workType,
-      duration,
       startDate,
+      duration,
       workStyle,
       location: location || null,
       workHours,
@@ -357,11 +404,26 @@ exports.getDeveloperRequests = async (req, res) => {
   try {
     const userId = req.user.id;
     
-    // İşveren profilini bul
-    const employerProfile = await db.EmployerProfile.findOne({ where: { userId } });
+    // İşveren profilini bul veya oluştur
+    let employerProfile = await db.EmployerProfile.findOne({ where: { userId } });
     
     if (!employerProfile) {
-      return res.status(404).json({ message: 'İşveren profili bulunamadı' });
+      console.log('Employer profile not found, creating for userId:', userId);
+      
+      // Varsayılan profil oluştur
+      employerProfile = await db.EmployerProfile.create({
+        userId: userId,
+        fullName: null,
+        companyName: null,
+        position: null,
+        industry: null,
+        companyWebsite: null,
+        phoneNumber: null,
+        city: null,
+        address: null,
+        age: null,
+        profileImage: null
+      });
     }
 
     // Yazılımcı taleplerini getir
@@ -370,7 +432,43 @@ exports.getDeveloperRequests = async (req, res) => {
       order: [['createdAt', 'DESC']]
     });
     
-    res.status(200).json({ requests });
+    // JSON alanları parse et
+    const parsedRequests = requests.map(request => {
+      const requestData = request.toJSON();
+      
+      // Technologies parse et
+      if (requestData.technologies && typeof requestData.technologies === 'string') {
+        try {
+          requestData.technologies = JSON.parse(requestData.technologies);
+        } catch (e) {
+          console.warn('Technologies parse error for request', requestData.id, ':', e);
+          requestData.technologies = [];
+        }
+      }
+      
+      // Communication languages parse et
+      if (requestData.communicationLanguages && typeof requestData.communicationLanguages === 'string') {
+        try {
+          requestData.communicationLanguages = JSON.parse(requestData.communicationLanguages);
+        } catch (e) {
+          console.warn('CommunicationLanguages parse error for request', requestData.id, ':', e);
+          requestData.communicationLanguages = [];
+        }
+      }
+      
+      // Array olmayan durumlar için fallback
+      if (!Array.isArray(requestData.technologies)) {
+        requestData.technologies = [];
+      }
+      
+      if (!Array.isArray(requestData.communicationLanguages)) {
+        requestData.communicationLanguages = [];
+      }
+      
+      return requestData;
+    });
+    
+    res.status(200).json({ requests: parsedRequests });
 
   } catch (error) {
     console.error('Yazılımcı talepleri getirme hatası:', error);
@@ -378,7 +476,6 @@ exports.getDeveloperRequests = async (req, res) => {
   }
 };
 
-// Belirli bir yazılımcı talebini getir
 exports.getDeveloperRequestById = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -391,20 +488,51 @@ exports.getDeveloperRequestById = async (req, res) => {
       return res.status(404).json({ message: 'İşveren profili bulunamadı' });
     }
 
-    // Yazılımcı talebini getir (include'sız)
+    // Yazılımcı talebini getir
     const request = await db.DeveloperRequest.findOne({
       where: { 
         id: requestId, 
         employerId: employerProfile.id 
       }
-      // Include'ı kaldırdık çünkü ilişki yok
     });
 
     if (!request) {
       return res.status(404).json({ message: 'Yazılımcı talebi bulunamadı' });
     }
 
-    res.status(200).json(request);
+    // JSON parse et
+    const requestData = request.toJSON();
+    
+    // Technologies parse et
+    if (requestData.technologies && typeof requestData.technologies === 'string') {
+      try {
+        requestData.technologies = JSON.parse(requestData.technologies);
+      } catch (e) {
+        console.warn('Technologies parse error:', e);
+        requestData.technologies = [];
+      }
+    }
+    
+    // Communication languages parse et
+    if (requestData.communicationLanguages && typeof requestData.communicationLanguages === 'string') {
+      try {
+        requestData.communicationLanguages = JSON.parse(requestData.communicationLanguages);
+      } catch (e) {
+        console.warn('CommunicationLanguages parse error:', e);
+        requestData.communicationLanguages = [];
+      }
+    }
+    
+    // Array olmayan durumlar için fallback
+    if (!Array.isArray(requestData.technologies)) {
+      requestData.technologies = [];
+    }
+    
+    if (!Array.isArray(requestData.communicationLanguages)) {
+      requestData.communicationLanguages = [];
+    }
+
+    res.status(200).json(requestData);
 
   } catch (error) {
     console.error('Yazılımcı talebi getirme hatası:', error);
@@ -516,52 +644,6 @@ exports.cancelDeveloperRequest = async (req, res) => {
 
   } catch (error) {
     console.error('Yazılımcı talebi iptal etme hatası:', error);
-    res.status(500).json({ message: 'Sunucu hatası oluştu' });
-  }
-};
-
-// İşveren detaylarını görüntüleme (Admin)
-exports.getEmployerDetails = async (req, res) => {
-  try {
-    const employerId = req.params.id;
-    
-    const employerProfile = await db.EmployerProfile.findByPk(employerId, {
-      include: [
-        {
-          model: db.User,
-          attributes: ['email', 'createdAt', 'approvalStatus', 'isActive']
-        }
-      ]
-    });
-    
-    if (!employerProfile) {
-      return res.status(404).json({ message: 'İşveren profili bulunamadı' });
-    }
-
-    // İşverenin toplam talep sayısı
-    const totalRequests = await db.DeveloperRequest.count({
-      where: { employerId: employerId }
-    });
-
-    // İşverenin iş ilanları
-    const jobs = await db.Job.findAll({
-      where: { employerId: employerId },
-      attributes: ['id', 'title', 'status', 'createdAt'],
-      limit: 10,
-      order: [['createdAt', 'DESC']]
-    });
-
-    res.status(200).json({
-      employer: employerProfile,
-      stats: {
-        totalRequests,
-        totalJobs: jobs.length
-      },
-      recentJobs: jobs
-    });
-
-  } catch (error) {
-    console.error('İşveren detayları getirme hatası:', error);
     res.status(500).json({ message: 'Sunucu hatası oluştu' });
   }
 };
