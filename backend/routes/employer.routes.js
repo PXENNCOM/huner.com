@@ -6,7 +6,6 @@ const authMiddleware = require('../middleware/auth.middleware');
 const uploadMiddleware = require('../middleware/upload.middleware');
 const profileCheckMiddleware = require('../middleware/profileCheck.middleware');
 
-console.log('🔧 Loading employer routes...');
 
 // Debug middleware - Her employer route'u için
 router.use((req, res, next) => {
@@ -86,7 +85,6 @@ router.put('/developer-requests/:id',
 router.delete('/developer-requests/:id', employerController.cancelDeveloperRequest);
 
 // Route'ları konsola yazdır
-console.log('📋 Employer routes loaded:');
 router.stack.forEach((layer, index) => {
   if (layer.route) {
     const methods = Object.keys(layer.route.methods).join(', ').toUpperCase();

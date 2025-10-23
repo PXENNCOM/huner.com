@@ -183,13 +183,51 @@ exports.addProgressNote = async (req, res) => {
 // Tüm öğrencileri getir
 exports.getAllStudents = async (req, res) => {
   try {
-    const students = await db.StudentProfile.findAll({
+    // ✅ Users tablosundan student'ları çek, profil opsiyonel olsun
+    const users = await db.User.findAll({
+      where: {
+        userType: 'student'
+      },
       include: [
         {
-          model: db.User,
-          attributes: ['email', 'createdAt', 'isActive', 'approvalStatus']
+          model: db.StudentProfile,
+          required: false  // ← LEFT JOIN (profil yoksa da getir)
         }
-      ]
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+    
+    // Veriyi düzenle (frontend'in beklediği formata çevir)
+    const students = users.map(user => {
+      const profile = user.StudentProfile || {};
+      return {
+        id: profile.id || null,
+        userId: user.id,
+        fullName: profile.fullName || 'Belirtilmemiş',
+        age: profile.age,
+        phoneNumber: profile.phoneNumber,
+        city: profile.city,
+        school: profile.school || 'Belirtilmemiş',
+        educationLevel: profile.educationLevel,
+        currentGrade: profile.currentGrade,
+        department: profile.department,
+        languages: profile.languages,
+        linkedinProfile: profile.linkedinProfile,
+        githubProfile: profile.githubProfile,
+        studentDocument: profile.studentDocument,
+        skills: profile.skills,
+        profileImage: profile.profileImage,
+        shortBio: profile.shortBio,
+        createdAt: user.createdAt,
+        updatedAt: profile.updatedAt || user.updatedAt,
+        User: {
+          id: user.id,
+          email: user.email,
+          createdAt: user.createdAt,
+          isActive: user.isActive,
+          approvalStatus: user.approvalStatus
+        }
+      };
     });
     
     res.status(200).json(students);
@@ -244,8 +282,6 @@ exports.getAllEmployers = async (req, res) => {
 };
 
 
-// controllers/admin.controller.js - yeni metodlar ekle
-// Onay bekleyen öğrencileri getir
 exports.getPendingStudents = async (req, res) => {
   try {
     const pendingStudents = await db.User.findAll({
@@ -545,11 +581,6 @@ exports.getStudentProjects = async (req, res) => {
   }
 };
 
-// ===================
-// ETKİNLİK YÖNETİMİ
-// ===================
-
-// Tüm etkinlikleri getir
 exports.getAllEvents = async (req, res) => {
   try {
     const events = await db.Event.findAll({
@@ -563,7 +594,6 @@ exports.getAllEvents = async (req, res) => {
   }
 };
 
-// Yeni etkinlik oluştur
 exports.createEvent = async (req, res) => {
   try {
     const { title, description, image, eventDate, location, organizer } = req.body;
@@ -607,7 +637,6 @@ exports.createEvent = async (req, res) => {
   }
 };
 
-// Etkinlik detaylarını getir
 exports.getEventById = async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -625,7 +654,6 @@ exports.getEventById = async (req, res) => {
   }
 };
 
-// Etkinlik güncelle
 exports.updateEvent = async (req, res) => {
   try {
     const eventId = req.params.id;
@@ -733,9 +761,7 @@ exports.updateEventStatus = async (req, res) => {
   }
 };
 
-// ===================
-// PROJE FİKRİ YÖNETİMİ
-// ===================
+
 
 // Tüm proje fikirlerini getir
 exports.getAllProjectIdeas = async (req, res) => {

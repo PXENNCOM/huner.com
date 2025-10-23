@@ -126,7 +126,7 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
       )}
 
       {/* Content */}
-      <div className="p-6">
+      <div className="p-6 overflow-hidden">
         {/* Category and Difficulty */}
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-blue-200 flex items-center">
@@ -144,9 +144,11 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
         </h3>
 
         {/* Description */}
-        <p className="text-blue-200 text-sm mb-4 line-clamp-3">
-          {project.shortDescription || project.description}
-        </p>
+        <div className="mb-4 overflow-hidden">
+    <p className="text-blue-200 text-sm line-clamp-3 overflow-hidden break-words">
+      {project.shortDescription || project.description}
+    </p>
+  </div>
 
         {/* Duration */}
         <div className="flex items-center text-sm text-blue-300 mb-4">

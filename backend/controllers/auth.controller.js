@@ -5,7 +5,15 @@ const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const config = require('../config/config');
-const nodemailer = require('nodemailer'); 
+const nodemailer = require('nodemailer');  
+
+
+
+// ✅ DEBUG - nodemailer kontrolü
+console.log('=== NODEMAILER CHECK ===');
+console.log('nodemailer:', typeof nodemailer);
+console.log('nodemailer.createTransport:', typeof nodemailer.createTransport);
+console.log('========================');
 
 // controllers/auth.controller.js
 exports.register = async (req, res) => {
@@ -184,33 +192,65 @@ exports.register = async (req, res) => {
      tempProfileData: JSON.stringify(tempProfileData)
    });
    
-   // Email doğrulama kodu gönder
-   try {
-     const emailResult = await sendVerificationEmail(email, emailVerificationCode, fullName);
-     
-     if (emailResult.success) {
-       res.status(201).json({
-         success: true,
-         message: 'Kayıt başarılı! Email adresinize gönderilen 6 haneli kodu girerek hesabınızı doğrulayın.',
-         userId: user.id,
-         emailSent: true,
-         needsEmailVerification: true
-       });
-     } else {
-       throw new Error('Email gönderilemedi');
-     }
-   } catch (emailError) {
-     console.error('Email gönderme hatası:', emailError);
-     
-     // Email gönderilemese bile kullanıcı oluşturuldu
-     res.status(201).json({
-       success: true,
-       message: 'Kayıt başarılı ancak doğrulama emaili gönderilemedi. Lütfen destek ekibi ile iletişime geçin.',
-       userId: user.id,
-       emailSent: false,
-       needsEmailVerification: true
-     });
-   }
+// Email doğrulama kodu gönder
+try {
+  console.log('📧 Email gönderme başlıyor...');
+  console.log('NODE_ENV:', process.env.NODE_ENV);
+  
+  // ✅ DEVELOPMENT MODE - Email göndermeden test et
+  if (process.env.NODE_ENV === 'development') {
+    console.log('📧 DEVELOPMENT MODE - Email gönderilmiyor');
+    console.log('📨 Email:', email);
+    console.log('🔑 Verification Code:', emailVerificationCode);
+    console.log('👤 User ID:', user.id);
+    console.log('⏰ Kod geçerlilik süresi: 10 dakika');
+    console.log('====================================');
+    
+    return res.status(201).json({
+      success: true,
+      message: 'Kayıt başarılı! Doğrulama kodu console\'da görüntüleniyor (DEV MODE)',
+      userId: user.id,
+      emailSent: true,
+      needsEmailVerification: true,
+      _devMode: true,
+      _devCode: emailVerificationCode
+    });
+  }
+  
+  // ✅ PRODUCTION MODE - Gerçek email gönder
+  console.log('📧 PRODUCTION MODE - Email gönderiliyor...');
+  console.log('Email:', email);
+  console.log('Code:', emailVerificationCode);
+  console.log('Name:', fullName);
+  
+  console.log('sendVerificationEmail fonksiyonu çağrılıyor...');
+  const emailResult = await sendVerificationEmail(email, emailVerificationCode, fullName);
+  console.log('Email sonucu:', emailResult);
+  
+  if (emailResult.success) {
+    return res.status(201).json({  // ← RETURN EKLE!
+      success: true,
+      message: 'Kayıt başarılı! Email adresinize gönderilen 6 haneli kodu girerek hesabınızı doğrulayın.',
+      userId: user.id,
+      emailSent: true,
+      needsEmailVerification: true
+    });
+  } else {
+    throw new Error('Email gönderilemedi');
+  }
+} catch (emailError) {
+  console.error('Email gönderme hatası:', emailError);
+  console.error('Stack:', emailError.stack);
+  
+  // Email gönderilemese bile kullanıcı oluşturuldu
+  return res.status(201).json({  // ← RETURN EKLE!
+    success: true,
+    message: 'Kayıt başarılı ancak doğrulama emaili gönderilemedi. Lütfen destek ekibi ile iletişime geçin.',
+    userId: user.id,
+    emailSent: false,
+    needsEmailVerification: true
+  });
+}
    
  } catch (error) {
    console.error('Kayıt hatası:', error);
@@ -258,12 +298,36 @@ exports.resendVerificationCode = async (req, res) => {
       emailVerificationExpires: emailVerificationExpires
     });
     
-    // Profil bilgilerini al
-    const tempProfileData = JSON.parse(user.tempProfileData);
-    const fullName = tempProfileData.fullName;
+    // ✅ tempProfileData kontrolü ekle
+    let fullName = 'Değerli Kullanıcı';
+    if (user.tempProfileData) {
+      try {
+        const tempProfileData = JSON.parse(user.tempProfileData);
+        fullName = tempProfileData.fullName || 'Değerli Kullanıcı';
+      } catch (parseError) {
+        console.error('tempProfileData parse hatası:', parseError);
+        // Parse edilemezse default ismi kullan
+      }
+    }
     
     // Email gönder
     try {
+      // ✅ DEVELOPMENT MODE
+      if (process.env.NODE_ENV === 'development') {
+        console.log('📧 RESEND - DEVELOPMENT MODE');
+        console.log('🔑 New Verification Code:', emailVerificationCode);
+        console.log('👤 User ID:', userId);
+        console.log('====================================');
+        
+        return res.status(200).json({
+          success: true,
+          message: 'Doğrulama kodu yeniden gönderildi (DEV MODE - Console\'a bakın)',
+          _devMode: true,
+          _devCode: emailVerificationCode
+        });
+      }
+      
+      // ✅ PRODUCTION MODE
       const emailResult = await sendVerificationEmail(user.email, emailVerificationCode, fullName);
       
       if (emailResult.success) {
@@ -292,10 +356,13 @@ exports.resendVerificationCode = async (req, res) => {
 };
 
 
-// Email doğrulama kodu doğrulama
 exports.verifyEmail = async (req, res) => {
   try {
     const { userId, verificationCode } = req.body;
+    
+    console.log('=== VERIFY EMAIL DEBUG ===');
+    console.log('Received userId:', userId);
+    console.log('Received code:', verificationCode);
     
     if (!userId || !verificationCode) {
       return res.status(400).json({
@@ -304,7 +371,19 @@ exports.verifyEmail = async (req, res) => {
       });
     }
     
-    // Kullanıcıyı bulma
+    // ✅ ÖNCE BASIT SORGU - Tarih kontrolü olmadan
+    const userSimple = await User.findByPk(userId);
+    
+    console.log('User found:', userSimple ? 'YES' : 'NO');
+    if (userSimple) {
+      console.log('User email:', userSimple.email);
+      console.log('Stored code:', userSimple.emailVerificationCode);
+      console.log('Code expires at:', userSimple.emailVerificationExpires);
+      console.log('Current time:', new Date());
+      console.log('Is expired?', new Date() > new Date(userSimple.emailVerificationExpires));
+    }
+    
+    // Kullanıcıyı bulma - TARİH KONTROLÜ İLE
     const user = await User.findOne({
       where: {
         id: userId,
@@ -313,6 +392,9 @@ exports.verifyEmail = async (req, res) => {
         }
       }
     });
+    
+    console.log('User with valid expiry:', user ? 'YES' : 'NO');
+    console.log('========================');
     
     if (!user) {
       return res.status(400).json({
@@ -340,40 +422,54 @@ exports.verifyEmail = async (req, res) => {
     const tempProfileData = JSON.parse(user.tempProfileData);
     
     if (user.userType === 'student') {
-      await db.StudentProfile.create({
-        userId: user.id,
-        fullName: tempProfileData.fullName,
-        phoneNumber: tempProfileData.phoneNumber,
-        linkedinProfile: tempProfileData.linkedinProfile,
-        githubProfile: tempProfileData.githubProfile,
-        age: null,
-        city: null,
-        school: null,
-        educationLevel: null,
-        currentGrade: null,
-        department: null,
-        languages: null,
-        studentDocument: null,
-        skills: null,
-        profileImage: null,
-        shortBio: null
+      // ✅ ÖNCE KONTROL ET - SADECE YOKSA OLUŞTUR
+      const existingProfile = await db.StudentProfile.findOne({ 
+        where: { userId: user.id } 
       });
+      
+      if (!existingProfile) {
+        await db.StudentProfile.create({
+          userId: user.id,
+          fullName: tempProfileData.fullName,
+          phoneNumber: tempProfileData.phoneNumber,
+          linkedinProfile: tempProfileData.linkedinProfile,
+          githubProfile: tempProfileData.githubProfile,
+          age: null,
+          city: null,
+          school: null,
+          educationLevel: null,
+          currentGrade: null,
+          department: null,
+          languages: null,
+          studentDocument: null,
+          skills: null,
+          profileImage: null,
+          shortBio: null
+        });
+      }
     }
     
     if (user.userType === 'employer') {
-      await db.EmployerProfile.create({
-        userId: user.id,
-        fullName: tempProfileData.fullName,
-        companyName: tempProfileData.companyName,
-        position: tempProfileData.position,
-        industry: tempProfileData.industry,
-        companyWebsite: tempProfileData.companyWebsite,
-        phoneNumber: tempProfileData.phoneNumber,
-        city: null,
-        address: null,
-        age: null,
-        profileImage: null
+      // ✅ ÖNCE KONTROL ET - SADECE YOKSA OLUŞTUR
+      const existingProfile = await db.EmployerProfile.findOne({ 
+        where: { userId: user.id } 
       });
+      
+      if (!existingProfile) {
+        await db.EmployerProfile.create({
+          userId: user.id,
+          fullName: tempProfileData.fullName,
+          companyName: tempProfileData.companyName,
+          position: tempProfileData.position,
+          industry: tempProfileData.industry,
+          companyWebsite: tempProfileData.companyWebsite,
+          phoneNumber: tempProfileData.phoneNumber,
+          city: null,
+          address: null,
+          age: null,
+          profileImage: null
+        });
+      }
     }
     
     // Email doğrulandı olarak işaretle ve geçici verileri temizle
@@ -429,10 +525,22 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Geçersiz e-posta veya şifre' });
     }
     
-    // Onay durumu kontrolü
+    // ✅ EMAIL DOĞRULAMA KONTROLÜ EKLE
+    if (!user.isEmailVerified) {
+      return res.status(403).json({ 
+        success: false,
+        message: 'Email adresinizi doğrulamanız gerekiyor',
+        needsEmailVerification: true,
+        userId: user.id
+      });
+    }
+    
+    // Onay durumu kontrolü (sadece student için)
     if (user.userType === 'student' && user.approvalStatus !== 'approved') {
       if (user.approvalStatus === 'pending') {
-        return res.status(403).json({ message: 'Hesabınız henüz onaylanmadı. Lütfen admin onayını bekleyin.' });
+        return res.status(403).json({ 
+          message: 'Hesabınız henüz onaylanmadı. Lütfen admin onayını bekleyin.' 
+        });
       } else if (user.approvalStatus === 'rejected') {
         return res.status(403).json({ 
           message: 'Hesabınız reddedildi.',
@@ -459,8 +567,6 @@ exports.login = async (req, res) => {
         email: user.email,
         userType: user.userType
       }
-
-      
     });
   } catch (error) {
     console.error('Giriş hatası:', error);
@@ -681,7 +787,18 @@ exports.resetPassword = async (req, res) => {
 
 const sendVerificationEmail = async (email, verificationCode, userName) => {
   try {
-    const transporter = createEmailTransporter();
+    // ✅ Direkt burada transporter oluştur
+    const nodemailer = require('nodemailer');
+    
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT),
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
     
     const mailOptions = {
       from: process.env.EMAIL_FROM,
@@ -736,7 +853,7 @@ const sendVerificationEmail = async (email, verificationCode, userName) => {
     };
     
     const info = await transporter.sendMail(mailOptions);
-    console.log('Doğrulama emaili gönderildi:', info.messageId);
+    console.log('✅ Doğrulama emaili gönderildi:', info.messageId);
     
     return {
       success: true,
@@ -744,7 +861,7 @@ const sendVerificationEmail = async (email, verificationCode, userName) => {
     };
     
   } catch (error) {
-    console.error('Email gönderme hatası:', error);
+    console.error('❌ Email gönderme hatası:', error);
     return {
       success: false,
       error: error.message
@@ -752,28 +869,27 @@ const sendVerificationEmail = async (email, verificationCode, userName) => {
   }
 };
 
-// Email transporter oluştur
-const createEmailTransporter = () => {
-  return nodemailer.createTransporter({
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    secure: true, // SSL kullan
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS
-    }
-  });
-};
 
 // Email gönderme fonksiyonu
 const sendResetCodeEmail = async (email, resetCode, userName) => {
   try {
-    const transporter = createEmailTransporter();
+    // ✅ Direkt burada transporter oluştur
+    const nodemailer = require('nodemailer');
+    
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT),
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
     
     const mailOptions = {
       from: process.env.EMAIL_FROM,
       to: email,
-      subject: 'HÜNER - Şifre Sıfırlama Kodu',
+      subject: 'hunerly - Şifre Sıfırlama Kodu',
       html: `
         <!DOCTYPE html>
         <html>
@@ -823,7 +939,7 @@ const sendResetCodeEmail = async (email, resetCode, userName) => {
     };
     
     const info = await transporter.sendMail(mailOptions);
-    console.log('Email gönderildi:', info.messageId);
+    console.log('✅ Şifre sıfırlama emaili gönderildi:', info.messageId);
     
     return {
       success: true,
@@ -831,10 +947,54 @@ const sendResetCodeEmail = async (email, resetCode, userName) => {
     };
     
   } catch (error) {
-    console.error('Email gönderme hatası:', error);
+    console.error('❌ Email gönderme hatası:', error);
     return {
       success: false,
       error: error.message
     };
+  }
+};
+
+
+
+// ✅ EMAIL TEST FONKSİYONU (Geçici - test için)
+exports.testEmail = async (req, res) => {
+  try {
+    console.log('=== EMAIL TEST BAŞLADI ===');
+    console.log('nodemailer type:', typeof nodemailer);
+    console.log('nodemailer.createTransport type:', typeof nodemailer.createTransport);
+    
+    const transporter = nodemailer.createTransport({
+      host: process.env.EMAIL_HOST,
+      port: parseInt(process.env.EMAIL_PORT),
+      secure: true,
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+    
+    console.log('✅ Transporter oluşturuldu');
+    
+    const info = await transporter.sendMail({
+      from: process.env.EMAIL_FROM,
+      to: req.body.email || 'test@test.com',
+      subject: 'Test Email',
+      text: 'Bu bir test emailidir.'
+    });
+    
+    console.log('✅ Email gönderildi:', info.messageId);
+    
+    res.json({
+      success: true,
+      message: 'Email başarıyla gönderildi',
+      messageId: info.messageId
+    });
+  } catch (error) {
+    console.error('❌ Test email hatası:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message
+    });
   }
 };

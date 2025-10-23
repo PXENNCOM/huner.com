@@ -12,6 +12,7 @@ exports.searchTalents = async (req, res) => {
     const {
       // Temel Filtreler
       skills = [],              // ['JavaScript', 'React', 'Node.js']
+      keywords = [],            // 🆕 ['AI', 'startup', 'açık kaynak'] - Serbest arama
       city,                     // 'Istanbul'
       educationLevel,           // 'university', 'high_school'
       department,               // 'Bilgisayar Mühendisliği'
@@ -42,8 +43,9 @@ exports.searchTalents = async (req, res) => {
     const offset = (page - 1) * limit;
     const { Op } = db.Sequelize;
 
-    console.log('🔍 Talent Search Started:', {
+    console.log('🔍 Advanced Talent Search Started:', {
       skills,
+      keywords,
       city,
       position,
       seniority,
@@ -78,29 +80,46 @@ exports.searchTalents = async (req, res) => {
     }
 
     // 3. INCLUDE CONDITIONS
-   const includeConditions = [
-  {
-    model: db.User,
-    attributes: ['email', 'approvalStatus', 'isActive', 'createdAt'],
-    where: {
-      approvalStatus: 'approved',
-      isActive: true
-    },
-    required: true
-  },
-  {
-    model: db.StudentProject,
-    as: 'Projects',  // ← Artık bu çalışacak
-    required: false,
-    attributes: ['id', 'title', 'description', 'technologies', 'projectType', 'githubUrl', 'liveUrl', 'createdAt']
-  },
-  {
-    model: db.StudentWorkExperience,
-    as: 'WorkExperiences',  // ← Bu da çalışacak
-    required: false,
-    attributes: ['companyName', 'position', 'startDate', 'endDate', 'isCurrent', 'workType', 'description']
-  }
-];
+    const includeConditions = [
+      {
+        model: db.User,
+        attributes: ['email', 'approvalStatus', 'isActive', 'createdAt'],
+        where: {
+          approvalStatus: 'approved',
+          isActive: true
+        },
+        required: true
+      },
+      {
+        model: db.StudentProject,
+        as: 'Projects',
+        required: false,
+        attributes: [
+          'id', 
+          'title', 
+          'description', 
+          'technologies', 
+          'projectType', 
+          'githubUrl', 
+          'liveUrl', 
+          'createdAt'
+        ]
+      },
+      {
+        model: db.StudentWorkExperience,
+        as: 'WorkExperiences',
+        required: false,
+        attributes: [
+          'companyName', 
+          'position', 
+          'startDate', 
+          'endDate', 
+          'isCurrent', 
+          'workType', 
+          'description'
+        ]
+      }
+    ];
 
     // 4. TÜM ÖĞRENCİLERİ ÇEK
     console.log('📊 Fetching students from database...');
@@ -135,30 +154,58 @@ exports.searchTalents = async (req, res) => {
               poor: 0
             }
           },
-          appliedFilters: { skills, city, position, seniority }
+          appliedFilters: { 
+            skills, 
+            keywords,
+            city, 
+            position, 
+            seniority 
+          }
         }
       });
     }
 
-    // 5. SKORLAMA
-    console.log('🎯 Calculating scores...');
+    // 5. SKORLAMA (Gelişmiş)
+    console.log('🎯 Calculating comprehensive scores...');
     const scoredStudents = allStudents.map(student => {
       const studentData = student.toJSON();
       
       const { totalScore, scoreBreakdown } = calculateStudentScore(
         studentData,
-        { skills, workType },
+        { 
+          skills, 
+          workType,
+          keywords,
+          position
+        },
         weights
       );
       
       studentData.relevanceScore = totalScore;
       studentData.scoreBreakdown = scoreBreakdown;
       
-      // Match Label
-      if (totalScore >= 80) studentData.matchLabel = 'Mükemmel Eşleşme';
-      else if (totalScore >= 60) studentData.matchLabel = 'İyi Eşleşme';
-      else if (totalScore >= 40) studentData.matchLabel = 'Orta Eşleşme';
-      else studentData.matchLabel = 'Zayıf Eşleşme';
+      // Match Label (Detaylı)
+      if (totalScore >= 85) {
+        studentData.matchLabel = '⭐ Mükemmel Eşleşme';
+        studentData.matchColor = 'green';
+        studentData.matchPriority = 1;
+      } else if (totalScore >= 70) {
+        studentData.matchLabel = '✅ Çok İyi Eşleşme';
+        studentData.matchColor = 'blue';
+        studentData.matchPriority = 2;
+      } else if (totalScore >= 55) {
+        studentData.matchLabel = '👍 İyi Eşleşme';
+        studentData.matchColor = 'cyan';
+        studentData.matchPriority = 3;
+      } else if (totalScore >= 40) {
+        studentData.matchLabel = '⚠️ Orta Eşleşme';
+        studentData.matchColor = 'yellow';
+        studentData.matchPriority = 4;
+      } else {
+        studentData.matchLabel = '❌ Zayıf Eşleşme';
+        studentData.matchColor = 'gray';
+        studentData.matchPriority = 5;
+      }
 
       return studentData;
     });
@@ -193,10 +240,10 @@ exports.searchTalents = async (req, res) => {
       
       // Minimum proje sayısı
       if (minProjectCount) {
-  if (!student.Projects || student.Projects.length < minProjectCount) {  // ← Projects
-    return false;
-  }
-}
+        if (!student.Projects || student.Projects.length < minProjectCount) {
+          return false;
+        }
+      }
       
       return true;
     });
@@ -207,7 +254,14 @@ exports.searchTalents = async (req, res) => {
     console.log(`📑 Sorting by: ${sortBy}`);
     switch (sortBy) {
       case 'relevance':
-        filteredStudents.sort((a, b) => b.relevanceScore - a.relevanceScore);
+        filteredStudents.sort((a, b) => {
+          // Önce relevance score'a göre
+          if (b.relevanceScore !== a.relevanceScore) {
+            return b.relevanceScore - a.relevanceScore;
+          }
+          // Eşitse match priority'ye göre
+          return a.matchPriority - b.matchPriority;
+        });
         break;
       
       case 'experience':
@@ -217,9 +271,11 @@ exports.searchTalents = async (req, res) => {
         break;
       
       case 'projects':
-        filteredStudents.sort((a, b) => 
-          (b.projectCount || 0) - (a.projectCount || 0)
-        );
+        filteredStudents.sort((a, b) => {
+          const aProjects = a.Projects ? a.Projects.length : 0;
+          const bProjects = b.Projects ? b.Projects.length : 0;
+          return bProjects - aProjects;
+        });
         break;
       
       case 'education':
@@ -252,23 +308,33 @@ exports.searchTalents = async (req, res) => {
         ? Math.round(filteredStudents.reduce((sum, s) => sum + s.relevanceScore, 0) / totalResults)
         : 0,
       scoreDistribution: {
-        excellent: filteredStudents.filter(s => s.relevanceScore >= 80).length,
-        good: filteredStudents.filter(s => s.relevanceScore >= 60 && s.relevanceScore < 80).length,
-        average: filteredStudents.filter(s => s.relevanceScore >= 40 && s.relevanceScore < 60).length,
+        excellent: filteredStudents.filter(s => s.relevanceScore >= 85).length,
+        veryGood: filteredStudents.filter(s => s.relevanceScore >= 70 && s.relevanceScore < 85).length,
+        good: filteredStudents.filter(s => s.relevanceScore >= 55 && s.relevanceScore < 70).length,
+        average: filteredStudents.filter(s => s.relevanceScore >= 40 && s.relevanceScore < 55).length,
         poor: filteredStudents.filter(s => s.relevanceScore < 40).length
       },
       averageExperience: totalResults > 0
         ? Math.round(filteredStudents.reduce((sum, s) => sum + (s.totalExperienceMonths || 0), 0) / totalResults)
         : 0,
-      topSkills: calculateTopSkills(filteredStudents)
+      averageProjects: totalResults > 0
+        ? Math.round(filteredStudents.reduce((sum, s) => sum + (s.Projects?.length || 0), 0) / totalResults)
+        : 0,
+      topSkills: calculateTopSkills(filteredStudents),
+      matchQuality: {
+        highQuality: filteredStudents.filter(s => s.relevanceScore >= 70).length,
+        mediumQuality: filteredStudents.filter(s => s.relevanceScore >= 40 && s.relevanceScore < 70).length,
+        lowQuality: filteredStudents.filter(s => s.relevanceScore < 40).length
+      }
     };
 
     // 9. SAYFALAMA
     const paginatedStudents = filteredStudents.slice(offset, offset + limit);
 
     console.log('✅ Search completed successfully');
+    console.log(`📊 Stats: ${stats.total} total, avg score: ${stats.averageScore}`);
 
-    // 10. RESPONSE
+    // 10. RESPONSE (Gelişmiş)
     res.status(200).json({
       success: true,
       data: {
@@ -294,22 +360,43 @@ exports.searchTalents = async (req, res) => {
           // Matching Bilgileri
           relevanceScore: student.relevanceScore,
           matchLabel: student.matchLabel,
+          matchColor: student.matchColor,
+          matchPriority: student.matchPriority,
           scoreBreakdown: student.scoreBreakdown,
           
-          // Fuzzy Match Sonuçları
-          fuzzyMatchResult: student.fuzzyMatchResult,
+          // 🆕 Eşleşme Detayları
+          matchHighlights: student.scoreBreakdown.matchDetails ? {
+            bioMatches: student.scoreBreakdown.matchDetails.bioMatches?.slice(0, 3) || [],
+            skillMatches: student.scoreBreakdown.matchDetails.skillMatches?.slice(0, 5) || [],
+            departmentMatches: student.scoreBreakdown.matchDetails.departmentMatches?.slice(0, 2) || [],
+            topProjects: student.scoreBreakdown.matchDetails.projectMatches?.slice(0, 2) || [],
+            topExperiences: student.scoreBreakdown.matchDetails.workExperienceMatches?.slice(0, 2) || []
+          } : null,
+          
+          // Eşleşme Skorları
+          matchScores: student.scoreBreakdown.matchScores || null,
+          
+          // Pozisyon Uygunluğu
+          positionRelevance: student.scoreBreakdown.positionRelevance || null,
           
           // İstatistikler
-          projectCount: student.projectCount || 0,
+          projectCount: student.Projects ? student.Projects.length : 0,
           totalExperienceMonths: student.totalExperienceMonths || 0,
-          profileCompleteness: student.profileCompleteness,
+          profileCompleteness: student.profileCompleteness || 0,
           
           // Profil Linkleri
           githubProfile: student.githubProfile,
           linkedinProfile: student.linkedinProfile,
           
           // İletişim (opsiyonel - sadece işveren için)
-          email: student.User?.email
+          email: student.User?.email,
+          
+          // Ek Bilgiler
+          hasGithub: !!student.githubProfile,
+          hasLinkedin: !!student.linkedinProfile,
+          experienceYears: student.totalExperienceMonths 
+            ? Math.round((student.totalExperienceMonths / 12) * 10) / 10 
+            : 0
         })),
         
         pagination: {
@@ -325,6 +412,7 @@ exports.searchTalents = async (req, res) => {
         
         appliedFilters: {
           skills,
+          keywords,
           city,
           educationLevel,
           department,
@@ -332,15 +420,33 @@ exports.searchTalents = async (req, res) => {
           position,
           seniority,
           workType,
+          minExperienceMonths,
+          hasGithub,
+          hasLinkedin,
+          minProjectCount,
+          minAge,
+          maxAge,
           minScore,
           sortBy
         },
         
         algorithmInfo: {
+          version: '2.0',
           weightsUsed: weights,
           fuzzyMatchingEnabled: true,
+          comprehensiveSearchEnabled: true,
+          searchDepth: 'deep',
           positionOptimized: !!position,
-          seniorityOptimized: !!seniority
+          seniorityOptimized: !!seniority,
+          keywordSearchEnabled: keywords.length > 0,
+          areasSearched: [
+            'skills',
+            'shortBio',
+            'department',
+            'languages',
+            'projects (title, description, technologies)',
+            'workExperiences (position, company, description)'
+          ]
         }
       }
     });
@@ -427,8 +533,41 @@ exports.getTalentDetails = async (req, res) => {
         const months = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24 * 30));
         totalMonths += months;
         exp.durationMonths = months;
+        
+        // Süreyi formatla
+        const years = Math.floor(months / 12);
+        const remainingMonths = months % 12;
+        if (years > 0 && remainingMonths > 0) {
+          exp.durationText = `${years} yıl ${remainingMonths} ay`;
+        } else if (years > 0) {
+          exp.durationText = `${years} yıl`;
+        } else {
+          exp.durationText = `${months} ay`;
+        }
       });
       studentData.totalExperienceMonths = totalMonths;
+      studentData.totalExperienceYears = Math.round((totalMonths / 12) * 10) / 10;
+    }
+
+    // Proje teknolojilerini parse et
+    if (studentData.Projects && studentData.Projects.length > 0) {
+      studentData.Projects.forEach(project => {
+        if (project.technologies) {
+          project.technologiesArray = project.technologies.split(',').map(t => t.trim());
+        } else {
+          project.technologiesArray = [];
+        }
+      });
+    }
+
+    // Skills'i parse et
+    if (studentData.skills) {
+      studentData.skillsArray = studentData.skills.split(',').map(s => s.trim());
+    }
+
+    // Languages'i parse et
+    if (studentData.languages) {
+      studentData.languagesArray = studentData.languages.split(',').map(l => l.trim());
     }
 
     res.status(200).json({
@@ -493,7 +632,15 @@ exports.getFilterOptions = async (req, res) => {
         departments: departments.sort(),
         skills: Array.from(allSkills).sort(),
         languages: Array.from(allLanguages).sort(),
-        positions: ['frontend', 'backend', 'fullstack', 'mobile', 'devops', 'data-science', 'ui-ux'],
+        positions: [
+          'frontend', 
+          'backend', 
+          'fullstack', 
+          'mobile', 
+          'devops', 
+          'data-science', 
+          'ui-ux'
+        ],
         seniorities: ['intern', 'junior', 'mid', 'senior'],
         workTypes: ['internship', 'part-time', 'full-time', 'freelance']
       }

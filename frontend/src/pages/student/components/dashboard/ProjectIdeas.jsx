@@ -13,7 +13,7 @@ import {
 
 const ProjectIdeas = ({ projectIdeas, onOpenProjectIdeasPanel }) => {
   // API base URL'i
-  const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
 
   const getDifficultyConfig = (difficulty) => {
     switch(difficulty?.toLowerCase()) {

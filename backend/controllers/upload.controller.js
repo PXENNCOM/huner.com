@@ -78,44 +78,83 @@ exports.uploadProfileImage = async (req, res) => {
 
 exports.uploadProjectMedia = async (req, res) => {
   try {
-    const projectId = req.params.projectId;
+    const projectId = req.params.id; // ✅ :id parametresini kullan
     
-    // req.files (çoğul) kontrol et çünkü array upload kullanıyoruz
+    console.log('=== PROJECT MEDIA UPLOAD DEBUG ===');
+    console.log('Project ID:', projectId);
+    console.log('User ID:', req.user?.id);
+    console.log('Files received:', req.files?.length || 0);
+    
+    // Dosya kontrolü
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ message: 'Dosya yüklenmedi' });
     }
     
-    // Projeyi bul
-    const project = await StudentProject.findByPk(projectId);
+    // Öğrenci profilini bul
+    const studentProfile = await db.StudentProfile.findOne({ 
+      where: { userId: req.user.id } 
+    });
     
-    if (!project) {
-      return res.status(404).json({ message: 'Proje bulunamadı' });
+    if (!studentProfile) {
+      return res.status(404).json({ message: 'Öğrenci profili bulunamadı' });
     }
     
-    // Mevcut medya dizisini al veya boş array oluştur
+    console.log('Student Profile ID:', studentProfile.id);
+    
+    // Projeyi bul VE öğrenciye ait olduğunu doğrula
+    const project = await db.StudentProject.findOne({
+      where: { 
+        id: projectId,
+        studentId: studentProfile.id // ✅ Güvenlik kontrolü
+      }
+    });
+    
+    if (!project) {
+      console.log('Project not found or not owned by student');
+      return res.status(404).json({ message: 'Proje bulunamadı veya size ait değil' });
+    }
+    
+    console.log('Project found:', project.id);
+    
+    // Mevcut medya dizisini al
     let media = [];
     if (project.media) {
       try {
         media = JSON.parse(project.media);
+        console.log('Existing media count:', media.length);
       } catch (e) {
+        console.error('Media parse error:', e);
         media = [];
       }
     }
     
-    // Her yüklenen dosya için doğru URL'yi ekle
-    const fileNames = req.files.map(file => file.filename);
-    media = [...media, ...fileNames];
+    // Yeni dosyaları ekle
+    const newFileNames = req.files.map(file => file.filename);
+    media = [...media, ...newFileNames];
     
-    // Media array'ini güncelle
+    console.log('New files added:', newFileNames);
+    console.log('Total media count:', media.length);
+    
+    // Projeyi güncelle
     await project.update({ media: JSON.stringify(media) });
     
+    console.log('Project media updated successfully');
+    console.log('=== DEBUG END ===');
+    
     res.status(200).json({
+      success: true,
       message: 'Proje medyası başarıyla yüklendi',
-      filenames: fileNames,
-      media: media // Tüm media dosyalarını döndür
+      filenames: newFileNames,
+      totalMedia: media.length
     });
+    
   } catch (error) {
-    console.error('Proje medyası yükleme hatası:', error);
-    res.status(500).json({ message: 'Sunucu hatası oluştu' });
+    console.error('❌ Proje medyası yükleme hatası:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      success: false,
+      message: 'Sunucu hatası oluştu',
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
   }
 };

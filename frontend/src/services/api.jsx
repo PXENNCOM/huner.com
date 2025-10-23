@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-// API temel URL'si
-const API_URL = 'http://localhost:3001/api';
+// API temel URL'si - Environment'a göre otomatik ayarlanıyor
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
+console.log('🌐 API URL:', API_URL); // Debug için
 
 // Axios instance oluşturma
 const api = axios.create({
@@ -50,7 +51,6 @@ api.interceptors.response.use(
   }
 );
 
-
 export const updateAuthHeader = (token) => {
   if (token) {
     // Doğrudan defaults yerine interceptor'da da güncelleme yapmayı dene
@@ -62,9 +62,6 @@ export const updateAuthHeader = (token) => {
     console.log('Auth header cleared');
   }
 };
-
-
-
 
 // Authentication ile ilgili servisler
 export const authService = {
@@ -269,7 +266,6 @@ export const getSimilarProjectIdeas = (id) => {
   return api.get(`/student/project-ideas/${id}/similar`);
 };
 
-
 // İş deneyimlerini al
 export const getWorkExperiences = () => {
   return api.get('/student/work-experiences');
@@ -294,6 +290,5 @@ export const updateWorkExperience = (experienceId, experienceData) => {
 export const deleteWorkExperience = (experienceId) => {
   return api.delete(`/student/work-experiences/${experienceId}`);
 };
-
 
 export default api;

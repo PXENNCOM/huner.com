@@ -17,6 +17,11 @@ module.exports = (sequelize, Sequelize) => {
       allowNull: false,
       defaultValue: 'student'
     },
+    isActive: {  
+      type: Sequelize.BOOLEAN,
+      defaultValue: true,
+      allowNull: false
+    },
     approvalStatus: {
       type: Sequelize.ENUM('pending', 'approved', 'rejected'),
       allowNull: false,
@@ -26,6 +31,25 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.TEXT,
       allowNull: true
     },
+    // ✅ EMAIL DOĞRULAMA ALANLARI - EKLE
+    isEmailVerified: {
+      type: Sequelize.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
+    emailVerificationCode: {
+      type: Sequelize.STRING(6),
+      allowNull: true
+    },
+    emailVerificationExpires: {
+      type: Sequelize.DATE,
+      allowNull: true
+    },
+    tempProfileData: {
+      type: Sequelize.TEXT,
+      allowNull: true
+    },
+    // ŞİFRE SIFIRLAMA ALANLARI
     resetPasswordToken: {
       type: Sequelize.STRING,
       allowNull: true

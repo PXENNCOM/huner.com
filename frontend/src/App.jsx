@@ -16,6 +16,8 @@ import SignIn from './pages/SignIn';
 import StudentSignUp  from './pages/StudentSignUp';
 import EmployerSignUp from './pages/EmployerSignUp';
 import ResetPassword from './pages/ResetPassword';
+import EmailVerification from './pages/EmailVerification';
+
 
 // Öğrenci sayfaları
 import StudentDashboard from './pages/student/Dashboard';
@@ -77,6 +79,8 @@ function App() {
         <Route path="/student/signup" element={<StudentSignUp  />} />
         <Route path="/employer/signup" element={<EmployerSignUp  />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
+
 
         {/* Protected student routes */}
         <Route path="/student/dashboard" element={

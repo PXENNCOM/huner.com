@@ -17,18 +17,31 @@ const AdminStudents = () => {
     fetchStudents();
   }, []);
 
-  const fetchStudents = async () => {
-    try {
-      setLoading(true);
-      const response = await ogrenciYonetimi.tumOgrencileriGetir();
-      setStudents(response.data);
-      setLoading(false);
-    } catch (err) {
-      setError('Öğrenci bilgileri alınırken bir hata oluştu.');
-      setLoading(false);
-      console.error('Öğrenci listeleme hatası:', err);
-    }
-  };
+useEffect(() => {
+  console.log('🔄 useEffect çalıştı - AdminStudents mount oldu');
+  fetchStudents();
+}, []);
+
+const fetchStudents = async () => {
+  try {
+    setLoading(true);
+    const response = await ogrenciYonetimi.tumOgrencileriGetir();
+    
+    console.log('========== DEBUG START ==========');
+    console.log('📊 Raw API Response:', response.data);
+    console.log('📈 Total records:', response.data.length);
+    console.log('🔑 Unique IDs:', new Set(response.data.map(s => s.id)).size);
+    console.log('📋 All IDs:', response.data.map(s => ({ id: s.id, name: s.fullName })));
+    console.log('========== DEBUG END ==========');
+    
+    setStudents(response.data);
+    setLoading(false);
+  } catch (err) {
+    setError('Öğrenci bilgileri alınırken bir hata oluştu.');
+    setLoading(false);
+    console.error('Öğrenci listeleme hatası:', err);
+  }
+};
 
   // Arama ve filtreleme işlemleri
   const filteredStudents = students.filter(student => {

@@ -12,7 +12,7 @@ const AdminEditProjectIdea = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'Web Development',
+    category: 'Machine Learning',
     difficulty: 'Orta',
     estimatedDays: '',
     technologies: '',
@@ -22,27 +22,46 @@ const AdminEditProjectIdea = () => {
     status: 'active'
   });
 
-  // Kategoriler
+  // AI Kategorileri
   const categories = [
-    'Web Development',
-    'Mobile Development', 
-    'Artificial Intelligence',
-    'Game Development',
-    'Data Science',
-    'Cybersecurity',
-    'Cloud & DevOps',
-    'System Design'
+    'Machine Learning',
+    'Deep Learning',
+    'Natural Language Processing (NLP)',
+    'Computer Vision',
+    'Generative AI',
+    'Autonomous Agents & Multi-Agent Systems',
+    'Data Science & Analytics',
+    'Data Engineering',
+    'Reinforcement Learning',
+    'AI Ethics & Governance'
   ];
 
+  // Kategori İkonları
   const categoryIcons = {
-    'Web Development': '🌐',
-    'Mobile Development': '📱',
-    'Artificial Intelligence': '🤖',
-    'Game Development': '🎮',
-    'Data Science': '📊',
-    'Cybersecurity': '🔐',
-    'Cloud & DevOps': '☁️',
-    'System Design': '🏗️'
+    'Machine Learning': '🤖',
+    'Deep Learning': '🧠',
+    'Natural Language Processing (NLP)': '💬',
+    'Computer Vision': '👁️',
+    'Generative AI': '✨',
+    'Autonomous Agents & Multi-Agent Systems': '🤝',
+    'Data Science & Analytics': '📊',
+    'Data Engineering': '⚙️',
+    'Reinforcement Learning': '🎯',
+    'AI Ethics & Governance': '⚖️'
+  };
+
+  // Kategori Açıklamaları
+  const categoryDescriptions = {
+    'Machine Learning': 'Makine Öğrenmesi - Temel ML algoritmaları ve uygulamaları',
+    'Deep Learning': 'Derin Öğrenme - Neural Networks ve ileri seviye modeller',
+    'Natural Language Processing (NLP)': 'Doğal Dil İşleme - Metin analizi ve dil modelleri',
+    'Computer Vision': 'Bilgisayarlı Görü - Görüntü işleme ve nesne tanıma',
+    'Generative AI': 'Üretken Yapay Zeka - GPT, DALL-E gibi üretken modeller',
+    'Autonomous Agents & Multi-Agent Systems': 'Otonom Ajanlar - Akıllı ajan sistemleri',
+    'Data Science & Analytics': 'Veri Bilimi - Veri analizi ve görselleştirme',
+    'Data Engineering': 'Veri Mühendisliği - Veri pipeline ve ETL süreçleri',
+    'Reinforcement Learning': 'Pekiştirmeli Öğrenme - Ödül tabanlı öğrenme',
+    'AI Ethics & Governance': 'AI Etiği - Yapay zekanın etik kullanımı'
   };
 
   const difficulties = [
@@ -64,7 +83,7 @@ const AdminEditProjectIdea = () => {
       setFormData({
         title: project.title || '',
         description: project.description || '',
-        category: project.category || 'Web Development',
+        category: project.category || 'Machine Learning',
         difficulty: project.difficulty || 'Orta',
         estimatedDays: project.estimatedDays?.toString() || '',
         technologies: project.technologies || '',
@@ -146,7 +165,6 @@ const AdminEditProjectIdea = () => {
       
       console.log('Proje fikri güncellendi:', response.data);
       
-      // Başarı durumunda proje fikirleri sayfasına yönlendir
       navigate('/admin/project-ideas', { 
         state: { 
           message: 'Proje fikri başarıyla güncellendi!',
@@ -214,8 +232,8 @@ const AdminEditProjectIdea = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Proje Fikri Düzenle</h1>
-            <p className="text-gray-600">Mevcut proje fikri bilgilerini güncelleyin</p>
+            <h1 className="text-2xl font-bold text-gray-900">🤖 AI Proje Fikri Düzenle</h1>
+            <p className="text-gray-600">Mevcut AI proje fikri bilgilerini güncelleyin</p>
           </div>
           <Link
             to="/admin/project-ideas"
@@ -252,8 +270,8 @@ const AdminEditProjectIdea = () => {
                 onChange={handleChange}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
-                <option value="active">Aktif</option>
-                <option value="inactive">Pasif</option>
+                <option value="active">✅ Aktif</option>
+                <option value="inactive">⏸️ Pasif</option>
               </select>
               <p className="mt-1 text-sm text-gray-500">
                 Pasif projeler öğrenciler tarafından görülmez
@@ -271,7 +289,7 @@ const AdminEditProjectIdea = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Örn: Todo List Uygulaması"
+                placeholder="Örn: Sentiment Analizi Uygulaması"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={200}
                 required
@@ -281,51 +299,53 @@ const AdminEditProjectIdea = () => {
               </p>
             </div>
 
-            {/* Category and Difficulty */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                  Kategori <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {categoryIcons[category]} {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            {/* Category */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                AI Kategorisi <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {categoryIcons[category]} {category}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-sm text-gray-500">
+                {categoryDescriptions[formData.category]}
+              </p>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Zorluk Seviyesi <span className="text-red-500">*</span>
-                </label>
-                <div className="space-y-3">
-                  {difficulties.map(diff => (
-                    <label key={diff.value} className="flex items-center">
-                      <input
-                        type="radio"
-                        name="difficulty"
-                        value={diff.value}
-                        checked={formData.difficulty === diff.value}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                      />
-                      <span className="ml-3 flex items-center">
-                        <span className="mr-2">{diff.icon}</span>
-                        <span className="font-medium">{diff.label}</span>
-                        <span className="ml-2 text-sm text-gray-500">- {diff.description}</span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
+            {/* Difficulty */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Zorluk Seviyesi <span className="text-red-500">*</span>
+              </label>
+              <div className="space-y-3">
+                {difficulties.map(diff => (
+                  <label key={diff.value} className="flex items-center">
+                    <input
+                      type="radio"
+                      name="difficulty"
+                      value={diff.value}
+                      checked={formData.difficulty === diff.value}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 flex items-center">
+                      <span className="mr-2">{diff.icon}</span>
+                      <span className="font-medium">{diff.label}</span>
+                      <span className="ml-2 text-sm text-gray-500">- {diff.description}</span>
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -339,7 +359,7 @@ const AdminEditProjectIdea = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Proje hakkında detaylı bilgi verin..."
+                placeholder="AI projesi hakkında detaylı bilgi verin. Projenin amacı, hangi AI teknolojilerini kullandığı, hangi problemleri çözdüğü..."
                 rows={6}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 maxLength={5000}
@@ -375,7 +395,7 @@ const AdminEditProjectIdea = () => {
 
               <div>
                 <label htmlFor="technologies" className="block text-sm font-medium text-gray-700 mb-2">
-                  Teknolojiler <span className="text-gray-400">(Opsiyonel)</span>
+                  AI Teknolojileri <span className="text-gray-400">(Opsiyonel)</span>
                 </label>
                 <input
                   type="text"
@@ -383,7 +403,7 @@ const AdminEditProjectIdea = () => {
                   name="technologies"
                   value={formData.technologies}
                   onChange={handleChange}
-                  placeholder="React, Node.js, MongoDB, Express"
+                  placeholder="TensorFlow, PyTorch, Scikit-learn, OpenAI API"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <p className="mt-1 text-sm text-gray-500">
@@ -402,7 +422,7 @@ const AdminEditProjectIdea = () => {
                 name="requirements"
                 value={formData.requirements}
                 onChange={handleChange}
-                placeholder="Bu projeyi başlatmak için öğrencinin bilmesi gerekenler..."
+                placeholder="Bu AI projesini başlatmak için öğrencinin bilmesi gerekenler:&#10;- Python temel bilgisi&#10;- NumPy ve Pandas&#10;- Temel ML kavramları"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
@@ -418,7 +438,7 @@ const AdminEditProjectIdea = () => {
                 name="resources"
                 value={formData.resources}
                 onChange={handleChange}
-                placeholder="Faydalı kaynaklar ve dökümanlar..."
+                placeholder="Faydalı AI kaynakları:&#10;https://tensorflow.org/tutorials&#10;https://pytorch.org/tutorials"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
@@ -435,7 +455,7 @@ const AdminEditProjectIdea = () => {
                 name="image"
                 value={formData.image}
                 onChange={handleChange}
-                placeholder="https://example.com/project-image.jpg"
+                placeholder="https://example.com/ai-project-image.jpg"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
             </div>
@@ -498,23 +518,27 @@ const AdminEditProjectIdea = () => {
         </div>
 
         {/* Warning */}
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-yellow-900 mb-3 flex items-center">
             <span className="mr-2">⚠️</span>
-            Dikkat
+            Önemli Notlar
           </h3>
           <ul className="space-y-2 text-yellow-800">
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Proje durumunu "Pasif" olarak değiştirirseniz, öğrenciler bu projeyi göremeyecek</span>
+              <span>Proje durumunu "Pasif" yaparsanız, öğrenciler bu AI projesini göremeyecek</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Önemli değişiklikler yapmadan önce yedek almanızı öneririz</span>
+              <span>Kategori değiştirirken projenin içeriğinin yeni kategoriye uygun olduğundan emin olun</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Açıklama ve gereksinimler değiştiğinde öğrencileri bilgilendirmeyi unutmayın</span>
+              <span>AI teknolojileri ve gereksinimler değiştiğinde öğrencileri bilgilendirin</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2 mt-1">•</span>
+              <span>Dataset kaynakları ve model bilgilerini açıkça belirtin</span>
             </li>
           </ul>
         </div>

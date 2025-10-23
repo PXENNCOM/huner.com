@@ -1,3 +1,4 @@
+// AdminCreateProjectIdea.jsx
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createProjectIdea } from '../../services/adminApi';
@@ -10,7 +11,7 @@ const AdminCreateProjectIdea = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: 'Web Development',
+    category: 'Machine Learning',
     difficulty: 'Orta',
     estimatedDays: '',
     technologies: '',
@@ -19,27 +20,46 @@ const AdminCreateProjectIdea = () => {
     image: ''
   });
 
-  // Kategoriler
+  // AI Kategorileri
   const categories = [
-    'Web Development',
-    'Mobile Development', 
-    'Artificial Intelligence',
-    'Game Development',
-    'Data Science',
-    'Cybersecurity',
-    'Cloud & DevOps',
-    'System Design'
+    'Machine Learning',
+    'Deep Learning',
+    'Natural Language Processing (NLP)',
+    'Computer Vision',
+    'Generative AI',
+    'Autonomous Agents & Multi-Agent Systems',
+    'Data Science & Analytics',
+    'Data Engineering',
+    'Reinforcement Learning',
+    'AI Ethics & Governance'
   ];
 
+  // Kategori İkonları
   const categoryIcons = {
-    'Web Development': '🌐',
-    'Mobile Development': '📱',
-    'Artificial Intelligence': '🤖',
-    'Game Development': '🎮',
-    'Data Science': '📊',
-    'Cybersecurity': '🔐',
-    'Cloud & DevOps': '☁️',
-    'System Design': '🏗️'
+    'Machine Learning': '🤖',
+    'Deep Learning': '🧠',
+    'Natural Language Processing (NLP)': '💬',
+    'Computer Vision': '👁️',
+    'Generative AI': '✨',
+    'Autonomous Agents & Multi-Agent Systems': '🤝',
+    'Data Science & Analytics': '📊',
+    'Data Engineering': '⚙️',
+    'Reinforcement Learning': '🎯',
+    'AI Ethics & Governance': '⚖️'
+  };
+
+  // Kategori Açıklamaları
+  const categoryDescriptions = {
+    'Machine Learning': 'Makine Öğrenmesi - Temel ML algoritmaları ve uygulamaları',
+    'Deep Learning': 'Derin Öğrenme - Neural Networks ve ileri seviye modeller',
+    'Natural Language Processing (NLP)': 'Doğal Dil İşleme - Metin analizi ve dil modelleri',
+    'Computer Vision': 'Bilgisayarlı Görü - Görüntü işleme ve nesne tanıma',
+    'Generative AI': 'Üretken Yapay Zeka - GPT, DALL-E gibi üretken modeller',
+    'Autonomous Agents & Multi-Agent Systems': 'Otonom Ajanlar - Akıllı ajan sistemleri',
+    'Data Science & Analytics': 'Veri Bilimi - Veri analizi ve görselleştirme',
+    'Data Engineering': 'Veri Mühendisliği - Veri pipeline ve ETL süreçleri',
+    'Reinforcement Learning': 'Pekiştirmeli Öğrenme - Ödül tabanlı öğrenme',
+    'AI Ethics & Governance': 'AI Etiği - Yapay zekanın etik kullanımı'
   };
 
   const difficulties = [
@@ -106,7 +126,6 @@ const AdminCreateProjectIdea = () => {
       
       console.log('Proje fikri oluşturuldu:', response.data);
       
-      // Başarı durumunda proje fikirleri sayfasına yönlendir
       navigate('/admin/project-ideas', { 
         state: { 
           message: 'Proje fikri başarıyla oluşturuldu!',
@@ -138,8 +157,8 @@ const AdminCreateProjectIdea = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Yeni Proje Fikri Oluştur</h1>
-            <p className="text-gray-600">Öğrenciler için yeni bir proje fikri ekleyin</p>
+            <h1 className="text-2xl font-bold text-gray-900">🤖 Yeni AI Proje Fikri Oluştur</h1>
+            <p className="text-gray-600">Yapay Zeka alanında öğrenciler için yeni bir proje fikri ekleyin</p>
           </div>
           <Link
             to="/admin/project-ideas"
@@ -175,7 +194,7 @@ const AdminCreateProjectIdea = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="Örn: Todo List Uygulaması"
+                placeholder="Örn: Sentiment Analizi Uygulaması"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 maxLength={200}
                 required
@@ -185,51 +204,53 @@ const AdminCreateProjectIdea = () => {
               </p>
             </div>
 
-            {/* Category and Difficulty */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
-                  Kategori <span className="text-red-500">*</span>
-                </label>
-                <select
-                  id="category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  required
-                >
-                  {categories.map(category => (
-                    <option key={category} value={category}>
-                      {categoryIcons[category]} {category}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            {/* Category */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+                AI Kategorisi <span className="text-red-500">*</span>
+              </label>
+              <select
+                id="category"
+                name="category"
+                value={formData.category}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                required
+              >
+                {categories.map(category => (
+                  <option key={category} value={category}>
+                    {categoryIcons[category]} {category}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-sm text-gray-500">
+                {categoryDescriptions[formData.category]}
+              </p>
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Zorluk Seviyesi <span className="text-red-500">*</span>
-                </label>
-                <div className="space-y-3">
-                  {difficulties.map(diff => (
-                    <label key={diff.value} className="flex items-center">
-                      <input
-                        type="radio"
-                        name="difficulty"
-                        value={diff.value}
-                        checked={formData.difficulty === diff.value}
-                        onChange={handleChange}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                      />
-                      <span className="ml-3 flex items-center">
-                        <span className="mr-2">{diff.icon}</span>
-                        <span className="font-medium">{diff.label}</span>
-                        <span className="ml-2 text-sm text-gray-500">- {diff.description}</span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
+            {/* Difficulty */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Zorluk Seviyesi <span className="text-red-500">*</span>
+              </label>
+              <div className="space-y-3">
+                {difficulties.map(diff => (
+                  <label key={diff.value} className="flex items-center">
+                    <input
+                      type="radio"
+                      name="difficulty"
+                      value={diff.value}
+                      checked={formData.difficulty === diff.value}
+                      onChange={handleChange}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                    />
+                    <span className="ml-3 flex items-center">
+                      <span className="mr-2">{diff.icon}</span>
+                      <span className="font-medium">{diff.label}</span>
+                      <span className="ml-2 text-sm text-gray-500">- {diff.description}</span>
+                    </span>
+                  </label>
+                ))}
               </div>
             </div>
 
@@ -243,7 +264,7 @@ const AdminCreateProjectIdea = () => {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Proje hakkında detaylı bilgi verin. Projenin amacı, hangi problemleri çözdüğü, temel özellikleri ve öğrencinin neler öğreneceği hakkında bilgi ekleyin..."
+                placeholder="AI projesi hakkında detaylı bilgi verin. Projenin amacı, hangi AI teknolojilerini kullandığı, hangi problemleri çözdüğü, temel özellikleri ve öğrencinin neler öğreneceği hakkında bilgi ekleyin..."
                 rows={6}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                 maxLength={5000}
@@ -282,7 +303,7 @@ const AdminCreateProjectIdea = () => {
 
               <div>
                 <label htmlFor="technologies" className="block text-sm font-medium text-gray-700 mb-2">
-                  Teknolojiler <span className="text-gray-400">(Opsiyonel)</span>
+                  AI Teknolojileri <span className="text-gray-400">(Opsiyonel)</span>
                 </label>
                 <input
                   type="text"
@@ -290,7 +311,7 @@ const AdminCreateProjectIdea = () => {
                   name="technologies"
                   value={formData.technologies}
                   onChange={handleChange}
-                  placeholder="React, Node.js, MongoDB, Express"
+                  placeholder="TensorFlow, PyTorch, Scikit-learn, OpenAI API"
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
                 <p className="mt-1 text-sm text-gray-500">
@@ -309,7 +330,7 @@ const AdminCreateProjectIdea = () => {
                 name="requirements"
                 value={formData.requirements}
                 onChange={handleChange}
-                placeholder="Bu projeyi başlatmak için öğrencinin bilmesi gerekenler:&#10;- HTML, CSS temel bilgisi&#10;- JavaScript fundamentals&#10;- Git kullanımı"
+                placeholder="Bu AI projesini başlatmak için öğrencinin bilmesi gerekenler:&#10;- Python temel bilgisi&#10;- NumPy ve Pandas kullanımı&#10;- Temel istatistik bilgisi&#10;- Machine Learning temelleri"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
@@ -328,7 +349,7 @@ const AdminCreateProjectIdea = () => {
                 name="resources"
                 value={formData.resources}
                 onChange={handleChange}
-                placeholder="Faydalı kaynaklar ve dökümanlar:&#10;https://reactjs.org/docs/getting-started.html&#10;https://nodejs.org/en/docs/&#10;YouTube Tutorial: React Fundamentals"
+                placeholder="Faydalı AI kaynakları ve dökümanlar:&#10;https://tensorflow.org/tutorials&#10;https://pytorch.org/tutorials&#10;https://huggingface.co/docs&#10;Coursera: Machine Learning by Andrew Ng"
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
               />
@@ -348,11 +369,11 @@ const AdminCreateProjectIdea = () => {
                 name="image"
                 value={formData.image}
                 onChange={handleChange}
-                placeholder="https://example.com/project-image.jpg"
+                placeholder="https://example.com/ai-project-image.jpg"
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="mt-1 text-sm text-gray-500">
-                Proje ile ilgili görsel URL'si ekleyin
+                AI projesi ile ilgili görsel URL'si ekleyin
               </p>
             </div>
 
@@ -404,8 +425,8 @@ const AdminCreateProjectIdea = () => {
                   </>
                 ) : (
                   <>
-                    <span className="mr-2">💡</span>
-                    Proje Fikri Oluştur
+                    <span className="mr-2">🤖</span>
+                    AI Proje Fikri Oluştur
                   </>
                 )}
               </button>
@@ -414,31 +435,35 @@ const AdminCreateProjectIdea = () => {
         </div>
 
         {/* Tips */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-blue-900 mb-3 flex items-center">
             <span className="mr-2">💡</span>
-            İpuçları
+            AI Proje İpuçları
           </h3>
           <ul className="space-y-2 text-blue-800">
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Proje başlığını açık ve çekici tutun</span>
+              <span>Proje başlığını açık ve AI odaklı tutun (örn: "Image Classification with CNN")</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Açıklamada projenin amacını ve öğrencinin neler kazanacağını belirtin</span>
+              <span>Hangi AI algoritması/modelinin kullanılacağını belirtin</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Zorluk seviyesini öğrencinin mevcut seviyesine göre belirleyin</span>
+              <span>Dataset kaynağını ve veri ön işleme adımlarını açıklayın</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Kaynaklar bölümüne öğrenme materyalleri ve dökümanlar ekleyin</span>
+              <span>Model eğitimi, validasyon ve test aşamalarını tanımlayın</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 mt-1">•</span>
-              <span>Görsel eklemek projenin dikkat çekmesini sağlar</span>
+              <span>Kaggle, Hugging Face, TensorFlow gibi kaynakları ekleyin</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2 mt-1">•</span>
+              <span>AI Etiği ve model bias konularına değinin</span>
             </li>
           </ul>
         </div>

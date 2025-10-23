@@ -13,7 +13,7 @@ import {
 
 const RecentProjects = ({ projects, onOpenPortfolioPanel }) => {
   // API base URL'i - api.js'teki ile tutarlı olacak şekilde
-  const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
 
   return (
     <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6 shadow-lg shadow-black/20">

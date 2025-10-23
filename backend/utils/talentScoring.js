@@ -1,346 +1,405 @@
-// backend/utils/talentScoring.js
+// backend/utils/talentScoring.js (Güncelle)
 
-// 1. POZISYON AĞIRLIKLARI
-const getPositionWeights = (position, seniority) => {
-  const baseWeights = {
-    skillMatch: 30,
-    experience: 25,
-    projectQuality: 20,
-    profileQuality: 15,
-    availability: 10
-  };
+const { comprehensiveStudentSearch } = require('./advancedTalentScoring');
 
-  // Pozisyon türüne göre ağırlık ayarlamaları
-  const positionAdjustments = {
-    'frontend': { 
-      skillMatch: +5,      // Frontend için skill match daha önemli
-      projectQuality: +5,  // Portfolio önemli
-      experience: -10      // Deneyim daha az önemli
-    },
-    'backend': { 
-      skillMatch: +5,
-      experience: +5,      // Backend için deneyim önemli
-      projectQuality: -10 
-    },
-    'fullstack': { 
-      skillMatch: +10,     // Her iki tarafı da bilmeli
-      experience: -5,
-      projectQuality: -5 
-    },
-    'mobile': { 
-      projectQuality: +10, // Uygulama portfolyosu önemli
-      skillMatch: +5,
-      experience: -15 
-    },
-    'devops': {
-      experience: +10,     // DevOps için deneyim kritik
-      skillMatch: +5,
-      projectQuality: -15
-    },
-    'data-science': { 
-      experience: +10,
-      skillMatch: +5,
-      projectQuality: -15 
-    },
-    'ui-ux': {
-      projectQuality: +15, // Portfolio çok önemli
-      profileQuality: +5,
-      experience: -10,
-      skillMatch: -10
-    }
-  };
+const calculateStudentScore = (student, searchCriteria, weights) => {
+  const { skills = [], workType, keywords = [] } = searchCriteria;
 
-  // Seniority'ye göre ağırlık ayarlamaları
-  const seniorityAdjustments = {
-    'intern': { 
-      experience: -15,     // Stajyerler için deneyim gerekli değil
-      profileQuality: +10, // Profil kalitesi önemli
-      availability: +5 
-    },
-    'junior': { 
-      experience: -5,
-      skillMatch: +5 
-    },
-    'mid': { 
-      experience: +5,
-      skillMatch: +5,
-      projectQuality: -10 
-    },
-    'senior': { 
-      experience: +15,     // Senior için deneyim çok önemli
-      skillMatch: -5,
-      projectQuality: -10 
-    }
-  };
+  // Kapsamlı arama yap
+  const searchResults = comprehensiveStudentSearch(student, searchCriteria);
 
-  // Kopyala ve ayarla
-  const adjusted = { ...baseWeights };
+  // ============================================
+  // 1. BECERİ SKORU (Skill Match) - %30
+  // ============================================
+  let skillScore = 0;
   
-  if (position && positionAdjustments[position]) {
-    Object.entries(positionAdjustments[position]).forEach(([key, value]) => {
-      adjusted[key] = Math.max(0, adjusted[key] + value); // Negatif olmaz
-    });
-  }
+  if (skills.length > 0) {
+    // Hem doğrudan skills hem de diğer alanlardaki eşleşmeleri değerlendir
+    const directSkillMatch = searchResults.skills.score;
+    const bioSkillMatch = searchResults.bio.score * 0.3;
+    const projectSkillMatch = searchResults.projects.score * 0.4;
+    const workSkillMatch = searchResults.workExperiences.score * 0.3;
 
-  if (seniority && seniorityAdjustments[seniority]) {
-    Object.entries(seniorityAdjustments[seniority]).forEach(([key, value]) => {
-      adjusted[key] = Math.max(0, adjusted[key] + value);
-    });
-  }
-
-  // Toplamın 100 olmasını sağla (normalize et)
-  const total = Object.values(adjusted).reduce((sum, val) => sum + val, 0);
-  Object.keys(adjusted).forEach(key => {
-    adjusted[key] = (adjusted[key] / total) * 100;
-  });
-
-  return adjusted;
-};
-
-// 2. FUZZY SKILL MATCHING
-const fuzzySkillMatch = (requiredSkills, studentSkillsString) => {
-  if (!requiredSkills || requiredSkills.length === 0) {
-    return { matches: [], score: 0, averageConfidence: 0 };
-  }
-
-  if (!studentSkillsString) {
-    return { matches: [], score: 0, averageConfidence: 0 };
-  }
-
-  const studentSkills = studentSkillsString
-    .split(',')
-    .map(s => s.trim().toLowerCase())
-    .filter(s => s.length > 0);
-
-  const matches = [];
-  const threshold = 70; // %70 benzerlik yeterli
-
-  requiredSkills.forEach(reqSkill => {
-    const reqSkillLower = reqSkill.toLowerCase();
-    
-    // Tam eşleşme kontrolü
-    const exactMatch = studentSkills.find(s => s === reqSkillLower);
-    if (exactMatch) {
-      matches.push({
-        required: reqSkill,
-        matched: exactMatch,
-        score: 100,
-        type: 'exact'
-      });
-      return;
-    }
-
-    // İçerir kontrolü (React → React.js, ReactJS)
-    const containsMatch = studentSkills.find(s => 
-      s.includes(reqSkillLower) || reqSkillLower.includes(s)
+    skillScore = (
+      directSkillMatch * 0.5 +
+      bioSkillMatch * 0.1 +
+      projectSkillMatch * 0.25 +
+      workSkillMatch * 0.15
     );
-    if (containsMatch) {
-      matches.push({
-        required: reqSkill,
-        matched: containsMatch,
-        score: 90,
-        type: 'contains'
-      });
-      return;
+
+    // Pozisyon uygunluğu bonusu
+    if (searchResults.positionRelevance) {
+      const posRelevance = (
+        searchResults.positionRelevance.skills * 0.4 +
+        searchResults.positionRelevance.projects * 0.3 +
+        searchResults.positionRelevance.workExp * 0.2 +
+        searchResults.positionRelevance.bio * 0.1
+      );
+      
+      skillScore = skillScore * 0.7 + posRelevance * 0.3;
     }
-
-    // Levenshtein distance ile benzerlik kontrolü
-    studentSkills.forEach(studentSkill => {
-      const similarity = calculateSimilarity(reqSkillLower, studentSkill);
-      if (similarity >= threshold) {
-        matches.push({
-          required: reqSkill,
-          matched: studentSkill,
-          score: similarity,
-          type: 'fuzzy'
-        });
-      }
-    });
-  });
-
-  // Duplicate'leri temizle (en yüksek score'u tut)
-  const uniqueMatches = [];
-  const seenRequired = new Set();
-  
-  matches
-    .sort((a, b) => b.score - a.score)
-    .forEach(match => {
-      if (!seenRequired.has(match.required)) {
-        uniqueMatches.push(match);
-        seenRequired.add(match.required);
-      }
-    });
-
-  return {
-    matches: uniqueMatches,
-    score: (uniqueMatches.length / requiredSkills.length) * 100,
-    averageConfidence: uniqueMatches.length > 0 
-      ? uniqueMatches.reduce((sum, m) => sum + m.score, 0) / uniqueMatches.length 
-      : 0
-  };
-};
-
-// Levenshtein Distance - basit versiyon
-const calculateSimilarity = (str1, str2) => {
-  const longer = str1.length > str2.length ? str1 : str2;
-  const shorter = str1.length > str2.length ? str2 : str1;
-  
-  if (longer.length === 0) return 100;
-  
-  const editDistance = levenshteinDistance(longer, shorter);
-  return ((longer.length - editDistance) / longer.length) * 100;
-};
-
-const levenshteinDistance = (str1, str2) => {
-  const matrix = [];
-
-  for (let i = 0; i <= str2.length; i++) {
-    matrix[i] = [i];
-  }
-
-  for (let j = 0; j <= str1.length; j++) {
-    matrix[0][j] = j;
-  }
-
-  for (let i = 1; i <= str2.length; i++) {
-    for (let j = 1; j <= str1.length; j++) {
-      if (str2.charAt(i - 1) === str1.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          matrix[i][j - 1] + 1,
-          matrix[i - 1][j] + 1
-        );
-      }
-    }
-  }
-
-  return matrix[str2.length][str1.length];
-};
-
-// 3. SKORLAMA FONKSİYONU
-const calculateStudentScore = (student, filters, weights) => {
-  const scoreBreakdown = {
-    skillMatch: 0,
-    experience: 0,
-    projectQuality: 0,
-    profileQuality: 0,
-    availability: 0
-  };
-
-  // 3.1 SKILL MATCHING
-  if (filters.skills && filters.skills.length > 0) {
-    const fuzzyMatch = fuzzySkillMatch(filters.skills, student.skills);
-    
-    // Tam eşleşmelere daha yüksek puan
-    const exactMatches = fuzzyMatch.matches.filter(m => m.type === 'exact').length;
-    const containsMatches = fuzzyMatch.matches.filter(m => m.type === 'contains').length;
-    const fuzzyMatches = fuzzyMatch.matches.filter(m => m.type === 'fuzzy').length;
-    
-    scoreBreakdown.skillMatch = (
-      (exactMatches / filters.skills.length) * weights.skillMatch * 1.0 +
-      (containsMatches / filters.skills.length) * weights.skillMatch * 0.9 +
-      (fuzzyMatches / filters.skills.length) * weights.skillMatch * 0.7
-    );
-    
-    student.fuzzyMatchResult = fuzzyMatch;
   } else {
-    scoreBreakdown.skillMatch = weights.skillMatch * 0.5; // Filtre yoksa ortalama puan
+    skillScore = 50; // Skill belirtilmemişse varsayılan
   }
 
-  // 3.2 EXPERIENCE SCORING
-  if (student.WorkExperiences && student.WorkExperiences.length > 0) {
-    let totalMonths = 0;
-    let relevantExperience = 0;
-    
-    student.WorkExperiences.forEach(exp => {
-      const startDate = new Date(exp.startDate);
-      const endDate = exp.isCurrent ? new Date() : new Date(exp.endDate);
-      const months = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24 * 30));
-      
-      totalMonths += months;
-      
-      if (filters.workType && exp.workType === filters.workType) {
-        relevantExperience += months;
-      }
-    });
-    
-    student.totalExperienceMonths = totalMonths;
-    
-    // Logaritmik skorlama (ilk deneyimler daha değerli)
-    const baseScore = (Math.log(totalMonths + 1) / Math.log(37)) * weights.experience;
-    const relevanceBonus = relevantExperience > 0 ? weights.experience * 0.2 : 0;
-    
-    scoreBreakdown.experience = Math.min(weights.experience, baseScore + relevanceBonus);
+  // ============================================
+  // 2. DENEYİM SKORU (Experience) - %25
+  // ============================================
+  let experienceScore = 0;
+  const totalMonths = student.totalExperienceMonths || 0;
+
+  // Temel deneyim skoru
+  if (totalMonths === 0) {
+    experienceScore = 30;
+  } else if (totalMonths < 6) {
+    experienceScore = 50;
+  } else if (totalMonths < 12) {
+    experienceScore = 70;
+  } else if (totalMonths < 24) {
+    experienceScore = 85;
+  } else {
+    experienceScore = 100;
   }
 
-  // 3.3 PROJECT QUALITY - ✅ DEĞİŞTİRİLDİ: studentData → student
-  if (student.Projects && student.Projects.length > 0) {
-    const projectCount = student.Projects.length;
-    let projectScore = 0;
-    
-    // Proje sayısı
-    projectScore += Math.min(weights.projectQuality * 0.4, projectCount * 2);
-    
-    // GitHub linki
-    const githubProjects = student.Projects.filter(p => p.githubUrl);
-    projectScore += Math.min(weights.projectQuality * 0.2, githubProjects.length * 2);
-    
-    // Live demo
-    const liveProjects = student.Projects.filter(p => p.liveUrl);
-    projectScore += Math.min(weights.projectQuality * 0.2, liveProjects.length * 2);
-    
-    // Teknoloji eşleşmesi
-    if (filters.skills && filters.skills.length > 0) {
-      const matchingProjects = student.Projects.filter(project => {
-        if (!project.technologies) return false;
-        const projectTechs = project.technologies.toLowerCase();
-        return filters.skills.some(skill => 
-          projectTechs.includes(skill.toLowerCase())
-        );
-      });
-      projectScore += Math.min(weights.projectQuality * 0.2, matchingProjects.length * 3);
+  // İş deneyimi içeriği bonusu
+  if (searchResults.workExperiences.score > 0) {
+    const contentBonus = searchResults.workExperiences.score * 0.2;
+    experienceScore = Math.min(100, experienceScore + contentBonus);
+  }
+
+  // Çalışma türü uyumu
+  if (workType && student.WorkExperiences) {
+    const hasMatchingType = student.WorkExperiences.some(
+      exp => exp.workType === workType
+    );
+    if (hasMatchingType) {
+      experienceScore = Math.min(100, experienceScore * 1.1);
     }
-    
-    scoreBreakdown.projectQuality = Math.min(weights.projectQuality, projectScore);
-    student.projectCount = projectCount;
   }
 
-  // 3.4 PROFILE QUALITY
-  let profileScore = 0;
-  
-  const profileFields = [
-    student.fullName, student.age, student.city, student.school,
-    student.educationLevel, student.department, student.languages,
-    student.skills, student.shortBio
-  ];
-  
-  const completedFields = profileFields.filter(f => f !== null && f !== '' && f !== undefined).length;
-  profileScore += (completedFields / profileFields.length) * weights.profileQuality * 0.5;
-  
-  if (student.githubProfile) profileScore += weights.profileQuality * 0.15;
-  if (student.linkedinProfile) profileScore += weights.profileQuality * 0.15;
-  if (student.profileImage) profileScore += weights.profileQuality * 0.1;
-  if (student.shortBio && student.shortBio.length > 50) profileScore += weights.profileQuality * 0.1;
-  
-  scoreBreakdown.profileQuality = Math.min(weights.profileQuality, profileScore);
-  student.profileCompleteness = Math.round((completedFields / profileFields.length) * 100);
+  // ============================================
+  // 3. PROJE KALİTESİ SKORU - %25
+  // ============================================
+  let projectScore = 0;
+  const projectCount = student.projectCount || 0;
 
-  // 3.5 AVAILABILITY
-  scoreBreakdown.availability = weights.availability;
+  // Temel proje sayısı skoru
+  if (projectCount === 0) {
+    projectScore = 20;
+  } else if (projectCount === 1) {
+    projectScore = 50;
+  } else if (projectCount === 2) {
+    projectScore = 70;
+  } else if (projectCount >= 3) {
+    projectScore = 85;
+  }
 
-  // TOPLAM SKOR
-  const totalScore = Object.values(scoreBreakdown).reduce((sum, val) => sum + val, 0);
-  
+  // Proje içeriği ve eşleşme bonusu
+  if (searchResults.projects.score > 0) {
+    const contentBonus = searchResults.projects.score * 0.3;
+    projectScore = Math.min(100, projectScore + contentBonus);
+  }
+
+  // GitHub bonusu
+  if (student.githubProfile) {
+    projectScore = Math.min(100, projectScore * 1.1);
+  }
+
+  // Proje çeşitliliği bonusu
+  if (student.Projects && student.Projects.length > 0) {
+    const projectTypes = new Set(student.Projects.map(p => p.projectType));
+    const diversityBonus = (projectTypes.size - 1) * 5;
+    projectScore = Math.min(100, projectScore + diversityBonus);
+  }
+
+  // ============================================
+  // 4. PROFİL KALİTESİ SKORU - %20
+  // ============================================
+  let profileScore = student.profileCompleteness || 0;
+
+  // Biyografi içerik kalitesi
+  if (student.shortBio) {
+    const bioLength = student.shortBio.length;
+    if (bioLength > 100) {
+      profileScore += 10;
+    }
+    if (searchResults.bio.score > 0) {
+      profileScore += searchResults.bio.score * 0.15;
+    }
+  }
+
+  // Sosyal profil bonusları
+  if (student.githubProfile) profileScore += 5;
+  if (student.linkedinProfile) profileScore += 5;
+
+  // Bölüm uyumu
+  if (searchResults.department.score > 0) {
+    profileScore += searchResults.department.score * 0.1;
+  }
+
+  profileScore = Math.min(100, profileScore);
+
+  // ============================================
+  // 5. EĞİTİM SKORU - Bonus olarak ekle
+  // ============================================
+  let educationBonus = 0;
+  const eduLevels = {
+    'high_school': 0,
+    'university': 5,
+    'masters': 10,
+    'doctorate': 15
+  };
+  educationBonus = eduLevels[student.educationLevel] || 0;
+
+  // Bölüm-pozisyon uyumu ekstra bonus
+  if (searchResults.department.score > 50) {
+    educationBonus += 5;
+  }
+
+  // ============================================
+  // TOPLAM SKOR HESAPLAMA
+  // ============================================
+  const baseScore = (
+    skillScore * (weights.skills / 100) +
+    experienceScore * (weights.experience / 100) +
+    projectScore * (weights.projects / 100) +
+    profileScore * (weights.profile / 100)
+  );
+
+  // Education bonusunu ekle (max %10 etki)
+  const totalScore = Math.min(100, baseScore + (educationBonus * 0.1));
+
+  // ============================================
+  // DETAYLI BREAKDOWN
+  // ============================================
+  const scoreBreakdown = {
+    // Ana skorlar
+    skillMatch: Math.round(skillScore),
+    experience: Math.round(experienceScore),
+    projectQuality: Math.round(projectScore),
+    profileQuality: Math.round(profileScore),
+    educationBonus: Math.round(educationBonus),
+
+    // Detaylı eşleşmeler
+    matchDetails: {
+      bioMatches: searchResults.bio.matches,
+      skillMatches: searchResults.skills.matches,
+      departmentMatches: searchResults.department.matches,
+      projectMatches: searchResults.projects.details,
+      workExperienceMatches: searchResults.workExperiences.details,
+    },
+
+    // Eşleşme skorları
+    matchScores: {
+      bio: Math.round(searchResults.bio.score),
+      skills: Math.round(searchResults.skills.score),
+      department: Math.round(searchResults.department.score),
+      projects: Math.round(searchResults.projects.score),
+      workExperiences: Math.round(searchResults.workExperiences.score)
+    },
+
+    // Pozisyon uygunluğu
+    positionRelevance: searchResults.positionRelevance ? {
+      overall: Math.round(
+        (searchResults.positionRelevance.bio.score * 0.2 +
+         searchResults.positionRelevance.skills.score * 0.3 +
+         searchResults.positionRelevance.projects * 0.3 +
+         searchResults.positionRelevance.workExp * 0.2)
+      ),
+      bio: Math.round(searchResults.positionRelevance.bio.score),
+      skills: Math.round(searchResults.positionRelevance.skills.score),
+      projects: Math.round(searchResults.positionRelevance.projects),
+      workExp: Math.round(searchResults.positionRelevance.workExp)
+    } : null
+  };
+
   return {
-    totalScore: Math.round(totalScore * 10) / 10, // 1 ondalık
+    totalScore: Math.round(totalScore),
     scoreBreakdown
   };
 };
 
+
+/**
+ * Pozisyon ve kıdem seviyesine göre ağırlıkları hesapla
+ */
+const getPositionWeights = (position, seniority) => {
+  // Varsayılan ağırlıklar
+  let weights = {
+    skills: 30,
+    experience: 25,
+    projects: 25,
+    profile: 20
+  };
+
+  // Pozisyona göre özelleştirme
+  switch (position) {
+    case 'frontend':
+      weights = {
+        skills: 35,
+        experience: 20,
+        projects: 30,
+        profile: 15
+      };
+      break;
+      
+    case 'backend':
+      weights = {
+        skills: 35,
+        experience: 30,
+        projects: 20,
+        profile: 15
+      };
+      break;
+      
+    case 'fullstack':
+      weights = {
+        skills: 35,
+        experience: 25,
+        projects: 25,
+        profile: 15
+      };
+      break;
+      
+    case 'mobile':
+      weights = {
+        skills: 35,
+        experience: 25,
+        projects: 25,
+        profile: 15
+      };
+      break;
+      
+    case 'devops':
+      weights = {
+        skills: 30,
+        experience: 40,
+        projects: 15,
+        profile: 15
+      };
+      break;
+      
+    case 'data-science':
+      weights = {
+        skills: 40,
+        experience: 25,
+        projects: 25,
+        profile: 10
+      };
+      break;
+      
+    case 'ui-ux':
+      weights = {
+        skills: 25,
+        experience: 20,
+        projects: 40,
+        profile: 15
+      };
+      break;
+  }
+
+  // Kıdem seviyesine göre ayarlama
+  switch (seniority) {
+    case 'intern':
+      // Stajyerler için proje ve profil daha önemli
+      weights.experience = Math.max(0, weights.experience - 10);
+      weights.projects += 5;
+      weights.profile += 5;
+      break;
+      
+    case 'junior':
+      // Junior'lar için deneyim biraz daha az önemli
+      weights.experience = Math.max(5, weights.experience - 5);
+      weights.projects += 3;
+      weights.skills += 2;
+      break;
+      
+    case 'mid':
+      // Mid-level için balanced
+      // Varsayılan ağırlıklar zaten uygun
+      break;
+      
+    case 'senior':
+      // Senior'lar için deneyim çok önemli
+      weights.experience += 15;
+      weights.projects -= 5;
+      weights.profile -= 5;
+      weights.skills -= 5;
+      break;
+  }
+
+  // Toplam 100 olduğundan emin ol
+  const total = Object.values(weights).reduce((a, b) => a + b, 0);
+  if (total !== 100) {
+    const factor = 100 / total;
+    Object.keys(weights).forEach(key => {
+      weights[key] = Math.round(weights[key] * factor);
+    });
+  }
+
+  return weights;
+};
+
+/**
+ * Fuzzy skill matching - iki beceri arasındaki benzerliği hesapla
+ */
+const fuzzySkillMatch = (skill1, skill2) => {
+  if (!skill1 || !skill2) return 0;
+
+  const s1 = skill1.toLowerCase().trim();
+  const s2 = skill2.toLowerCase().trim();
+
+  // Tam eşleşme
+  if (s1 === s2) return 100;
+
+  // Birisi diğerini içeriyor mu?
+  if (s1.includes(s2) || s2.includes(s1)) {
+    const longer = Math.max(s1.length, s2.length);
+    const shorter = Math.min(s1.length, s2.length);
+    return Math.round((shorter / longer) * 90);
+  }
+
+  // Levenshtein distance ile benzerlik
+  const distance = levenshteinDistance(s1, s2);
+  const maxLength = Math.max(s1.length, s2.length);
+  const similarity = 1 - (distance / maxLength);
+
+  // Benzerlik yüzdesini döndür (0-100)
+  return Math.round(similarity * 100);
+};
+
+/**
+ * Levenshtein distance helper (eğer advancedTalentScoring'den import edilmiyorsa)
+ */
+const levenshteinDistance = (str1, str2) => {
+  const track = Array(str2.length + 1).fill(null).map(() =>
+    Array(str1.length + 1).fill(null));
+  
+  for (let i = 0; i <= str1.length; i += 1) {
+    track[0][i] = i;
+  }
+  
+  for (let j = 0; j <= str2.length; j += 1) {
+    track[j][0] = j;
+  }
+  
+  for (let j = 1; j <= str2.length; j += 1) {
+    for (let i = 1; i <= str1.length; i += 1) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
+      track[j][i] = Math.min(
+        track[j][i - 1] + 1,
+        track[j - 1][i] + 1,
+        track[j - 1][i - 1] + indicator,
+      );
+    }
+  }
+  
+  return track[str2.length][str1.length];
+};
+
+
 module.exports = {
+  calculateStudentScore,
   getPositionWeights,
-  fuzzySkillMatch,
-  calculateStudentScore
+  fuzzySkillMatch
 };

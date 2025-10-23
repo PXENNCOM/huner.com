@@ -11,7 +11,7 @@ import {
 
 const UpcomingEvents = ({ events, onOpenEventsPanel }) => {
   // API base URL'i
-  const API_BASE_URL = 'http://localhost:3001';
+const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001';
 
   const getEventImage = (event) => {
     if (event.image) {

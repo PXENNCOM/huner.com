@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import api from '../services/api';
 import { Eye, EyeOff, Mail, Lock, User, Linkedin, Github, Info, ArrowRight, ArrowLeft, GraduationCap, Phone } from 'lucide-react';
 
 const StudentSignUp = () => {
@@ -104,45 +105,57 @@ const StudentSignUp = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setSuccess('');
+  
+  if (!validateStep(3)) {
+    return;
+  }
+  
+  setLoading(true);
+  
+  try {
+    const userData = {
+      email: formData.email,
+      password: formData.password,
+      fullName: formData.fullName,
+      phoneNumber: formData.phoneNumber,
+      linkedinProfile: formData.linkedinProfile,
+      githubProfile: formData.githubProfile,
+      userType: 'student'
+    };
     
-    if (!validateStep(3)) {
-      return;
+    // ✅ DOĞRUDAN API ÇAĞRISI (register hook yerine)
+    const response = await api.post('/auth/register', userData);
+    
+    console.log('✅ Registration Response:', response.data);
+    
+    if (response.data.success && response.data.needsEmailVerification) {
+      console.log('✅ Redirecting to email verification...');
+      // Email doğrulama sayfasına yönlendir
+      navigate('/verify-email', { 
+        state: { 
+          userId: response.data.userId,
+          email: formData.email 
+        } 
+      });
+    } else if (response.data.success) {
+      setSuccess('Registration successful!');
+      setTimeout(() => {
+        navigate('/signin');
+      }, 2000);
+    } else {
+      setError(response.data.message || 'Registration failed');
     }
-    
-    setLoading(true);
-    
-    try {
-      const userData = {
-        email: formData.email,
-        password: formData.password,
-        fullName: formData.fullName,
-        phoneNumber: formData.phoneNumber, // Telefon numarası eklendi
-        linkedinProfile: formData.linkedinProfile,
-        githubProfile: formData.githubProfile,
-        userType: 'student'
-      };
-      
-      const result = await register(userData);
-      
-      if (result.success) {
-        setSuccess('Registration successful! Awaiting admin approval.');
-        setTimeout(() => {
-          navigate('/signin');
-        }, 3000);
-      } else {
-        setError(result.message);
-      }
-    } catch (err) {
-      setError('An error occurred during registration. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  } catch (err) {
+    console.error('❌ Registration error:', err.response?.data);
+    setError(err.response?.data?.message || 'An error occurred during registration. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+};
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:

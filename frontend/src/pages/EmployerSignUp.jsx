@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Eye, EyeOff, Mail, Lock, User, Building, Briefcase, Globe, Phone, ArrowRight, ArrowLeft, Building2 } from 'lucide-react';
+import api from '../services/api'; // ← EKLE
 
 const EmployerSignUp = () => {
   const [formData, setFormData] = useState({
@@ -108,6 +109,7 @@ const EmployerSignUp = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
+  // ✅ GÜNCELLENMİŞ handleSubmit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -132,24 +134,38 @@ const EmployerSignUp = () => {
         userType: 'employer'
       };
       
-      const result = await register(userData);
+      // ✅ DOĞRUDAN API ÇAĞRISI
+      const response = await api.post('/auth/register', userData);
       
-      if (result.success) {
+      console.log('✅ Employer Registration Response:', response.data);
+      
+      if (response.data.success && response.data.needsEmailVerification) {
+        console.log('✅ Redirecting to email verification...');
+        // Email doğrulama sayfasına yönlendir
+        navigate('/verify-email', { 
+          state: { 
+            userId: response.data.userId,
+            email: formData.email 
+          } 
+        });
+      } else if (response.data.success) {
         setSuccess('Registration successful! You can now sign in.');
         setTimeout(() => {
           navigate('/signin');
-        }, 3000);
+        }, 2000);
       } else {
-        setError(result.message);
+        setError(response.data.message || 'Registration failed');
       }
     } catch (err) {
-      setError('An error occurred during registration. Please try again.');
+      console.error('❌ Employer Registration error:', err.response?.data);
+      setError(err.response?.data?.message || 'An error occurred during registration. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   const renderStepContent = () => {
+    // ... (renderStepContent aynı kalıyor, değişiklik yok)
     switch (currentStep) {
       case 1:
         return (
@@ -443,7 +459,7 @@ const EmployerSignUp = () => {
       </div>
       
       {/* CSS Düzeltmeleri */}
-      <style jsx>{`
+      <style>{`
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-in-out;
         }
@@ -580,55 +596,55 @@ const EmployerSignUp = () => {
             <form onSubmit={currentStep === 3 ? handleSubmit : (e) => e.preventDefault()}>
               {renderStepContent()}
 
-              {/* Navigation Buttons - Düzeltilmiş versiyon */}
-<div className="flex justify-between mt-8 pt-6 border-t border-white/20">
-  <button
-    type="button"
-    onClick={prevStep}
-    disabled={currentStep === 1}
-    className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
-      currentStep === 1
-        ? 'bg-white/5 text-white/40 cursor-not-allowed'
-        : 'bg-white/10 text-white hover:bg-white/20 border border-white/20 hover:border-white/30'
-    }`}
-  >
-    <span className="flex items-center justify-center">
-      <ArrowLeft className="mr-2 h-5 w-5" />
-      Back
-    </span>
-  </button>
+              {/* Navigation Buttons */}
+              <div className="flex justify-between mt-8 pt-6 border-t border-white/20">
+                <button
+                  type="button"
+                  onClick={prevStep}
+                  disabled={currentStep === 1}
+                  className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                    currentStep === 1
+                      ? 'bg-white/5 text-white/40 cursor-not-allowed'
+                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/20 hover:border-white/30'
+                  }`}
+                >
+                  <span className="flex items-center justify-center">
+                    <ArrowLeft className="mr-2 h-5 w-5" />
+                    Back
+                  </span>
+                </button>
 
-  {currentStep < 3 ? (
-    <button
-      type="button"
-      onClick={nextStep}
-      className="px-8 py-3 bg-gradient-to-r from-[#004493] to-[#0158C1] text-white rounded-xl text-sm font-semibold hover:from-[#003377] hover:to-[#004493] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <span className="flex items-center justify-center">
-        Next
-        <ArrowRight className="ml-2 h-5 w-5" />
-      </span>
-    </button>
-  ) : (
-    <button
-      type="submit"
-      disabled={loading}
-      className="px-8 py-3 bg-gradient-to-r from-[#004493] to-[#0158C1] text-white rounded-xl text-sm font-semibold hover:from-[#003377] hover:to-[#004493] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      {loading ? (
-        <div className="flex items-center justify-center">
-          <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-          </svg>
-          Processing...
-        </div>
-      ) : (
-        'Register'
-      )}
-    </button>
-  )}
-</div>
+                {currentStep < 3 ? (
+                  <button
+                    type="button"
+                    onClick={nextStep}
+                    className="px-8 py-3 bg-gradient-to-r from-[#004493] to-[#0158C1] text-white rounded-xl text-sm font-semibold hover:from-[#003377] hover:to-[#004493] transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    <span className="flex items-center justify-center">
+                      Next
+                      <ArrowRight className="ml-2 h-5 w-5" />
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="px-8 py-3 bg-gradient-to-r from-[#004493] to-[#0158C1] text-white rounded-xl text-sm font-semibold hover:from-[#003377] hover:to-[#004493] transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loading ? (
+                      <div className="flex items-center justify-center">
+                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Processing...
+                      </div>
+                    ) : (
+                      'Register'
+                    )}
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </div>

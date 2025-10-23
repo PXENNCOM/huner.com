@@ -30,12 +30,12 @@ export default defineConfig({
     proxy: {
       // API isteklerini backend'e yönlendir
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.VITE_API_URL || 'http://localhost:3001',
         changeOrigin: true,
       },
       // Statik dosyaları da backend'den al
       '/uploads': {
-        target: 'http://localhost:3001',
+        target: process.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:3001',
         changeOrigin: true,
       },
     },

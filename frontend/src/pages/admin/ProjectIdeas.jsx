@@ -11,27 +11,31 @@ const AdminProjectIdeas = () => {
   const [filter, setFilter] = useState('all'); // all, active, inactive
   const [categoryFilter, setCategoryFilter] = useState('all');
 
-  // Kategoriler
+  // AI Kategorileri
   const categories = [
-    'Web Development',
-    'Mobile Development', 
-    'Artificial Intelligence',
-    'Game Development',
-    'Data Science',
-    'Cybersecurity',
-    'Cloud & DevOps',
-    'System Design'
+    'Machine Learning',
+    'Deep Learning',
+    'Natural Language Processing (NLP)',
+    'Computer Vision',
+    'Generative AI',
+    'Autonomous Agents & Multi-Agent Systems',
+    'Data Science & Analytics',
+    'Data Engineering',
+    'Reinforcement Learning',
+    'AI Ethics & Governance'
   ];
 
   const categoryIcons = {
-    'Web Development': '🌐',
-    'Mobile Development': '📱',
-    'Artificial Intelligence': '🤖',
-    'Game Development': '🎮',
-    'Data Science': '📊',
-    'Cybersecurity': '🔐',
-    'Cloud & DevOps': '☁️',
-    'System Design': '🏗️'
+    'Machine Learning': '🤖',
+    'Deep Learning': '🧠',
+    'Natural Language Processing (NLP)': '💬',
+    'Computer Vision': '👁️',
+    'Generative AI': '✨',
+    'Autonomous Agents & Multi-Agent Systems': '🤝',
+    'Data Science & Analytics': '📊',
+    'Data Engineering': '⚙️',
+    'Reinforcement Learning': '🎯',
+    'AI Ethics & Governance': '⚖️'
   };
 
   useEffect(() => {
@@ -155,15 +159,15 @@ const AdminProjectIdeas = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Proje Fikri Kütüphanesi</h1>
-            <p className="text-gray-600">Öğrenciler için proje fikirlerini yönetin</p>
+            <h1 className="text-2xl font-bold text-gray-900">🤖 AI Proje Fikri Kütüphanesi</h1>
+            <p className="text-gray-600">Öğrenciler için AI proje fikirlerini yönetin</p>
           </div>
           <Link
             to="/admin/project-ideas/create"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2"
           >
-            <span>💡</span>
-            <span>Yeni Proje Fikri</span>
+            <span>🤖</span>
+            <span>Yeni AI Projesi</span>
           </Link>
         </div>
 
@@ -191,13 +195,13 @@ const AdminProjectIdeas = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Kategori Filtresi</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">AI Kategorisi Filtresi</label>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <option value="all">Tüm Kategoriler</option>
+                <option value="all">Tüm AI Kategorileri</option>
                 {categories.map(category => (
                   <option key={category} value={category}>
                     {categoryIcons[category]} {category}
@@ -213,10 +217,10 @@ const AdminProjectIdeas = () => {
           <div className="bg-white p-6 rounded-lg shadow border">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                <span className="text-xl">💡</span>
+                <span className="text-xl">🤖</span>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Toplam Proje</p>
+                <p className="text-sm font-medium text-gray-600">Toplam AI Projesi</p>
                 <p className="text-2xl font-bold text-gray-900">{projectIdeas.length}</p>
               </div>
             </div>
@@ -228,7 +232,7 @@ const AdminProjectIdeas = () => {
                 <span className="text-xl">✅</span>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Aktif Proje</p>
+                <p className="text-sm font-medium text-gray-600">Aktif AI Projesi</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {projectIdeas.filter(p => p.status === 'active').length}
                 </p>
@@ -238,11 +242,11 @@ const AdminProjectIdeas = () => {
 
           <div className="bg-white p-6 rounded-lg shadow border">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
-                <span className="text-xl">🎯</span>
+              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
+                <span className="text-xl">🧠</span>
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Kategori Sayısı</p>
+                <p className="text-sm font-medium text-gray-600">AI Kategorisi</p>
                 <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
               </div>
             </div>
@@ -250,8 +254,8 @@ const AdminProjectIdeas = () => {
 
           <div className="bg-white p-6 rounded-lg shadow border">
             <div className="flex items-center">
-              <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-                <span className="text-xl">⭐</span>
+              <div className="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                <span className="text-xl">⏱️</span>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Ortalama Süre</p>
@@ -267,23 +271,23 @@ const AdminProjectIdeas = () => {
         <div className="bg-white rounded-lg shadow border overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900">
-              Proje Fikirleri ({filteredProjects.length})
+              AI Proje Fikirleri ({filteredProjects.length})
             </h2>
           </div>
           
           {filteredProjects.length === 0 ? (
             <div className="text-center py-12">
-              <div className="text-6xl mb-4">💡</div>
+              <div className="text-6xl mb-4">🤖</div>
               <p className="text-xl font-medium text-gray-900 mb-2">
                 {filter === 'all' && categoryFilter === 'all' 
-                  ? 'Henüz proje fikri yok' 
-                  : 'Filtreye uygun proje bulunamadı'
+                  ? 'Henüz AI proje fikri yok' 
+                  : 'Filtreye uygun AI projesi bulunamadı'
                 }
               </p>
               <p className="text-gray-600 mb-6">
                 {filter === 'all' && categoryFilter === 'all'
-                  ? 'İlk proje fikrinizi oluşturmak için başlayın'
-                  : 'Farklı filtreler deneyerek diğer projeleri görüntüleyebilirsiniz'
+                  ? 'İlk AI proje fikrinizi oluşturmak için başlayın'
+                  : 'Farklı AI kategorileri deneyerek diğer projeleri görüntüleyebilirsiniz'
                 }
               </p>
               {filter === 'all' && categoryFilter === 'all' && (
@@ -291,7 +295,7 @@ const AdminProjectIdeas = () => {
                   to="/admin/project-ideas/create"
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium"
                 >
-                  Yeni Proje Fikri Oluştur
+                  Yeni AI Proje Fikri Oluştur
                 </Link>
               )}
             </div>
@@ -301,13 +305,13 @@ const AdminProjectIdeas = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Proje Fikri
+                      AI Proje Fikri
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Kategori & Zorluk
+                      AI Kategorisi & Zorluk
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Süre & Teknoloji
+                      Süre & AI Teknolojileri
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Durum
@@ -335,7 +339,7 @@ const AdminProjectIdeas = () => {
                               />
                             ) : null}
                             <div className={`h-12 w-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 ${project.image ? 'hidden' : 'flex'} items-center justify-center`}>
-                              <span className="text-white text-xl">💡</span>
+                              <span className="text-white text-xl">🤖</span>
                             </div>
                           </div>
                           <div className="ml-4">
@@ -427,11 +431,11 @@ const AdminProjectIdeas = () => {
                 </div>
                 <div className="mt-5 text-center">
                   <h3 className="text-lg font-medium text-gray-900">
-                    Proje Fikrini Sil
+                    AI Proje Fikrini Sil
                   </h3>
                   <div className="mt-2 px-7 py-3">
                     <p className="text-sm text-gray-500">
-                      "<strong>{deleteModal.projectTitle}</strong>" proje fikrini silmek istediğinizden emin misiniz? 
+                      "<strong>{deleteModal.projectTitle}</strong>" AI proje fikrini silmek istediğinizden emin misiniz? 
                       Bu işlem geri alınamaz.
                     </p>
                   </div>

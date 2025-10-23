@@ -1,4 +1,4 @@
-// app.js - Debug iyileştirmeli versiyon
+// app.js - Production Ready Version
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -23,49 +23,81 @@ uploadDirs.forEach(dir => {
   }
 });
 
-// Middleware
+// CORS Middleware - Production için güvenli
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:80',
+  'https://hunerly.com',
+  'https://www.hunerly.com',
+  process.env.FRONTEND_URL
+].filter(Boolean); // undefined değerleri temizle
+
 app.use(cors({
-  origin: '*',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (mobile apps, Postman, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+      callback(null, true);
+    } else {
+      callback(new Error('CORS policy: Origin not allowed'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Body parser middleware
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 
 // Statik dosyalar
-app.use('/uploads', express.static('uploads'));
-app.use('/uploads/profile-images', express.static('uploads/profile-images'));
-app.use('/uploads/project-media', express.static('uploads/project-media'));
-app.use('/uploads/student-documents', express.static('uploads/student-documents'));
-app.use('/uploads/job-media', express.static('uploads/job-media'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads/profile-images', express.static(path.join(__dirname, 'uploads/profile-images')));
+app.use('/uploads/project-media', express.static(path.join(__dirname, 'uploads/project-media')));
+app.use('/uploads/student-documents', express.static(path.join(__dirname, 'uploads/student-documents')));
+app.use('/uploads/job-media', express.static(path.join(__dirname, 'uploads/job-media')));
+
+// Request logging (Production'da sadece error logları)
+if (process.env.NODE_ENV === 'development') {
+  app.use((req, res, next) => {
+    console.log(`${req.method} ${req.path}`);
+    next();
+  });
+}
 
 // Veritabanı senkronizasyonu
 db.sequelize.sync({ 
   alter: false,
   force: false
 }).then(() => {
-  console.log('Veritabanı tabloları güncellendi.');
-});
-
-// Detaylı request logger
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  console.log('Headers:', JSON.stringify(req.headers, null, 2));
-  if (req.body && Object.keys(req.body).length > 0) {
-    console.log('Body:', JSON.stringify(req.body, null, 2));
-  }
-  next();
+  console.log('✅ Veritabanı bağlantısı başarılı');
+}).catch(err => {
+  console.error('❌ Veritabanı bağlantı hatası:', err);
 });
 
 // Ana sayfa
 app.get('/', (req, res) => {
-  res.json({ message: 'Hüner API çalışıyor!' });
+  res.json({ 
+    message: 'Hüner API çalışıyor!',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
-// API rotaları - Bu sıralama önemli!
-console.log('📍 Mounting routes...');
+// Health check endpoint (Docker için)
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'ok',
+    message: 'API is healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: process.env.NODE_ENV || 'development',
+    database: db.sequelize ? 'connected' : 'disconnected'
+  });
+});
 
 // Auth routes
 const authRoutes = require('./routes/auth.routes');
@@ -92,94 +124,66 @@ const jobRoutes = require('./routes/job.routes');
 app.use('/api/jobs', jobRoutes);
 console.log('✅ Job routes mounted on /api/jobs');
 
+// Talent routes
 const talentRoutes = require('./routes/talent.routes');
 app.use('/api/talent', talentRoutes);
 console.log('✅ Talent routes mounted on /api/talent');
 
+// Route listesini detaylı göster (sadece development'ta)
+if (process.env.NODE_ENV === 'development') {
+  function printRoutes(app, basePath = '') {
+    const routes = [];
+    
+    app._router.stack.forEach(middleware => {
+      if (middleware.route) {
+        const path = basePath + middleware.route.path;
+        const methods = Object.keys(middleware.route.methods);
+        routes.push({ path, methods, type: 'direct' });
+      } else if (middleware.name === 'router') {
+        const layerRegex = middleware.regexp.toString();
+        let extractedPath = '';
+        
+        if (layerRegex.includes('api')) {
+          if (layerRegex.includes('auth')) extractedPath = '/api/auth';
+          else if (layerRegex.includes('employer')) extractedPath = '/api/employer';
+          else if (layerRegex.includes('student')) extractedPath = '/api/student';
+          else if (layerRegex.includes('admin')) extractedPath = '/api/admin';
+          else if (layerRegex.includes('jobs')) extractedPath = '/api/jobs';
+          else if (layerRegex.includes('talent')) extractedPath = '/api/talent';
+        }
+        
+        if (middleware.handle && middleware.handle.stack) {
+          middleware.handle.stack.forEach(handler => {
+            if (handler.route) {
+              const fullPath = extractedPath + handler.route.path;
+              const methods = Object.keys(handler.route.methods);
+              routes.push({ path: fullPath, methods, type: 'router' });
+            }
+          });
+        }
+      }
+    });
+    
+    return routes;
+  }
 
-// Route listesini detaylı göster
-console.log('\n🔍 Registered routes:');
-function printRoutes(app, basePath = '') {
-  const routes = [];
-  
-  app._router.stack.forEach(middleware => {
-    if (middleware.route) {
-      // Direct routes
-      const path = basePath + middleware.route.path;
-      const methods = Object.keys(middleware.route.methods);
-      routes.push({ path, methods, type: 'direct' });
-    } else if (middleware.name === 'router') {
-      // Router middleware
-      const layerRegex = middleware.regexp.toString();
-      let extractedPath = '';
-      
-      // /api/employer pattern extraction
-      if (layerRegex.includes('api')) {
-        if (layerRegex.includes('auth')) extractedPath = '/api/auth';
-        else if (layerRegex.includes('employer')) extractedPath = '/api/employer';
-        else if (layerRegex.includes('student')) extractedPath = '/api/student';
-        else if (layerRegex.includes('admin')) extractedPath = '/api/admin';
-        else if (layerRegex.includes('jobs')) extractedPath = '/api/jobs';
-      }
-      
-      // Router içindeki route'ları göster
-      if (middleware.handle && middleware.handle.stack) {
-        middleware.handle.stack.forEach(handler => {
-          if (handler.route) {
-            const fullPath = extractedPath + handler.route.path;
-            const methods = Object.keys(handler.route.methods);
-            routes.push({ path: fullPath, methods, type: 'router' });
-          }
-        });
-      }
-    }
-  });
-  
-  // Route'ları kategorize et
-  const employerRoutes = routes.filter(r => r.path.startsWith('/api/employer'));
-  const authRoutes = routes.filter(r => r.path.startsWith('/api/auth'));
-  const studentRoutes = routes.filter(r => r.path.startsWith('/api/student'));
-  const adminRoutes = routes.filter(r => r.path.startsWith('/api/admin'));
-  const jobRoutes = routes.filter(r => r.path.startsWith('/api/jobs'));
-  
-  console.log('\n🔐 Auth Routes:');
-  authRoutes.forEach(route => {
-    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
-  });
-  
-  console.log('\n💼 Employer Routes:');
-  employerRoutes.forEach(route => {
-    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
-  });
-  
-  console.log('\n🎓 Student Routes:');
-  studentRoutes.forEach(route => {
-    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
-  });
-  
-  console.log('\n⚙️ Admin Routes:');
-  adminRoutes.forEach(route => {
-    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
-  });
-  
-  console.log('\n📋 Job Routes:');
-  jobRoutes.forEach(route => {
-    console.log(`  ${route.methods.join(', ').toUpperCase().padEnd(10)} ${route.path}`);
-  });
-  
-  return routes;
+  setTimeout(() => {
+    const routes = printRoutes(app);
+    console.log(`\n📍 Total routes: ${routes.length}\n`);
+  }, 100);
 }
-
-// Middleware mount sonrası route'ları göster
-setTimeout(() => {
-  printRoutes(app);
-}, 100);
 
 // 404 handler - Tüm route'lardan sonra
 app.use('*', (req, res) => {
-  console.log(`❌ 404 - Route not found: ${req.method} ${req.originalUrl}`);
-  console.log('Available routes for this method:');
-  
+  // Production'da detaylı bilgi verme
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(404).json({
+      message: 'Route not found',
+      path: req.originalUrl
+    });
+  }
+
+  // Development'ta detaylı bilgi ver
   const availableRoutes = [];
   app._router.stack.forEach(middleware => {
     if (middleware.route) {
@@ -192,7 +196,6 @@ app.use('*', (req, res) => {
         if (handler.route) {
           const methods = Object.keys(handler.route.methods);
           if (methods.includes(req.method.toLowerCase())) {
-            // Base path extraction
             const layerRegex = middleware.regexp.toString();
             let basePath = '';
             if (layerRegex.includes('employer')) basePath = '/api/employer';
@@ -200,6 +203,7 @@ app.use('*', (req, res) => {
             else if (layerRegex.includes('admin')) basePath = '/api/admin';
             else if (layerRegex.includes('auth')) basePath = '/api/auth';
             else if (layerRegex.includes('jobs')) basePath = '/api/jobs';
+            else if (layerRegex.includes('talent')) basePath = '/api/talent';
             
             availableRoutes.push(basePath + handler.route.path);
           }
@@ -207,8 +211,6 @@ app.use('*', (req, res) => {
       });
     }
   });
-  
-  console.log('Available routes:', availableRoutes);
   
   res.status(404).json({
     message: `Route not found: ${req.method} ${req.originalUrl}`,
@@ -221,10 +223,20 @@ app.use('*', (req, res) => {
 app.use((err, req, res, next) => {
   console.error('💥 Error occurred:');
   console.error(err.stack);
-  res.status(500).json({
+  
+  // Production'da detaylı hata mesajı verme
+  const errorResponse = {
     message: 'Sunucu hatası!',
-    error: process.env.NODE_ENV === 'development' ? err.message : {}
-  });
+    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  };
+  
+  // CORS hatası özel kontrolü
+  if (err.message && err.message.includes('CORS')) {
+    errorResponse.message = 'CORS policy error: Origin not allowed';
+    return res.status(403).json(errorResponse);
+  }
+  
+  res.status(err.status || 500).json(errorResponse);
 });
 
 module.exports = app;

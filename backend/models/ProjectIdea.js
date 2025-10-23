@@ -34,14 +34,16 @@ module.exports = (sequelize, DataTypes) => {
     },
     category: {
       type: DataTypes.ENUM(
-        'Web Development',
-        'Mobile Development',
-        'Artificial Intelligence',
-        'Game Development',
-        'Data Science',
-        'Cybersecurity',
-        'Cloud & DevOps',
-        'System Design'
+        'Machine Learning',
+        'Deep Learning',
+        'Natural Language Processing (NLP)',
+        'Computer Vision',
+        'Generative AI',
+        'Autonomous Agents & Multi-Agent Systems',
+        'Data Science & Analytics',
+        'Data Engineering',
+        'Reinforcement Learning',
+        'AI Ethics & Governance'
       ),
       allowNull: false,
       validate: {
@@ -130,16 +132,6 @@ module.exports = (sequelize, DataTypes) => {
       }
     ]
   });
-
-  // Model ilişkileri burada tanımlanabilir
-  ProjectIdea.associate = function(models) {
-    // Gelecekte öğrenci-proje ilişkisi için:
-    // ProjectIdea.belongsToMany(models.StudentProfile, {
-    //   through: 'StudentProjectProgress',
-    //   foreignKey: 'projectIdeaId',
-    //   otherKey: 'studentId'
-    // });
-  };
 
   return ProjectIdea;
 };

@@ -6,10 +6,10 @@ import { useDashboardData } from '../../hooks/useDashboardData';
 import StudentLayout from './components/StudentLayout';
 import { FaLinkedin, FaTwitter, FaInstagram } from 'react-icons/fa';
 
-import { 
-  MdSchool, 
-  MdWork, 
-  MdEvent, 
+import {
+  MdSchool,
+  MdWork,
+  MdEvent,
   MdLightbulb,
   MdCode,
   MdTrendingUp,
@@ -24,14 +24,14 @@ import {
 const StudentDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  
+
   // Panel state'leri
   const [isJobsPanelOpen, setIsJobsPanelOpen] = useState(false);
   const [isProfilePanelOpen, setIsProfilePanelOpen] = useState(false);
   const [isPortfolioPanelOpen, setIsPortfolioPanelOpen] = useState(false);
   const [isEventsPanelOpen, setIsEventsPanelOpen] = useState(false);
   const [isProjectIdeasPanelOpen, setIsProjectIdeasPanelOpen] = useState(false);
-  
+
   // Custom hook'tan tüm dashboard verilerini al
   const {
     profileData,
@@ -51,15 +51,15 @@ const StudentDashboard = () => {
   // Profil resmi URL'sini oluştur (ProfileViewDark mantığı)
   const getProfileImageUrl = () => {
     if (!profile?.profileImage) return null;
-    
+
     if (profile.profileImage.startsWith('http')) {
       return profile.profileImage;
     }
-    
-    const imagePath = profile.profileImage.startsWith('/') 
-      ? profile.profileImage.substring(1) 
+
+    const imagePath = profile.profileImage.startsWith('/')
+      ? profile.profileImage.substring(1)
       : profile.profileImage;
-    
+
     return `${window.location.origin}/uploads/profile-images/${imagePath}`;
   };
 
@@ -143,81 +143,81 @@ const StudentDashboard = () => {
       setIsProjectIdeasPanelOpen={setIsProjectIdeasPanelOpen}
     >
       <div className="w-full px-4 py-6 space-y-6">
-        
-<div>
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4">
-    {/* Sol taraf - Profil fotoğrafı ve bilgiler */}
-    <div className="flex items-center space-x-3 sm:space-x-4 flex-1">
-      {/* Profil fotoğrafı */}
-      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-blue-500/20 flex-shrink-0">
-        {profile?.profileImage ? (
-          <img
-            src={getProfileImageUrl()}
-            alt={profile.fullName || 'Profil'}
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              console.error('Profil resmi yüklenemedi:', profile.profileImage);
-              e.target.onerror = null;
-              e.target.src = 'https://via.placeholder.com/80?text=' + (profile.fullName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'Ö');
-            }}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-blue-300 text-xl sm:text-2xl font-bold">
-            {profile?.fullName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'Ö'}
-          </div>
-        )}
-      </div>
-      
-      {/* İsim ve bilgiler */}
-      <div className="flex flex-col min-w-0 flex-1">
-        <h1 className="text-lg sm:text-2xl font-bold text-white truncate">
-          {profile?.fullName || 'Öğrenci'}
-        </h1>
-        <p className="text-blue-200 mt-1 text-sm sm:text-base line-clamp-1">
-          {profile?.university ? (
-            <>{profile.university} - {profile.department || 'Öğrenci'}</>
-          ) : profile?.school ? (
-            <>{profile.school} - {profile.department || 'Öğrenci'}</>
-          ) : (
-            <>{user?.email}</>
-          )}
-        </p>
-      </div>
-    </div>
 
-    {/* Sağ taraf - Sosyal medya ikonları */}
-    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-center sm:justify-start space-x-4 sm:space-x-0 sm:space-y-2">
-      <div className="flex space-x-3">
-        {/* LinkedIn */}
-        <a 
-          href="#" 
-          className="text-blue-300 hover:text-white transition-colors p-2 hover:bg-blue-700/30 rounded-lg"
-          aria-label="LinkedIn"
-        >
-          <FaLinkedin className="w-5 h-5 sm:w-6 sm:h-6" />
-        </a>
-        
-        {/* Twitter */}
-        <a 
-          href="#" 
-          className="text-blue-300 hover:text-white transition-colors p-2 hover:bg-blue-700/30 rounded-lg"
-          aria-label="Twitter"
-        >
-          <FaTwitter className="w-5 h-5 sm:w-6 sm:h-6" />
-        </a>
-        
-        {/* Instagram */}
-        <a 
-          href="#" 
-          className="text-blue-300 hover:text-white transition-colors p-2 hover:bg-blue-700/30 rounded-lg"
-          aria-label="Instagram"
-        >
-          <FaInstagram className="w-5 h-5 sm:w-6 sm:h-6" />
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
+        <div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4">
+            {/* Sol taraf - Profil fotoğrafı ve bilgiler */}
+            <div className="flex items-center space-x-3 sm:space-x-4 flex-1">
+              {/* Profil fotoğrafı */}
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-blue-500/20 flex-shrink-0">
+                {profile?.profileImage ? (
+                  <img
+                    src={getProfileImageUrl()}
+                    alt={profile.fullName || 'Profil'}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.error('Profil resmi yüklenemedi:', profile.profileImage);
+                      e.target.onerror = null;
+                      e.target.src = 'https://via.placeholder.com/80?text=' + (profile.fullName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'Ö');
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-blue-300 text-xl sm:text-2xl font-bold">
+                    {profile?.fullName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'Ö'}
+                  </div>
+                )}
+              </div>
+
+              {/* İsim ve bilgiler */}
+              <div className="flex flex-col min-w-0 flex-1">
+                <h1 className="text-lg sm:text-2xl font-bold text-white truncate">
+                  {profile?.fullName || 'Öğrenci'}
+                </h1>
+                <p className="text-blue-200 mt-1 text-sm sm:text-base line-clamp-1">
+                  {profile?.university ? (
+                    <>{profile.university} - {profile.department || 'Öğrenci'}</>
+                  ) : profile?.school ? (
+                    <>{profile.school} - {profile.department || 'Öğrenci'}</>
+                  ) : (
+                    <>{user?.email}</>
+                  )}
+                </p>
+              </div>
+            </div>
+
+            {/* Sağ taraf - Sosyal medya ikonları */}
+            <div className="flex flex-row sm:flex-col items-center sm:items-end justify-center sm:justify-start space-x-4 sm:space-x-0 sm:space-y-2">
+              <div className="flex space-x-3">
+                {/* LinkedIn */}
+                <a
+                  href="#"
+                  className="text-blue-300 hover:text-white transition-colors p-2 hover:bg-blue-700/30 rounded-lg"
+                  aria-label="LinkedIn"
+                >
+                  <FaLinkedin className="w-5 h-5 sm:w-6 sm:h-6" />
+                </a>
+
+                {/* Twitter */}
+                <a
+                  href="#"
+                  className="text-blue-300 hover:text-white transition-colors p-2 hover:bg-blue-700/30 rounded-lg"
+                  aria-label="Twitter"
+                >
+                  <FaTwitter className="w-5 h-5 sm:w-6 sm:h-6" />
+                </a>
+
+                {/* Instagram */}
+                <a
+                  href="#"
+                  className="text-blue-300 hover:text-white transition-colors p-2 hover:bg-blue-700/30 rounded-lg"
+                  aria-label="Instagram"
+                >
+                  <FaInstagram className="w-5 h-5 sm:w-6 sm:h-6" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -300,7 +300,7 @@ const StudentDashboard = () => {
               <MdSearch className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
               İş Fırsatları
             </button>
-            <button 
+            <button
               onClick={handleOpenPortfolioPanel}
               className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center group"
             >
@@ -319,7 +319,7 @@ const StudentDashboard = () => {
 
         {/* Main Content - 3'lü Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Aktif İşler Preview */}
           <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
             <div className="flex items-center justify-between mb-4">
@@ -327,14 +327,14 @@ const StudentDashboard = () => {
                 <MdWork className="w-5 h-5 mr-2 text-blue-300" />
                 Aktif İşler
               </h3>
-              <button 
+              <button
                 onClick={handleOpenJobsPanel}
                 className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors"
               >
                 Tümü →
               </button>
             </div>
-            
+
             <div className="space-y-3">
               {jobs?.slice(0, 3).map((job, index) => (
                 <div key={job?.id || index} className="bg-blue-700/30 rounded-lg p-3 border border-blue-600/30">
@@ -343,24 +343,23 @@ const StudentDashboard = () => {
                     💰 {job?.budget || 'Belirtilmemiş'} • ⏱️ {job?.deadline || 'Açık'}
                   </p>
                   <div className="flex items-center justify-between mt-2">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      job?.status === 'active' ? 'bg-blue-500/20 text-blue-300' :
-                      job?.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' :
-                      'bg-gray-500/20 text-gray-300'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${job?.status === 'active' ? 'bg-blue-500/20 text-blue-300' :
+                        job?.status === 'pending' ? 'bg-yellow-500/20 text-yellow-300' :
+                          'bg-gray-500/20 text-gray-300'
+                      }`}>
                       {job?.status === 'active' ? '🔄 Aktif' :
-                       job?.status === 'pending' ? '⏳ Beklemede' : '📋 Yeni'}
+                        job?.status === 'pending' ? '⏳ Beklemede' : '📋 Yeni'}
                     </span>
                   </div>
                 </div>
               )) || (
-                <div className="text-blue-300 text-sm text-center py-4">
-                  📝 Henüz aktif iş bulunmuyor
-                </div>
-              )}
+                  <div className="text-blue-300 text-sm text-center py-4">
+                    📝 Henüz aktif iş bulunmuyor
+                  </div>
+                )}
             </div>
           </div>
-          
+
           {/* Son Projeler Preview */}
           <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
             <div className="flex items-center justify-between mb-4">
@@ -368,22 +367,22 @@ const StudentDashboard = () => {
                 <MdCode className="w-5 h-5 mr-2 text-blue-300" />
                 Son Projeler
               </h3>
-              <button 
+              <button
                 onClick={handleOpenPortfolioPanel}
                 className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors"
               >
                 Tümü →
               </button>
             </div>
-            
+
             <div className="space-y-3">
               {projects?.slice(0, 3).map((project, index) => (
                 <div key={project?.id || index} className="bg-blue-700/30 rounded-lg p-3 border border-blue-600/30">
                   <h4 className="font-medium text-white text-sm">{project?.title || 'Proje Adı'}</h4>
                   <p className="text-blue-200 text-xs mt-1">
-                    🛠️ {Array.isArray(project?.technologies) ? project.technologies.join(', ') : 
-                         typeof project?.technologies === 'string' ? project.technologies : 
-                         'React, Node.js'}
+                    🛠️ {Array.isArray(project?.technologies) ? project.technologies.join(', ') :
+                      typeof project?.technologies === 'string' ? project.technologies :
+                        'React, Node.js'}
                   </p>
                   <div className="flex items-center justify-between mt-2">
                     <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300">
@@ -392,13 +391,13 @@ const StudentDashboard = () => {
                   </div>
                 </div>
               )) || (
-                <div className="text-blue-300 text-sm text-center py-4">
-                  🚀 İlk projenizi ekleyin
-                </div>
-              )}
+                  <div className="text-blue-300 text-sm text-center py-4">
+                    🚀 İlk projenizi ekleyin
+                  </div>
+                )}
             </div>
           </div>
-          
+
           {/* Yaklaşan Etkinlikler Preview */}
           <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
             <div className="flex items-center justify-between mb-4">
@@ -406,14 +405,14 @@ const StudentDashboard = () => {
                 <MdEvent className="w-5 h-5 mr-2 text-blue-300" />
                 Yaklaşan Etkinlikler
               </h3>
-              <button 
+              <button
                 onClick={handleOpenEventsPanel}
                 className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors"
               >
                 Tümü →
               </button>
             </div>
-            
+
             <div className="space-y-3">
               {events?.slice(0, 3).map((event, index) => (
                 <div key={event?.id || index} className="bg-blue-700/30 rounded-lg p-3 border border-blue-600/30">
@@ -428,13 +427,13 @@ const StudentDashboard = () => {
                   </div>
                 </div>
               )) || (
-                <div className="text-blue-300 text-sm text-center py-4">
-                  📅 Yaklaşan etkinlik bulunmuyor
-                </div>
-              )}
+                  <div className="text-blue-300 text-sm text-center py-4">
+                    📅 Yaklaşan etkinlik bulunmuyor
+                  </div>
+                )}
             </div>
           </div>
-          
+
         </div>
 
         {/* Proje Fikirleri */}
@@ -445,21 +444,24 @@ const StudentDashboard = () => {
                 <MdLightbulb className="w-5 h-5 mr-2 text-yellow-300" />
                 İlham Verici Proje Fikirleri
               </h2>
-              <button 
+              <button
                 onClick={handleOpenProjectIdeasPanel}
                 className="text-yellow-300 hover:text-yellow-200 text-sm font-medium transition-colors"
               >
                 Tümünü Gör →
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {projectIdeas.slice(0, 3).map((idea, index) => (
                 <div key={idea?.id || index} className="bg-yellow-700/30 rounded-lg p-4 border border-yellow-600/30">
                   <h3 className="font-medium text-white">{idea?.title || 'Proje Fikri'}</h3>
-                  <p className="text-yellow-200 text-sm mt-2 line-clamp-3">
-                    {idea?.description || 'Bu proje ile yeni teknolojiler öğrenebilir ve portföyünüzü geliştirebilirsiniz.'}
-                  </p>
+                 <p className="text-yellow-200 text-sm mt-2 line-clamp-3 break-all">
+  {(() => {
+    const text = idea?.description || 'Bu proje ile yeni teknolojiler öğrenebilir ve portföyünüzü geliştirebilirsiniz.';
+    return text.length > 150 ? text.substring(0, 150) + '...' : text;
+  })()}
+</p>
                   <div className="flex items-center justify-between mt-3">
                     <span className="text-xs text-yellow-300">
                       🛠️ {idea?.difficulty || 'Orta'}
@@ -473,43 +475,6 @@ const StudentDashboard = () => {
             </div>
           </div>
         )}
-
-        {/* Öneriler ve İstatistikler */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
-            <h3 className="text-lg font-semibold text-white mb-4">📊 Bu Ayki Özet</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-200">Tamamlanan Projeler</span>
-                <span className="text-white font-medium">{stats?.completedProjects || 0}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-200">Aktif İşler</span>
-                <span className="text-white font-medium">{stats?.activeJobs || 0}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-200">Katılınan Etkinlikler</span>
-                <span className="text-white font-medium">{stats?.attendedEvents || 0}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
-            <h3 className="text-lg font-semibold text-white mb-4">💡 Öneriler</h3>
-            <div className="space-y-3 text-sm text-blue-200">
-              {!profile?.fullName && (
-                <p>📝 Profil bilgilerinizi tamamlayarak daha fazla fırsat yakalayın</p>
-              )}
-              {(!projects || projects.length === 0) && (
-                <p>🚀 İlk projenizi ekleyerek portföyünüzü oluşturmaya başlayın</p>
-              )}
-              {(!jobs || jobs.length === 0) && (
-                <p>💼 İş fırsatlarını keşfedin ve başvuru yapın</p>
-              )}
-              <p>🌟 Yeni teknolojiler öğrenerek kendinizi geliştirin</p>
-            </div>
-          </div>
-        </div>
 
       </div>
     </StudentLayout>

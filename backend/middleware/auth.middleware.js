@@ -7,8 +7,6 @@ const User = db.User;
 // JWT token doğrulama
 exports.verifyToken = async (req, res, next) => {
   try {
-    // Authorization header'ını daha detaylı logla
-    console.log('Full Auth Header:', req.headers.authorization);
     
     const authHeader = req.headers.authorization;
     
@@ -28,9 +26,7 @@ exports.verifyToken = async (req, res, next) => {
     if (!token) {
       return res.status(403).json({ message: 'Token ayrıştırılamadı!' });
     }
-    
-    console.log('Doğrulanacak token:', token.substring(0, 15) + '...');
-    
+        
     try {
       // Token doğrulama işlemi
       const decoded = jwt.verify(token, config.jwtSecret);
@@ -59,7 +55,6 @@ exports.verifyToken = async (req, res, next) => {
         userType: user.userType
       };
       
-      console.log('Kullanıcı doğrulandı:', req.user.email, req.user.userType);
       next();
     } catch (jwtError) {
       console.error('JWT doğrulama hatası:', jwtError.message);

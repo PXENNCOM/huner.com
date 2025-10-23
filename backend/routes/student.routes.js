@@ -25,7 +25,7 @@ router.get('/projects/:id', studentController.getProject);
 router.put('/projects/:id', studentController.updateProject);
 router.delete('/projects/:id', studentController.deleteProject);
 router.post('/projects/order', studentController.updateProjectOrder);
-router.post('/projects/:projectId/media', uploadMiddleware.uploadProjectMedia, uploadController.uploadProjectMedia);
+router.post('/projects/:id/media', uploadMiddleware.uploadProjectMedia, uploadController.uploadProjectMedia);
 
 // İş takibi
 router.get('/assigned-jobs', studentController.getAssignedJobs);

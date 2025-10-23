@@ -64,7 +64,6 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// controllers/student.controller.js - getProfile fonksiyonu
 exports.getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -81,31 +80,92 @@ exports.getProfile = async (req, res) => {
     
     // Profil yoksa oluştur
     if (!profile) {
-      profile = await db.StudentProfile.create({
-        userId,
-        fullName: null,
-        age: null,
-        city: null,
-        school: null,
-        educationLevel: null,
-        currentGrade: null,
-        department: null,
-        languages: null,
-        linkedinProfile: null,
-        githubProfile: null,
-        studentDocument: null,
-        skills: null,
-        profileImage: null,
-        shortBio: null
-      });
+      // ✅ ÖNCE BİR DAHA KONTROL ET (race condition önlemi)
+      profile = await db.StudentProfile.findOne({ where: { userId } });
       
-      // İlişkili kullanıcı bilgilerini al
-      const user = await db.User.findByPk(userId, {
-        attributes: ['email', 'approvalStatus']
-      });
-      
-      // Profil objesine kullanıcı bilgilerini manuel olarak ekle
-      profile.dataValues.User = user;
+      if (!profile) {
+        // ✅ User'ı al ve tempProfileData'yı kontrol et
+        const user = await db.User.findByPk(userId);
+        
+        // Eğer tempProfileData varsa, oradan profil oluştur
+        if (user && user.tempProfileData) {
+          try {
+            const tempData = JSON.parse(user.tempProfileData);
+            
+            profile = await db.StudentProfile.create({
+              userId,
+              fullName: tempData.fullName || null,
+              phoneNumber: tempData.phoneNumber || null,
+              linkedinProfile: tempData.linkedinProfile || null,
+              githubProfile: tempData.githubProfile || null,
+              age: null,
+              city: null,
+              school: null,
+              educationLevel: null,
+              currentGrade: null,
+              department: null,
+              languages: null,
+              studentDocument: null,
+              skills: null,
+              profileImage: null,
+              shortBio: null
+            });
+            
+            // tempProfileData'yı temizle
+            await user.update({ tempProfileData: null });
+            
+          } catch (parseError) {
+            console.error('tempProfileData parse hatası:', parseError);
+            // Parse hatası olursa boş profil oluştur
+            profile = await db.StudentProfile.create({
+              userId,
+              fullName: null,
+              phoneNumber: null,
+              age: null,
+              city: null,
+              school: null,
+              educationLevel: null,
+              currentGrade: null,
+              department: null,
+              languages: null,
+              linkedinProfile: null,
+              githubProfile: null,
+              studentDocument: null,
+              skills: null,
+              profileImage: null,
+              shortBio: null
+            });
+          }
+        } else {
+          // tempProfileData yoksa boş profil oluştur
+          profile = await db.StudentProfile.create({
+            userId,
+            fullName: null,
+            phoneNumber: null,
+            age: null,
+            city: null,
+            school: null,
+            educationLevel: null,
+            currentGrade: null,
+            department: null,
+            languages: null,
+            linkedinProfile: null,
+            githubProfile: null,
+            studentDocument: null,
+            skills: null,
+            profileImage: null,
+            shortBio: null
+          });
+        }
+        
+        // İlişkili kullanıcı bilgilerini al
+        const userInfo = await db.User.findByPk(userId, {
+          attributes: ['email', 'approvalStatus']
+        });
+        
+        // Profil objesine kullanıcı bilgilerini manuel olarak ekle
+        profile.dataValues.User = userInfo;
+      }
     }
     
     // Profil tamamlanma yüzdesini hesapla
@@ -132,19 +192,25 @@ exports.getProfile = async (req, res) => {
 
 exports.addProject = async (req, res) => {
   try {
-    // Öğrenci profilini bul
     const studentProfile = await StudentProfile.findOne({ where: { userId: req.user.id } });
     
     if (!studentProfile) {
       return res.status(404).json({ message: 'Öğrenci profili bulunamadı' });
     }
     
-    // Proje oluştur
+    // ✅ Teknolojileri array'den string'e çevir
+    let technologiesString = '';
+    if (Array.isArray(req.body.technologies)) {
+      technologiesString = req.body.technologies.join(',');
+    } else if (typeof req.body.technologies === 'string') {
+      technologiesString = req.body.technologies;
+    }
+    
     const project = await StudentProject.create({
       studentId: studentProfile.id,
       title: req.body.title,
       description: req.body.description,
-      technologies: req.body.technologies,
+      technologies: technologiesString, // ✅ String olarak kaydet
       media: req.body.media,
       githubUrl: req.body.githubUrl || null,
       liveUrl: req.body.liveUrl || null,
@@ -403,11 +469,18 @@ exports.updateProject = async (req, res) => {
       return res.status(404).json({ message: 'Proje bulunamadı' });
     }
     
-    // Projeyi güncelle
+    // ✅ Teknolojileri array'den string'e çevir
+    let technologiesString = '';
+    if (Array.isArray(req.body.technologies)) {
+      technologiesString = req.body.technologies.join(',');
+    } else if (typeof req.body.technologies === 'string') {
+      technologiesString = req.body.technologies;
+    }
+    
     const updatedProject = await project.update({
       title: req.body.title,
       description: req.body.description,
-      technologies: req.body.technologies,
+      technologies: technologiesString, // ✅ String olarak kaydet
       media: req.body.media,
       githubUrl: req.body.githubUrl,
       liveUrl: req.body.liveUrl,
@@ -963,27 +1036,24 @@ exports.getActiveProjectIdeas = async (req, res) => {
   try {
     const { category, difficulty, search } = req.query;
     
-    // Filtreleme için where koşulları
     let whereConditions = {
       status: 'active'
     };
     
-    // Kategori filtresi
     if (category && category !== 'all') {
       whereConditions.category = category;
     }
     
-    // Zorluk filtresi
     if (difficulty && difficulty !== 'all') {
       whereConditions.difficulty = difficulty;
     }
     
-    // Arama filtresi
     if (search) {
       whereConditions[db.Sequelize.Op.or] = [
         { title: { [db.Sequelize.Op.like]: `%${search}%` } },
         { description: { [db.Sequelize.Op.like]: `%${search}%` } },
-        { technologies: { [db.Sequelize.Op.like]: `%${search}%` } }
+        { technologies: { [db.Sequelize.Op.like]: `%${search}%` } },
+        { category: { [db.Sequelize.Op.like]: `%${search}%` } }
       ];
     }
     
@@ -1003,7 +1073,6 @@ exports.getActiveProjectIdeas = async (req, res) => {
       ]
     });
     
-    // Proje fikirlerini işle ve ek bilgiler ekle
     const processedProjectIdeas = projectIdeas.map(project => {
       const projectData = project.toJSON();
       
@@ -1017,28 +1086,32 @@ exports.getActiveProjectIdeas = async (req, res) => {
         projectData.technologiesArray = [];
       }
       
-      // Zorluk seviyesi rengini belirle
-      const difficultyColors = {
-        'Kolay': 'green',
-        'Orta': 'yellow', 
-        'Zor': 'red'
+      // Zorluk bilgileri
+      const difficultyInfo = {
+        'Kolay': { color: 'green', icon: '🟢' },
+        'Orta': { color: 'yellow', icon: '🟡' },
+        'Zor': { color: 'red', icon: '🔴' }
       };
-      projectData.difficultyColor = difficultyColors[projectData.difficulty] || 'gray';
+      const diffInfo = difficultyInfo[projectData.difficulty] || difficultyInfo['Orta'];
+      projectData.difficultyColor = diffInfo.color;
+      projectData.difficultyIcon = diffInfo.icon;
       
-      // Kategori ikonu belirle
+      // AI Kategori İkonları
       const categoryIcons = {
-        'Web Development': '🌐',
-        'Mobile Development': '📱',
-        'Artificial Intelligence': '🤖',
-        'Game Development': '🎮',
-        'Data Science': '📊',
-        'Cybersecurity': '🔐',
-        'Cloud & DevOps': '☁️',
-        'System Design': '🏗️'
+        'Machine Learning': '🤖',
+        'Deep Learning': '🧠',
+        'Natural Language Processing (NLP)': '💬',
+        'Computer Vision': '👁️',
+        'Generative AI': '✨',
+        'Autonomous Agents & Multi-Agent Systems': '🤝',
+        'Data Science & Analytics': '📊',
+        'Data Engineering': '⚙️',
+        'Reinforcement Learning': '🎯',
+        'AI Ethics & Governance': '⚖️'
       };
-      projectData.categoryIcon = categoryIcons[projectData.category] || '💻';
+      projectData.categoryIcon = categoryIcons[projectData.category] || '🤖';
       
-      // Açıklamayı kısalt (liste görünümü için)
+      // Kısa açıklama
       if (projectData.description && projectData.description.length > 150) {
         projectData.shortDescription = projectData.description.substring(0, 150) + '...';
       } else {
@@ -1048,9 +1121,11 @@ exports.getActiveProjectIdeas = async (req, res) => {
       return projectData;
     });
     
+    // Basit array formatında döndür
     res.status(200).json(processedProjectIdeas);
+    
   } catch (error) {
-    console.error('Proje fikirlerini getirme hatası:', error);
+    console.error('AI/Data Science proje fikirlerini getirme hatası:', error);
     res.status(500).json({ message: 'Sunucu hatası oluştu' });
   }
 };
@@ -1063,12 +1138,12 @@ exports.getProjectIdeaDetails = async (req, res) => {
     const projectIdea = await db.ProjectIdea.findOne({
       where: {
         id: projectIdeaId,
-        status: 'active' // Sadece aktif proje fikirleri görüntülenebilir
+        status: 'active' // Sadece aktif AI/Data Science proje fikirleri görüntülenebilir
       }
     });
     
     if (!projectIdea) {
-      return res.status(404).json({ message: 'Proje fikri bulunamadı veya aktif değil' });
+      return res.status(404).json({ message: 'AI/Data Science proje fikri bulunamadı veya aktif değil' });
     }
     
     const projectData = projectIdea.toJSON();
@@ -1105,41 +1180,166 @@ exports.getProjectIdeaDetails = async (req, res) => {
     
     // Zorluk seviyesi bilgisi
     const difficultyInfo = {
-      'Kolay': { color: 'green', description: 'Başlangıç seviyesi, temel kavramlar' },
-      'Orta': { color: 'yellow', description: 'Orta seviye, entegrasyon gerekli' },
-      'Zor': { color: 'red', description: 'İleri seviye, karmaşık yapı' }
+      'Kolay': { 
+        color: 'green', 
+        description: 'Başlangıç seviyesi - Temel AI/ML kavramları ve algoritmaları',
+        icon: '🟢'
+      },
+      'Orta': { 
+        color: 'yellow', 
+        description: 'Orta seviye - Model entegrasyonu ve optimizasyon gerekli',
+        icon: '🟡'
+      },
+      'Zor': { 
+        color: 'red', 
+        description: 'İleri seviye - Karmaşık AI mimarisi ve büyük veri işleme',
+        icon: '🔴'
+      }
     };
     
     projectData.difficultyInfo = difficultyInfo[projectData.difficulty] || difficultyInfo['Orta'];
     
-    // Kategori ikonu
+    // AI/Data Science Kategori İkonları
     const categoryIcons = {
-      'Web Development': '🌐',
-      'Mobile Development': '📱',
-      'Artificial Intelligence': '🤖',
-      'Game Development': '🎮',
-      'Data Science': '📊',
-      'Cybersecurity': '🔐',
-      'Cloud & DevOps': '☁️',
-      'System Design': '🏗️'
+      'Machine Learning': '🤖',
+      'Deep Learning': '🧠',
+      'Natural Language Processing (NLP)': '💬',
+      'Computer Vision': '👁️',
+      'Generative AI': '✨',
+      'Autonomous Agents & Multi-Agent Systems': '🤝',
+      'Data Science & Analytics': '📊',
+      'Data Engineering': '⚙️',
+      'Reinforcement Learning': '🎯',
+      'AI Ethics & Governance': '⚖️'
     };
-    projectData.categoryIcon = categoryIcons[projectData.category] || '💻';
+    projectData.categoryIcon = categoryIcons[projectData.category] || '🤖';
     
-    // Tahmini süre açıklaması
+    // Kategori Renk Paleti
+    const categoryColors = {
+      'Machine Learning': { primary: 'blue', secondary: 'cyan' },
+      'Deep Learning': { primary: 'purple', secondary: 'pink' },
+      'Natural Language Processing (NLP)': { primary: 'green', secondary: 'emerald' },
+      'Computer Vision': { primary: 'indigo', secondary: 'blue' },
+      'Generative AI': { primary: 'yellow', secondary: 'orange' },
+      'Autonomous Agents & Multi-Agent Systems': { primary: 'teal', secondary: 'cyan' },
+      'Data Science & Analytics': { primary: 'pink', secondary: 'rose' },
+      'Data Engineering': { primary: 'slate', secondary: 'gray' },
+      'Reinforcement Learning': { primary: 'orange', secondary: 'red' },
+      'AI Ethics & Governance': { primary: 'violet', secondary: 'purple' }
+    };
+    projectData.categoryColors = categoryColors[projectData.category] || { primary: 'blue', secondary: 'purple' };
+    
+    // Kategori Açıklamaları
+    const categoryDescriptions = {
+      'Machine Learning': 'Makine Öğrenmesi algoritmaları ve model eğitimi',
+      'Deep Learning': 'Derin sinir ağları ve neural network mimarileri',
+      'Natural Language Processing (NLP)': 'Doğal dil işleme ve metin analizi',
+      'Computer Vision': 'Görüntü işleme ve bilgisayarlı görü',
+      'Generative AI': 'Üretken yapay zeka ve büyük dil modelleri',
+      'Autonomous Agents & Multi-Agent Systems': 'Otonom ajanlar ve çoklu-ajan sistemleri',
+      'Data Science & Analytics': 'Veri analizi ve görselleştirme',
+      'Data Engineering': 'Veri pipeline ve ETL süreçleri',
+      'Reinforcement Learning': 'Pekiştirmeli öğrenme ve ödül tabanlı sistemler',
+      'AI Ethics & Governance': 'Yapay zeka etiği ve yönetişimi'
+    };
+    projectData.categoryDescription = categoryDescriptions[projectData.category] || 'AI/Data Science projesi';
+    
+    // Tahmini süre açıklaması (AI/ML projeleri için)
     if (projectData.estimatedDays <= 7) {
-      projectData.timeCategory = 'Kısa Vadeli';
-      projectData.timeDescription = 'Hızlıca tamamlanabilir';
+      projectData.timeCategory = 'Hızlı Prototip';
+      projectData.timeDescription = 'Kısa vadeli - Hızlı MVP ve proof-of-concept';
+    } else if (projectData.estimatedDays <= 14) {
+      projectData.timeCategory = 'Sprint Projesi';
+      projectData.timeDescription = '1-2 hafta - Temel model eğitimi ve test';
     } else if (projectData.estimatedDays <= 30) {
       projectData.timeCategory = 'Orta Vadeli';
-      projectData.timeDescription = 'Bir aya kadar sürebilir';
+      projectData.timeDescription = '2-4 hafta - Model optimizasyonu ve deployment';
+    } else if (projectData.estimatedDays <= 60) {
+      projectData.timeCategory = 'Kapsamlı Proje';
+      projectData.timeDescription = '1-2 ay - Detaylı veri işleme ve model geliştirme';
     } else {
       projectData.timeCategory = 'Uzun Vadeli';
-      projectData.timeDescription = 'Detaylı planlama gerekir';
+      projectData.timeDescription = '2+ ay - Karmaşık AI sistemi ve production deployment';
     }
+    
+    // AI/ML Proje Karmaşıklık Seviyesi
+    const complexityLevels = {
+      'Kolay': {
+        dataSize: 'Küçük veri seti (< 10K kayıt)',
+        modelComplexity: 'Basit algoritmalar (Linear Regression, Decision Trees)',
+        computePower: 'Standart CPU yeterli',
+        deployment: 'Basit deployment (Flask, FastAPI)'
+      },
+      'Orta': {
+        dataSize: 'Orta veri seti (10K-100K kayıt)',
+        modelComplexity: 'Orta seviye modeller (Random Forest, Neural Networks)',
+        computePower: 'GPU önerilir',
+        deployment: 'Docker container ve API servisi'
+      },
+      'Zor': {
+        dataSize: 'Büyük veri seti (100K+ kayıt)',
+        modelComplexity: 'Karmaşık modeller (Transformer, GAN, RL)',
+        computePower: 'Güçlü GPU/TPU gerekli',
+        deployment: 'Kubernetes, MLOps pipeline, monitoring'
+      }
+    };
+    projectData.complexityLevel = complexityLevels[projectData.difficulty] || complexityLevels['Orta'];
+    
+    // Önerilen AI/ML Araçları ve Framework'ler
+    const recommendedTools = {
+      'Machine Learning': ['Scikit-learn', 'XGBoost', 'LightGBM', 'CatBoost'],
+      'Deep Learning': ['TensorFlow', 'PyTorch', 'Keras', 'JAX'],
+      'Natural Language Processing (NLP)': ['Hugging Face Transformers', 'spaCy', 'NLTK', 'OpenAI API'],
+      'Computer Vision': ['OpenCV', 'TensorFlow', 'PyTorch', 'YOLO', 'Detectron2'],
+      'Generative AI': ['OpenAI GPT', 'Stable Diffusion', 'LangChain', 'Anthropic Claude'],
+      'Autonomous Agents & Multi-Agent Systems': ['LangChain', 'AutoGPT', 'BabyAGI', 'Multi-Agent RL'],
+      'Data Science & Analytics': ['Pandas', 'NumPy', 'Matplotlib', 'Seaborn', 'Plotly'],
+      'Data Engineering': ['Apache Spark', 'Apache Airflow', 'dbt', 'Kafka', 'Snowflake'],
+      'Reinforcement Learning': ['Stable Baselines3', 'Ray RLlib', 'OpenAI Gym'],
+      'AI Ethics & Governance': ['Fairlearn', 'AI Fairness 360', 'What-If Tool', 'LIME', 'SHAP']
+    };
+    projectData.recommendedTools = recommendedTools[projectData.category] || ['Python', 'Jupyter', 'Git'];
+    
+    // Proje için önerilen Python paketleri
+    projectData.suggestedPackages = [
+      ...projectData.recommendedTools.slice(0, 3),
+      'pandas',
+      'numpy',
+      'matplotlib'
+    ];
+    
+    // AI/ML Proje Aşamaları
+    projectData.projectPhases = [
+      { phase: 1, name: 'Veri Toplama ve Hazırlık', percentage: 30 },
+      { phase: 2, name: 'Model Geliştirme ve Eğitim', percentage: 40 },
+      { phase: 3, name: 'Değerlendirme ve Optimizasyon', percentage: 20 },
+      { phase: 4, name: 'Deployment ve Monitoring', percentage: 10 }
+    ];
+    
+    // Başarı Metrikleri (Örnek)
+    const successMetrics = {
+      'Machine Learning': ['Accuracy', 'Precision', 'Recall', 'F1-Score', 'ROC-AUC'],
+      'Deep Learning': ['Loss', 'Accuracy', 'Validation Loss', 'Learning Rate'],
+      'Natural Language Processing (NLP)': ['BLEU Score', 'Perplexity', 'F1-Score', 'Accuracy'],
+      'Computer Vision': ['mAP', 'IoU', 'Precision', 'Recall', 'Confusion Matrix'],
+      'Generative AI': ['Inception Score', 'FID Score', 'CLIP Score', 'Human Evaluation'],
+      'Reinforcement Learning': ['Cumulative Reward', 'Episode Length', 'Success Rate'],
+      'Data Science & Analytics': ['R²', 'RMSE', 'MAE', 'Business KPIs'],
+      'Data Engineering': ['Data Quality Score', 'Pipeline Uptime', 'Processing Time']
+    };
+    projectData.successMetrics = successMetrics[projectData.category] || ['Accuracy', 'Performance', 'Quality'];
+    
+    // Önerilen Dataset Kaynakları
+    projectData.datasetSources = [
+      { name: 'Kaggle', url: 'https://www.kaggle.com/datasets', icon: '📊' },
+      { name: 'UCI ML Repository', url: 'https://archive.ics.uci.edu/ml/', icon: '🎓' },
+      { name: 'Google Dataset Search', url: 'https://datasetsearch.research.google.com/', icon: '🔍' },
+      { name: 'Hugging Face Datasets', url: 'https://huggingface.co/datasets', icon: '🤗' }
+    ];
     
     res.status(200).json(projectData);
   } catch (error) {
-    console.error('Proje fikri detayı getirme hatası:', error);
+    console.error('AI/Data Science proje fikri detayı getirme hatası:', error);
     res.status(500).json({ message: 'Sunucu hatası oluştu' });
   }
 };
@@ -1176,7 +1376,6 @@ exports.getSimilarProjectIdeas = async (req, res) => {
 };
 
 
-// İş Deneyimi
 
 // İş deneyimi ekle
 exports.addWorkExperience = async (req, res) => {

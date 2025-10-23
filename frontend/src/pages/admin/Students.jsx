@@ -1,7 +1,8 @@
 // pages/admin/Students.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import AdminLayout from './AdminLayout';
 import adminApi from '../../services/adminApi';
+
 
 const Students = () => {
   const [sekmeDurum, setSekmeDurum] = useState('all');
@@ -18,8 +19,8 @@ const Students = () => {
     try {
       setYukleniyor(true);
       let response;
-      
-      switch(sekmeDurum) {
+
+      switch (sekmeDurum) {
         case 'pending':
           response = await adminApi.ogrenciYonetimi.bekleyenOgrencileriGetir();
           break;
@@ -29,7 +30,7 @@ const Students = () => {
         default:
           response = await adminApi.ogrenciYonetimi.tumOgrencileriGetir();
       }
-      
+
       setOgrenciler(response.data);
       setYukleniyor(false);
     } catch (err) {
@@ -69,7 +70,7 @@ const Students = () => {
   };
 
   const durumRengi = (durum) => {
-    switch(durum) {
+    switch (durum) {
       case 'approved':
         return 'bg-green-100 text-green-800';
       case 'pending':
@@ -82,7 +83,7 @@ const Students = () => {
   };
 
   const durumMetni = (durum) => {
-    switch(durum) {
+    switch (durum) {
       case 'approved':
         return 'Onaylı';
       case 'pending':
@@ -98,37 +99,34 @@ const Students = () => {
     <AdminLayout>
       <div>
         <h1 className="text-2xl font-semibold text-gray-800 mb-6">Öğrenci Yönetimi</h1>
-        
+
         {/* Sekme Butonları */}
         <div className="border-b border-gray-200 mb-6">
           <nav className="flex space-x-8">
             <button
               onClick={() => setSekmeDurum('all')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                sekmeDurum === 'all' 
-                  ? 'border-blue-500 text-blue-600' 
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${sekmeDurum === 'all'
+                  ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               Tüm Öğrenciler
             </button>
             <button
               onClick={() => setSekmeDurum('pending')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                sekmeDurum === 'pending' 
-                  ? 'border-blue-500 text-blue-600' 
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${sekmeDurum === 'pending'
+                  ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               Bekleyen Onaylar
             </button>
             <button
               onClick={() => setSekmeDurum('rejected')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                sekmeDurum === 'rejected' 
-                  ? 'border-blue-500 text-blue-600' 
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${sekmeDurum === 'rejected'
+                  ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+                }`}
             >
               Reddedilenler
             </button>
@@ -181,9 +179,8 @@ const Students = () => {
                       {ogrenci.school || 'Belirtilmemiş'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        durumRengi(ogrenci.approvalStatus || ogrenci.User?.approvalStatus)
-                      }`}>
+                      <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${durumRengi(ogrenci.approvalStatus || ogrenci.User?.approvalStatus)
+                        }`}>
                         {durumMetni(ogrenci.approvalStatus || ogrenci.User?.approvalStatus)}
                       </span>
                     </td>
@@ -194,14 +191,13 @@ const Students = () => {
                       {(ogrenci.approvalStatus || ogrenci.User?.approvalStatus) === 'pending' && (
                         <div className="space-x-2">
                           <button
-                            onClick={() => ogrenciOnayla(ogrenci.id)}
-                            disabled={actionYukleniyor}
+                            onClick={() => ogrenciOnayla(ogrenci.userId || ogrenci.User?.id)}
                             className="text-green-600 hover:text-green-900"
                           >
                             Onayla
                           </button>
                           <button
-                            onClick={() => ogrenciReddet(ogrenci.id)}
+                            onClick={() => ogrenciReddet(ogrenci.userId || ogrenci.User?.id)}
                             disabled={actionYukleniyor}
                             className="text-red-600 hover:text-red-900"
                           >
@@ -209,12 +205,12 @@ const Students = () => {
                           </button>
                         </div>
                       )}
-                      {(ogrenci.approvalStatus || ogrenci.User?.approvalStatus) === 'rejected' && 
+                      {(ogrenci.approvalStatus || ogrenci.User?.approvalStatus) === 'rejected' &&
                         ogrenci.rejectionReason && (
-                        <span className="text-sm text-gray-500 italic">
-                          Sebep: {ogrenci.rejectionReason}
-                        </span>
-                      )}
+                          <span className="text-sm text-gray-500 italic">
+                            Sebep: {ogrenci.rejectionReason}
+                          </span>
+                        )}
                     </td>
                   </tr>
                 ))}

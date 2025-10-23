@@ -29,12 +29,11 @@ const PortfolioView = ({ projects, onEdit, onDelete }) => {
       {/* Projects Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {projects.map(project => {
-          // İlk medya dosyasını al
           const firstMedia = project.media && project.media.length > 0 ? project.media[0] : null;
           const isVideo = firstMedia && (firstMedia.includes('.mp4') || firstMedia.includes('.webm'));
           
-          // Teknolojileri parse et
-          const technologies = project.technologies ? project.technologies.split(',').map(tech => tech.trim()) : [];
+          // HATA DÜZELTİLDİ: project.technologies zaten bir dizi olduğu için .split() kaldırıldı.
+          const technologies = Array.isArray(project.technologies) ? project.technologies : [];
 
           return (
             <div key={project.id} className="bg-blue-800/30 backdrop-blur-xl rounded-xl overflow-hidden hover:bg-blue-700/40 transition-colors border border-blue-700/30">

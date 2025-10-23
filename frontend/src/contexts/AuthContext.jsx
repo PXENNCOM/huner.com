@@ -80,19 +80,30 @@ useEffect(() => {
   }
 };
 
-  // Kayıt işlemi
-  const register = async (userData) => {
-    try {
-      const data = await authService.register(userData);
-      return { success: true, data };
-    } catch (error) {
-      console.error('Register error:', error);
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Kayıt başarısız'
-      };
-    }
-  };
+// Kayıt işlemi
+const register = async (userData) => {
+  try {
+    const data = await authService.register(userData);
+    
+    // ✅ Backend'den gelen tüm bilgileri döndür
+    console.log('Register response from backend:', data);
+    
+    return { 
+      success: true, 
+      userId: data.userId,                          // ← EKLE
+      needsEmailVerification: data.needsEmailVerification,  // ← EKLE
+      emailSent: data.emailSent,                    // ← EKLE
+      message: data.message,
+      data 
+    };
+  } catch (error) {
+    console.error('Register error:', error);
+    return {
+      success: false,
+      message: error.response?.data?.message || 'Kayıt başarısız'
+    };
+  }
+};
 
   // Çıkış işlemi
   const logout = () => {
