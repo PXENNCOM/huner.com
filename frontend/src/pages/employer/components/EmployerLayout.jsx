@@ -10,14 +10,13 @@ import {
   MdLogout
 } from 'react-icons/md';
 
-import EmployerProfilePanel from './Profile/EmployerProfilePanel';
+import EmployerProfilePanel from './profile/EmployerProfilePanel';
 import DeveloperRequestsPanel from './DeveloperRequests/DeveloperRequestsPanel';
 import MessagesPanel from './Messages/MessagesPanel';
 import JobsPanel from './jops/JobsPanel';
 
 const EmployerLayout = ({ 
   children,
-  // Dashboard'dan gelen panel state'leri (opsiyonel)
   isProfilePanelOpen: externalIsProfilePanelOpen,
   setIsProfilePanelOpen: externalSetIsProfilePanelOpen,
   isDeveloperRequestsPanelOpen: externalIsDeveloperRequestsPanelOpen,
