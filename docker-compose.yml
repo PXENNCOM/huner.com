@@ -131,7 +131,7 @@ services:
     container_name: huner-phpmyadmin
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "8161:80"
     environment:
       - PMA_HOST=mysql
       - PMA_PORT=3306
