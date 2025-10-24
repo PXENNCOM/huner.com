@@ -1,4 +1,3 @@
-// pages/employer/components/Profile/EmployerProfilePanel.jsx
 import React, { useState, useEffect } from 'react';
 import { getEmployerProfile, updateEmployerProfile, uploadEmployerProfileImage } from '../../../../services/employerApi';
 import { 
