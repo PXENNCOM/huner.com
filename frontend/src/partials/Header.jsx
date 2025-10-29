@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-
+import Logo from '../images/logo.png';
 function Header() {
   const [top, setTop] = useState(true);
   const [showSignupDropdown, setShowSignupDropdown] = useState(false);
@@ -22,17 +22,28 @@ function Header() {
           <div className="flex items-center">
             {/* Site branding */}
             <div className="flex-shrink-0 mr-8">
-              <Link to="/" className="block" aria-label="TalentGrid">
-                <svg className="w-8 h-8" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                  <defs>
-                    <radialGradient cx="21.152%" cy="86.063%" fx="21.152%" fy="86.063%" r="79.941%" id="header-logo">
-                      <stop stopColor="#4FD1C5" offset="0%" />
-                      <stop stopColor="#81E6D9" offset="25.871%" />
-                      <stop stopColor="#338CF5" offset="100%" />
-                    </radialGradient>
-                  </defs>
-                  <rect width="32" height="32" rx="16" fill="url(#header-logo)" fillRule="nonzero" />
-                </svg>
+              <Link to="/" className="relative inline-block">
+                <img 
+                  src={Logo} 
+                  alt="hunerly" 
+                  className='w-16 h-16' 
+                  style={{
+                    filter: 'brightness(0) saturate(100%) invert(46%) sepia(89%) saturate(2476%) hue-rotate(189deg) brightness(99%) contrast(91%)'
+                  }}
+                />
+                <div 
+                  className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-blue-500 to-teal-400"
+                  style={{
+                    WebkitMaskImage: `url(${Logo})`,
+                    WebkitMaskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskImage: `url(${Logo})`,
+                    maskSize: 'contain',
+                    maskRepeat: 'no-repeat',
+                    maskPosition: 'center'
+                  }}
+                ></div>
               </Link>
             </div>
 
@@ -72,7 +83,7 @@ function Header() {
                   </Link>
                 </li>
                 <li className="relative">
-                  {/* Sign up dropdown - Düzeltilmiş versiyon */}
+                  {/* Sign up dropdown */}
                   <div 
                     className="relative"
                     onMouseEnter={() => setShowSignupDropdown(true)}
@@ -89,10 +100,10 @@ function Header() {
                       </svg>
                     </button>
                     
-                    {/* Dropdown Menu - Boşluğu kapatan invisible bridge eklendi */}
+                    {/* Dropdown Menu */}
                     {showSignupDropdown && (
                       <div className="absolute right-0 z-50">
-                        {/* Invisible bridge - dropdown ile buton arasındaki boşluğu doldurur */}
+                        {/* Invisible bridge */}
                         <div className="h-3 w-full"></div>
                         
                         {/* Actual dropdown */}

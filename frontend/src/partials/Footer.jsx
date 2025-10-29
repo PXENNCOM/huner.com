@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { FaInstagram, FaLinkedin, FaEnvelope } from 'react-icons/fa';
-
+import Logo from '../images/logo.png';
 
 function Footer() {
   return (
@@ -12,9 +12,28 @@ function Footer() {
           {/* 1st Column: Logo */}
           <div className="flex flex-col">
             <div className="mb-4">
-              <Link to="/" className="inline-block" aria-label="Hüner">
-                {/* Hüner logonu buraya ekle */}
-                <span className="text-2xl font-bold text-white">Hüner</span>
+              <Link to="/" className="inline-block relative" aria-label="Hüner">
+                <img 
+                  src={Logo} 
+                  alt="hunerly" 
+                  className='w-16 h-16' 
+                  style={{
+                    filter: 'brightness(0) saturate(100%) invert(46%) sepia(89%) saturate(2476%) hue-rotate(189deg) brightness(99%) contrast(91%)'
+                  }}
+                />
+                <div 
+                  className="absolute inset-0 w-16 h-16 bg-gradient-to-r from-blue-500 to-teal-400"
+                  style={{
+                    WebkitMaskImage: `url(${Logo})`,
+                    WebkitMaskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskImage: `url(${Logo})`,
+                    maskSize: 'contain',
+                    maskRepeat: 'no-repeat',
+                    maskPosition: 'center'
+                  }}
+                ></div>
               </Link>
             </div>
           </div>

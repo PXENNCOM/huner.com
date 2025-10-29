@@ -312,7 +312,7 @@ const StudentLayout = ({
               className="w-full flex items-center justify-center p-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-medium transition-colors"
             >
               <MdLogout className="w-5 h-5 mr-2" />
-              Çıkış Yap
+              Sign Out
             </button>
           </div>
         </div>
@@ -364,7 +364,7 @@ const StudentLayout = ({
                   <button
                     onClick={handleLogout}
                     className="p-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full shadow-xl shadow-red-500/30 hover:shadow-2xl hover:shadow-red-500/40 transform hover:scale-110 transition-all duration-300"
-                    title="Çıkış Yap"
+                    title="Sign Out"
                   >
                     <MdLogout className="w-6 h-6" />
                   </button>

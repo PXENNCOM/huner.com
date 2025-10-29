@@ -111,14 +111,14 @@ const StudentDashboard = () => {
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-300">Bir hata oluştu</h3>
+                <h3 className="text-sm font-medium text-red-300">An error occurred</h3>
                 <div className="mt-2 text-sm text-red-200">{error}</div>
                 <div className="mt-3">
                   <button
                     onClick={refetch}
                     className="bg-red-800/50 hover:bg-red-700/50 text-red-200 px-3 py-1 rounded text-sm font-medium transition-colors duration-200 border border-red-600/30"
                   >
-                    Tekrar Dene
+                    Try Again
                   </button>
                 </div>
               </div>
@@ -228,7 +228,7 @@ const StudentDashboard = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-sm font-medium">Aktif İşler</p>
+                <p className="text-blue-200 text-sm font-medium">Acitve Jops</p>
                 <p className="text-3xl font-bold text-white">{stats?.activeJobs || 0}</p>
               </div>
               <div className="p-3 bg-blue-500/20 rounded-lg group-hover:scale-110 transition-transform">
@@ -244,7 +244,7 @@ const StudentDashboard = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-sm font-medium">Tamamlanan Projeler</p>
+                <p className="text-blue-200 text-sm font-medium">Completed Projects </p>
                 <p className="text-3xl font-bold text-white">{stats?.completedProjects || 0}</p>
               </div>
               <div className="p-3 bg-blue-500/20 rounded-lg group-hover:scale-110 transition-transform">
@@ -260,7 +260,7 @@ const StudentDashboard = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-sm font-medium">Yaklaşan Etkinlik</p>
+                <p className="text-blue-200 text-sm font-medium">Upcoming Event</p>
                 <p className="text-3xl font-bold text-white">{stats?.upcomingEvents || 0}</p>
               </div>
               <div className="p-3 bg-blue-500/20 rounded-lg group-hover:scale-110 transition-transform">
@@ -276,7 +276,7 @@ const StudentDashboard = () => {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-200 text-sm font-medium">Proje Fikirleri</p>
+                <p className="text-blue-200 text-sm font-medium">Projects İdeas</p>
                 <p className="text-3xl font-bold text-white">{stats?.projectIdeas || 0}</p>
               </div>
               <div className="p-3 bg-blue-500/20 rounded-lg group-hover:scale-110 transition-transform">
@@ -290,7 +290,7 @@ const StudentDashboard = () => {
         <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
           <h2 className="text-lg font-semibold text-white mb-4 flex items-center">
             <MdSchool className="w-5 h-5 mr-2 text-blue-300" />
-            Hızlı İşlemler
+            Quick Transactions
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <button
@@ -298,21 +298,21 @@ const StudentDashboard = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center group"
             >
               <MdSearch className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-              İş Fırsatları
+              Businnes Opportunities
             </button>
             <button
               onClick={handleOpenPortfolioPanel}
               className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center group"
             >
               <MdAdd className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-              Proje Ekle
+              Add Project
             </button>
             <button
               onClick={handleOpenEventsPanel}
               className="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-lg font-medium transition-all duration-200 flex items-center justify-center group"
             >
               <MdEvent className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-              Etkinlikleri Gör
+               See Events
             </button>
           </div>
         </div>
@@ -325,13 +325,13 @@ const StudentDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center">
                 <MdWork className="w-5 h-5 mr-2 text-blue-300" />
-                Aktif İşler
+                Active Jops
               </h3>
               <button
                 onClick={handleOpenJobsPanel}
                 className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors"
               >
-                Tümü →
+                All →
               </button>
             </div>
 
@@ -354,7 +354,7 @@ const StudentDashboard = () => {
                 </div>
               )) || (
                   <div className="text-blue-300 text-sm text-center py-4">
-                    📝 Henüz aktif iş bulunmuyor
+                    📝 There are no active jops yet
                   </div>
                 )}
             </div>
@@ -365,13 +365,13 @@ const StudentDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center">
                 <MdCode className="w-5 h-5 mr-2 text-blue-300" />
-                Son Projeler
+                Latest Projects
               </h3>
               <button
                 onClick={handleOpenPortfolioPanel}
                 className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors"
               >
-                Tümü →
+                All →
               </button>
             </div>
 
@@ -386,13 +386,13 @@ const StudentDashboard = () => {
                   </p>
                   <div className="flex items-center justify-between mt-2">
                     <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-300">
-                      ✅ Tamamlandı
+                      ✅ Completed
                     </span>
                   </div>
                 </div>
               )) || (
                   <div className="text-blue-300 text-sm text-center py-4">
-                    🚀 İlk projenizi ekleyin
+                    🚀 Add your first project
                   </div>
                 )}
             </div>
@@ -403,13 +403,13 @@ const StudentDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-white flex items-center">
                 <MdEvent className="w-5 h-5 mr-2 text-blue-300" />
-                Yaklaşan Etkinlikler
+                Upcoming Evets
               </h3>
               <button
                 onClick={handleOpenEventsPanel}
                 className="text-blue-300 hover:text-blue-200 text-sm font-medium transition-colors"
               >
-                Tümü →
+                All →
               </button>
             </div>
 
@@ -428,7 +428,7 @@ const StudentDashboard = () => {
                 </div>
               )) || (
                   <div className="text-blue-300 text-sm text-center py-4">
-                    📅 Yaklaşan etkinlik bulunmuyor
+                    📅 There are you upcoming events
                   </div>
                 )}
             </div>
@@ -442,13 +442,13 @@ const StudentDashboard = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-white flex items-center">
                 <MdLightbulb className="w-5 h-5 mr-2 text-yellow-300" />
-                İlham Verici Proje Fikirleri
+                Inspiring Project Ideas
               </h2>
               <button
                 onClick={handleOpenProjectIdeasPanel}
                 className="text-yellow-300 hover:text-yellow-200 text-sm font-medium transition-colors"
               >
-                Tümünü Gör →
+                See All →
               </button>
             </div>
 
@@ -475,7 +475,6 @@ const StudentDashboard = () => {
             </div>
           </div>
         )}
-
       </div>
     </StudentLayout>
   );
