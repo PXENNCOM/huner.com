@@ -114,14 +114,14 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
         <div>
           <label className="flex items-center text-sm font-medium text-blue-200 mb-2">
             <MdBusiness className="w-4 h-4 mr-2" />
-            Şirket Adı *
+            Company Name *
           </label>
           <input
             type="text"
             name="companyName"
             value={formData.companyName}
             onChange={handleInputChange}
-            placeholder="Örn: Tech Şirketi A.Ş."
+            placeholder="Example: Tech Company Inc."
             className="w-full px-4 py-3 bg-blue-800/30 border border-blue-700/50 rounded-lg text-white placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
           {errors.companyName && (
@@ -133,7 +133,7 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
         <div>
           <label className="flex items-center text-sm font-medium text-blue-200 mb-2">
             <MdWork className="w-4 h-4 mr-2" />
-            Pozisyon *
+            Position *
           </label>
           <input
             type="text"
@@ -152,7 +152,7 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
         <div>
           <label className="flex items-center text-sm font-medium text-blue-200 mb-2">
             <MdWork className="w-4 h-4 mr-2" />
-            Çalışma Türü
+            Working Type
           </label>
           <select
             name="workType"
@@ -174,7 +174,7 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
           <div>
             <label className="flex items-center text-sm font-medium text-blue-200 mb-2">
               <MdCalendarToday className="w-4 h-4 mr-2" />
-              Başlangıç Tarihi *
+              Start Date *
             </label>
             <input
               type="date"
@@ -192,7 +192,7 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
           <div>
             <label className="flex items-center text-sm font-medium text-blue-200 mb-2">
               <MdCalendarToday className="w-4 h-4 mr-2" />
-              Bitiş Tarihi {!formData.isCurrent && '*'}
+              End Date {!formData.isCurrent && '*'}
             </label>
             <input
               type="date"
@@ -221,7 +221,7 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
             className="w-4 h-4 text-blue-600 bg-blue-800/30 border-blue-600 rounded focus:ring-blue-500 focus:ring-2"
           />
           <label htmlFor="isCurrent" className="ml-2 text-sm font-medium text-blue-200">
-            Hala burada çalışıyorum
+            I'm still working here
           </label>
         </div>
 
@@ -229,18 +229,18 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
         <div>
           <label className="flex items-center text-sm font-medium text-blue-200 mb-2">
             <MdDescription className="w-4 h-4 mr-2" />
-            Açıklama
+            Explanation
           </label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleInputChange}
             rows={4}
-            placeholder="İş tanımınızı, sorumluluklarınızı ve başarılarınızı açıklayın..."
+            placeholder="Describe your job description, responsibilities, and achievements..."
             className="w-full px-4 py-3 bg-blue-800/30 border border-blue-700/50 rounded-lg text-white placeholder-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
           />
           <p className="mt-1 text-xs text-blue-400">
-            Ne yaptığınızı, hangi teknolojileri kullandığınızı ve başarılarınızı belirtin
+           Describe what you do, what technologies you use, and your achievements
           </p>
         </div>
 
@@ -254,12 +254,12 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
             {isSubmitting ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                {isEditMode ? 'Güncelleniyor...' : 'Ekleniyor...'}
+                {isEditMode ? 'Updating...' : 'Add...'}
               </>
             ) : (
               <>
                 <MdSave className="w-4 h-4 mr-2" />
-                {isEditMode ? 'Güncelle' : 'Kaydet'}
+                {isEditMode ? 'Update' : 'Save'}
               </>
             )}
           </button>
@@ -271,7 +271,7 @@ const WorkExperienceForm = ({ initialData = null, onSubmit, isSubmitting, onCanc
             className="flex items-center justify-center px-6 py-3 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-800 text-white font-medium rounded-lg transition-colors disabled:cursor-not-allowed"
           >
             <MdCancel className="w-4 h-4 mr-2" />
-            İptal
+            Cancel
           </button>
         </div>
       </form>

@@ -129,8 +129,7 @@ const WorkExperiencePanel = ({ isOpen, onClose }) => {
               <MdWork className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">İş Deneyimi</h2>
-              <p className="text-sm text-blue-200 hidden sm:block">Çalışma geçmişinizi yönetin</p>
+              <h2 className="text-lg font-semibold text-white">Work Experience</h2>
             </div>
           </div>
           
@@ -157,8 +156,8 @@ const WorkExperiencePanel = ({ isOpen, onClose }) => {
               }`}
             >
               <MdList className="w-4 h-4" />
-              <span className="hidden sm:inline">Deneyimler ({experiences.length})</span>
-              <span className="sm:hidden">Deneyimler</span>
+              <span className="hidden sm:inline">experiences ({experiences.length})</span>
+              <span className="sm:hidden">experiences</span>
             </button>
             <button
               onClick={() => {
@@ -172,15 +171,15 @@ const WorkExperiencePanel = ({ isOpen, onClose }) => {
               }`}
             >
               <MdAdd className="w-4 h-4" />
-              <span className="hidden sm:inline">Yeni Deneyim</span>
-              <span className="sm:hidden">Yeni</span>
+              <span className="hidden sm:inline">New Experience</span>
+              <span className="sm:hidden">New</span>
             </button>
             {activeTab === 'edit' && (
               <button
                 className="py-3 px-3 md:px-4 text-sm font-medium text-blue-300 border-b-2 border-blue-400 flex items-center space-x-2 whitespace-nowrap"
               >
                 <MdEdit className="w-4 h-4" />
-                <span>Düzenle</span>
+                <span>Edit</span>
               </button>
             )}
           </nav>
@@ -222,8 +221,7 @@ const WorkExperiencePanel = ({ isOpen, onClose }) => {
               {activeTab === 'add' && (
                 <div>
                   <div className="mb-4 md:mb-6">
-                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Yeni İş Deneyimi Ekle</h3>
-                    <p className="text-blue-200 text-sm md:text-base">Çalışma geçmişinize yeni bir deneyim ekleyin</p>
+                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Add New Work Experience</h3>
                   </div>
                   <WorkExperienceForm 
                     onSubmit={handleAddExperience}

@@ -10,7 +10,7 @@ const StudentSignUp = () => {
     password: '',
     confirmPassword: '',
     fullName: '',
-    phoneNumber: '', // Yeni eklenen alan
+    phoneNumber: '',
     linkedinProfile: '',
     githubProfile: ''
   });
@@ -489,45 +489,10 @@ const handleSubmit = async (e) => {
       <div className="absolute -bottom-2 -left-2 w-6 h-6 bg-gradient-to-br from-[#004493] to-[#0158C1] rounded-full opacity-60 z-10"></div>
 
       <div className="relative w-full max-w-md z-10">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3].map((step) => (
-              <div key={step} className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold transition-all duration-300 ${
-                  currentStep >= step 
-                    ? 'bg-white text-[#004493] shadow-lg'
-                    : 'bg-white/50 text-white/70'
-                }`}>
-                  {step}
-                </div>
-                {step < 3 && (
-                  <div className={`w-16 h-1 mx-2 rounded transition-all duration-300 ${
-                    currentStep > step ? 'bg-white' : 'bg-white/20'
-                  }`} />
-                )}
-              </div>
-            ))}
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-blue-200">Step {currentStep} / 3</p>
-          </div>
-        </div>
+     
 
         {/* Form Card */}
         <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl border border-white/20 p-8 transform transition-all duration-500">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#0158C1] to-[#004493] rounded-2xl mb-4 shadow-lg transition-all duration-500 ${
-              currentStep === 1 ? '' : currentStep === 2 ? 'transform rotate-45' : 'transform rotate-90'
-            }`}>
-              {currentStep === 1 && <User className="w-8 h-8 text-white transition-all duration-300" />}
-              {currentStep === 2 && <GraduationCap className="w-8 h-8 text-white transition-all duration-300" />}
-              {currentStep === 3 && <Lock className="w-8 h-8 text-white transition-all duration-300" />}
-            </div>
-            <h2 className="text-2xl font-bold text-white text-center">Student Registration</h2>
-            <p className="text-blue-200 text-center mt-2">Create a new student account</p>
-          </div>
 
           {/* Form Content */}
           <div className="py-6">

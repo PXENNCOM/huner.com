@@ -64,8 +64,7 @@ const ProfilePanel = ({ isOpen, onClose }) => {
               <MdPerson className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Profil</h2>
-              <p className="text-sm text-blue-200 hidden sm:block">Profil bilgilerinizi yönetin</p>
+              <h2 className="text-lg font-semibold text-white">Profile</h2>
             </div>
           </div>
           
@@ -89,7 +88,7 @@ const ProfilePanel = ({ isOpen, onClose }) => {
               }`}
             >
               <MdVisibility className="w-4 h-4" />
-              <span>Görüntüle</span>
+              <span>View</span>
             </button>
             <button
               onClick={() => setProfileTab('edit')}
@@ -100,7 +99,7 @@ const ProfilePanel = ({ isOpen, onClose }) => {
               }`}
             >
               <MdEdit className="w-4 h-4" />
-              <span>Düzenle</span>
+              <span>Edit</span>
             </button>
           </nav>
         </div>

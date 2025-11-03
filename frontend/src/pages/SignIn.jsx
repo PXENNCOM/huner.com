@@ -154,35 +154,6 @@ const SignIn = () => {
             </div>
           </div>
 
-          {/* Header with animated icon */}
-          <div className="text-center mb-8">
-            <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#0158C1] to-[#004493] rounded-2xl mb-4 shadow-lg transition-all duration-500 ${
-              currentStep === 'password' ? 'transform rotate-180' : ''
-            }`}>
-              {currentStep === 'email' ? (
-                <Mail className="w-8 h-8 text-white transition-all duration-300" />
-              ) : (
-                <Lock className="w-8 h-8 text-white transition-all duration-300" />
-              )}
-            </div>
-            
-            <div className="transition-all duration-500 transform">
-              {currentStep === 'email' ? (
-                <div>
-                  <h2 className="text-3xl font-bold text-white mb-2">Welcome</h2>
-                  <p className="text-blue-200">Enter your email address</p>
-                </div>
-              ) : (
-                <div>
-                  <h2 className="text-3xl font-bold text-white mb-2">Enter Your Password</h2>
-                  <p className="text-blue-200">
-                    Password for <span className="font-medium">{formData.email}</span>
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Error message */}
           {error && (
             <div className="bg-red-500/20 backdrop-blur-sm border border-red-400/30 text-red-200 px-4 py-3 rounded-xl mb-6 transition-all duration-300">

@@ -185,7 +185,7 @@ const handleSubmit = async (e) => {
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Profile Image Section */}
       <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
-        <h3 className="text-lg font-medium text-white mb-4">Profil Fotoğrafı</h3>
+        <h3 className="text-lg font-medium text-white mb-4">Profile Photo</h3>
         
         <div className="flex flex-col items-center">
           <div className="relative mb-4">
@@ -216,7 +216,7 @@ const handleSubmit = async (e) => {
               htmlFor="profileImage"
               className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 hover:opacity-100 transition-opacity cursor-pointer rounded-xl"
             >
-              <span className="text-white text-xs font-medium">Değiştir</span>
+              <span className="text-white text-xs font-medium">Change</span>
             </label>
           </div>
           
@@ -228,12 +228,12 @@ const handleSubmit = async (e) => {
 
       {/* Basic Information */}
       <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
-        <h3 className="text-lg font-medium text-white mb-4">Temel Bilgiler</h3>
+        <h3 className="text-lg font-medium text-white mb-4">Basic Information</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="fullName" className="block text-sm font-medium text-blue-200 mb-2">
-              Ad Soyad *
+              Name Surname *
             </label>
             <input
               type="text"
@@ -244,14 +244,14 @@ const handleSubmit = async (e) => {
               className={`w-full px-3 py-2 rounded-lg bg-blue-900/40 border text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
                 errors.fullName ? 'border-red-500' : 'border-blue-600/50'
               }`}
-              placeholder="Adınız ve soyadınız"
+              placeholder="Name Surname"
             />
             {errors.fullName && <p className="mt-1 text-sm text-red-400">{errors.fullName}</p>}
           </div>
 
           <div>
             <label htmlFor="age" className="block text-sm font-medium text-blue-200 mb-2">
-              Yaş
+              Age
             </label>
             <input
               type="number"
@@ -260,13 +260,13 @@ const handleSubmit = async (e) => {
               value={formData.age}
               onChange={handleChange}
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Yaşınız"
+              placeholder="Age"
             />
           </div>
 
           <div>
             <label htmlFor="city" className="block text-sm font-medium text-blue-200 mb-2">
-              Şehir
+              City
             </label>
             <input
               type="text"
@@ -275,13 +275,13 @@ const handleSubmit = async (e) => {
               value={formData.city}
               onChange={handleChange}
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Yaşadığınız şehir"
+              placeholder="The city you live in"
             />
           </div>
 
           <div>
             <label htmlFor="school" className="block text-sm font-medium text-blue-200 mb-2">
-              Okul
+              School
             </label>
             <input
               type="text"
@@ -290,13 +290,13 @@ const handleSubmit = async (e) => {
               value={formData.school}
               onChange={handleChange}
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Okulunuzun adı"
+              placeholder="Name of your school"
             />
           </div>
 
           <div>
             <label htmlFor="department" className="block text-sm font-medium text-blue-200 mb-2">
-              Bölüm
+              School Section
             </label>
             <input
               type="text"
@@ -305,13 +305,13 @@ const handleSubmit = async (e) => {
               value={formData.department}
               onChange={handleChange}
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="Bölümünüz"
+              placeholder="School Section"
             />
           </div>
 
           <div>
             <label htmlFor="educationLevel" className="block text-sm font-medium text-blue-200 mb-2">
-              Eğitim Seviyesi
+              Education Level
             </label>
             <select
               id="educationLevel"
@@ -320,16 +320,16 @@ const handleSubmit = async (e) => {
               onChange={handleChange}
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              <option value="lisans">Lisans</option>
-              <option value="yuksek_lisans">Yüksek Lisans</option>
-              <option value="doktora">Doktora</option>
-              <option value="mezun">Mezun</option>
+              <option value="lisans">Licence</option>
+              <option value="yuksek_lisans">degree</option>
+              <option value="doktora">doctorate</option>
+              <option value="mezun">Graduate</option>
             </select>
           </div>
 
           <div className="md:col-span-2">
             <label htmlFor="currentGrade" className="block text-sm font-medium text-blue-200 mb-2">
-              Sınıf
+              Class
             </label>
             <input
               type="text"
@@ -337,7 +337,7 @@ const handleSubmit = async (e) => {
               name="currentGrade"
               value={formData.currentGrade}
               onChange={handleChange}
-              placeholder="Örn: 3. Sınıf"
+              placeholder="Example: 3rd Grade"
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
@@ -346,12 +346,12 @@ const handleSubmit = async (e) => {
 
       {/* Bio and Skills */}
       <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
-        <h3 className="text-lg font-medium text-white mb-4">Hakkımda & Yetenekler</h3>
+        <h3 className="text-lg font-medium text-white mb-4">About Me & Skils</h3>
 
         <div className="space-y-4">
           <div>
             <label htmlFor="shortBio" className="block text-sm font-medium text-blue-200 mb-2">
-              Kısa Biyografi
+              Short Biography
             </label>
             <textarea
               id="shortBio"
@@ -359,18 +359,18 @@ const handleSubmit = async (e) => {
               rows="3"
               value={formData.shortBio}
               onChange={handleChange}
-              placeholder="Kendinizi kısaca tanıtın (maks. 280 karakter)"
+              placeholder="Briefly introduce yourself (280 characters max)"
               maxLength="280"
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
             ></textarea>
             <p className="mt-1 text-xs text-blue-300 text-right">
-              {formData.shortBio.length}/280 karakter
+              {formData.shortBio.length}/280 characters
             </p>
           </div>
 
           <div>
             <label htmlFor="skills" className="block text-sm font-medium text-blue-200 mb-2">
-              Yetenekler
+              Skils
             </label>
             <input
               type="text"
@@ -381,19 +381,19 @@ const handleSubmit = async (e) => {
               placeholder="JavaScript, React, Node.js, ..."
               className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <p className="mt-1 text-xs text-blue-300">Virgülle ayırarak ekleyin.</p>
+            <p className="mt-1 text-xs text-blue-300">Add separated by commas.</p>
           </div>
         </div>
       </div>
 
       {/* Social Links */}
       <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
-        <h3 className="text-lg font-medium text-white mb-4">Sosyal Medya</h3>
+        <h3 className="text-lg font-medium text-white mb-4">Social Media</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label htmlFor="githubProfile" className="block text-sm font-medium text-blue-200 mb-2">
-              GitHub Profili
+              GitHub Profile
             </label>
             <input
               type="text"
@@ -411,7 +411,7 @@ const handleSubmit = async (e) => {
 
           <div>
             <label htmlFor="linkedinProfile" className="block text-sm font-medium text-blue-200 mb-2">
-              LinkedIn Profili
+              LinkedIn Profile
             </label>
             <input
               type="text"
@@ -431,12 +431,12 @@ const handleSubmit = async (e) => {
 
       {/* Languages */}
       <div className="bg-blue-800/30 backdrop-blur-xl rounded-xl p-6 border border-blue-700/30">
-        <h3 className="text-lg font-medium text-white mb-4">Dil Bilgisi</h3>
+        <h3 className="text-lg font-medium text-white mb-4">Grammar</h3>
         
         {/* Current Languages */}
         <div className="mb-4">
           {languages.length === 0 ? (
-            <p className="text-blue-300 text-center py-4">Henüz dil eklenmemiş.</p>
+            <p className="text-blue-300 text-center py-4">No languages ​​have been added yet.</p>
           ) : (
             <div className="space-y-2">
               {languages.map((lang, index) => (
@@ -478,10 +478,10 @@ const handleSubmit = async (e) => {
       onChange={(e) => setNewLanguage({ ...newLanguage, level: e.target.value })}
       className="px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 min-w-0 sm:w-auto"
     >
-      <option value="Başlangıç">Başlangıç</option>
-      <option value="Orta">Orta</option>
-      <option value="İleri">İleri</option>
-      <option value="Ana Dil">Ana Dil</option>
+      <option value="Başlangıç">Beginning</option>
+      <option value="Orta">Middle</option>
+      <option value="İleri">Forward</option>
+      <option value="Ana Dil">Main language</option>
     </select>
     
     <button
@@ -489,7 +489,7 @@ const handleSubmit = async (e) => {
       onClick={handleAddLanguage}
       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors whitespace-nowrap flex-shrink-0"
     >
-      Ekle
+      Add
     </button>
   </div>
   {errors.language && <p className="mt-2 text-sm text-red-400">{errors.language}</p>}
@@ -510,7 +510,7 @@ const handleSubmit = async (e) => {
           onClick={onCancel}
           className="px-4 py-2 bg-blue-700/30 hover:bg-blue-600/40 border border-blue-600/50 text-blue-200 hover:text-white rounded-lg font-medium transition-colors"
         >
-          İptal
+          Cancel
         </button>
         <button
           type="submit"
@@ -523,7 +523,7 @@ const handleSubmit = async (e) => {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
           )}
-          Kaydet
+          Save
         </button>
       </div>
     </form>
