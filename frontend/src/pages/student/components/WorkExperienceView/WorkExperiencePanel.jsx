@@ -234,8 +234,8 @@ const WorkExperiencePanel = ({ isOpen, onClose }) => {
               {activeTab === 'edit' && editingExperience && (
                 <div>
                   <div className="mb-4 md:mb-6">
-                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">İş Deneyimi Düzenle</h3>
-                    <p className="text-blue-200 text-sm md:text-base">"{editingExperience.position}" pozisyonunu düzenliyorsunuz</p>
+                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Edit Work Experience</h3>
+                    <p className="text-blue-200 text-sm md:text-base">"{editingExperience.position}" you are adjusting the position</p>
                   </div>
                   <WorkExperienceForm 
                     initialData={editingExperience}
@@ -254,10 +254,10 @@ const WorkExperiencePanel = ({ isOpen, onClose }) => {
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={deleteDialogOpen}
-        title="İş Deneyimini Sil"
-        message={`"${experienceToDelete?.companyName} - ${experienceToDelete?.position}" deneyimini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.`}
-        confirmText="Sil"
-        cancelText="İptal"
+        title="Delete Work Experience"
+        message={`"${experienceToDelete?.companyName} - ${experienceToDelete?.position}" Are you sure you want to delete the experience? This action is irreversible.`}
+        confirmText="Delete"
+        cancelText="Cancel"
         onConfirm={handleConfirmDelete}
         onCancel={() => setDeleteDialogOpen(false)}
       />

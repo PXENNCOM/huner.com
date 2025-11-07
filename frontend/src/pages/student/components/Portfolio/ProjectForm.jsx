@@ -157,7 +157,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
       {/* Proje Başlığı */}
       <div>
         <label htmlFor="title" className="block text-sm font-medium text-blue-200 mb-2">
-          Proje Başlığı *
+          Project Title *
         </label>
         <input
           type="text"
@@ -168,7 +168,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
           className={`w-full px-3 py-2 rounded-lg bg-blue-900/40 border text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
             errors.title ? 'border-red-500' : 'border-blue-600/50'
           }`}
-          placeholder="Projenizin başlığını girin"
+          placeholder="Enter the title of your project"
         />
         {errors.title && <p className="mt-1 text-sm text-red-400">{errors.title}</p>}
       </div>
@@ -176,7 +176,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
       {/* Proje Açıklaması */}
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-blue-200 mb-2">
-          Proje Açıklaması *
+          Project Description *
         </label>
         <textarea
           id="description"
@@ -187,7 +187,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
           className={`w-full px-3 py-2 rounded-lg bg-blue-900/40 border text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none ${
             errors.description ? 'border-red-500' : 'border-blue-600/50'
           }`}
-          placeholder="Projenizin detaylarını açıklayın"
+          placeholder="Describe the details of your project"
         ></textarea>
         {errors.description && <p className="mt-1 text-sm text-red-400">{errors.description}</p>}
       </div>
@@ -195,7 +195,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
       {/* Teknolojiler (Güncellenmiş Alan) */}
       <div>
         <label htmlFor="technologies" className="block text-sm font-medium text-blue-200 mb-2">
-          Kullanılan Teknolojiler *
+          Technologies Used *
         </label>
         <Select
           id="technologies"
@@ -204,10 +204,10 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
           options={technologyOptions}
           value={formData.technologies}
           onChange={handleTechChange}
-          placeholder="Teknoloji seçin veya arayın..."
+          placeholder="Select or search technology..."
           styles={customSelectStyles}
           classNamePrefix="select"
-          noOptionsMessage={() => "Aradığınız teknoloji bulunamadı"}
+          noOptionsMessage={() => "The technology you were looking for was not found"}
         />
         {errors.technologies && <p className="mt-1 text-sm text-red-400">{errors.technologies}</p>}
       </div>
@@ -234,7 +234,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
 
         <div>
           <label htmlFor="liveUrl" className="block text-sm font-medium text-blue-200 mb-2">
-            Canlı Site URL
+            Live Site URL
           </label>
           <input
             type="text"
@@ -255,7 +255,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="projectType" className="block text-sm font-medium text-blue-200 mb-2">
-            Proje Türü
+            Project Type
           </label>
           <select
             id="projectType"
@@ -265,10 +265,10 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
             className="w-full px-3 py-2 rounded-lg bg-blue-900/40 border border-blue-600/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
             style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg fill="white" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>')`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', paddingRight: '2.5rem' }}
           >
-            <option value="personal">Kişisel Proje</option>
-            <option value="school">Okul Projesi</option>
-            <option value="huner">Hüner İşi</option>
-            <option value="other">Diğer</option>
+            <option value="personal">Personal Project</option>
+            <option value="school">School Project</option>
+            <option value="huner">Hunerly</option>
+            <option value="other">Other</option>
           </select>
         </div>
 
@@ -283,7 +283,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
               className="h-4 w-4 rounded border-blue-600/50 bg-blue-900/40 text-blue-500 focus:ring-blue-400 focus:ring-offset-blue-800"
             />
             <label htmlFor="isVisible" className="ml-2 text-sm text-blue-200">
-              Portfolyomda göster
+              Show in my portfolio
             </label>
           </div>
         </div>
@@ -292,7 +292,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
       {/* Medya Yükleme */}
       <div>
         <label className="block text-sm font-medium text-blue-200 mb-2">
-          Proje Görselleri/Videoları (Maks. 5)
+          Project Images/Videos (Max. 5)
         </label>
         
         <div 
@@ -309,10 +309,10 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
             {isDragActive ? (
-              <p className="text-blue-300">Dosyaları buraya bırakın...</p>
+              <p className="text-blue-300">Drop the files here...</p>
             ) : (
               <div>
-                <p className="text-blue-200">Dosyaları sürükleyip bırakın veya tıklayarak seçin</p>
+                <p className="text-blue-200">Drag and drop files or click to select them</p>
                 <p className="text-xs text-blue-300 mt-1">JPEG, PNG, GIF, MP4, WEBM</p>
               </div>
             )}
@@ -321,7 +321,7 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
 
         {mediaFiles.length > 0 && (
           <div className="mt-4">
-            <p className="text-sm font-medium text-blue-200 mb-2">Seçilen Dosyalar ({mediaFiles.length}/5):</p>
+            <p className="text-sm font-medium text-blue-200 mb-2">Selected Files ({mediaFiles.length}/5):</p>
             <div className="space-y-2">
               {mediaFiles.map((file, index) => (
                 <div key={index} className="flex items-center justify-between bg-blue-700/30 p-3 rounded-lg border border-blue-600/30">
@@ -350,16 +350,16 @@ const ProjectForm = ({ initialData, onSubmit, isSubmitting, onCancel, isEditMode
       {/* Butonlar */}
       <div className="flex justify-end space-x-3 pt-4 border-t border-blue-700/50">
         <button type="button" onClick={onCancel} disabled={isSubmitting} className="px-4 py-2 bg-blue-700/30 hover:bg-blue-600/40 border border-blue-600/50 text-blue-200 hover:text-white rounded-lg font-medium transition-colors disabled:opacity-50">
-          İptal
+          Cancel
         </button>
         <button type="submit" disabled={isSubmitting} className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors disabled:opacity-75 flex items-center min-w-[120px] justify-center">
           {isSubmitting ? (
             <>
               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
-              {isEditMode ? 'Güncelleniyor...' : 'Kaydediliyor...'}
+              {isEditMode ? 'Updating...' : 'Recording...'}
             </>
           ) : (
-            isEditMode ? 'Güncelle' : 'Kaydet'
+            isEditMode ? 'Update' : 'Save'
           )}
         </button>
       </div>

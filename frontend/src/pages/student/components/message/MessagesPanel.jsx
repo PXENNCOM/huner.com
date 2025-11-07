@@ -63,7 +63,7 @@ const MessagesPanel = ({ isOpen, onClose }) => {
       await markAsRead(messageId);
       fetchMessages();
     } catch (error) {
-      console.error('Mesaj okuma hatası:', error);
+      console.error('Message reading error:', error);
     }
   };
 
@@ -83,9 +83,9 @@ const MessagesPanel = ({ isOpen, onClose }) => {
   };
 
   const filterOptions = [
-    { id: 'all', label: 'Tümü', count: messages.length },
-    { id: 'unread', label: 'Okunmamış', count: messages.filter(m => !m.isRead).length },
-    { id: 'read', label: 'Okunmuş', count: messages.filter(m => m.isRead).length }
+    { id: 'all', label: 'All', count: messages.length },
+    { id: 'unread', label: 'unread', count: messages.filter(m => !m.isRead).length },
+    { id: 'read', label: 'read', count: messages.filter(m => m.isRead).length }
   ];
 
   if (!isOpen) return null;
@@ -109,7 +109,6 @@ const MessagesPanel = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white">Mesajlar</h2>
-                <p className="text-sm text-blue-300">Admin mesajlarınız</p>
               </div>
             </div>
             <button
@@ -128,7 +127,7 @@ const MessagesPanel = ({ isOpen, onClose }) => {
                 <MdSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Mesaj ara..."
+                  placeholder="Search for messages..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-blue-800/30 border border-blue-700/30 rounded-lg text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50"
@@ -179,14 +178,14 @@ const MessagesPanel = ({ isOpen, onClose }) => {
                 </div>
                 <h3 className="text-lg font-medium text-white mb-2">
                   {filter === 'all' 
-                    ? 'Henüz mesaj yok'
-                    : `${filterOptions.find(o => o.id === filter)?.label} mesaj yok`
+                    ? 'No messages yet'
+                    : `${filterOptions.find(o => o.id === filter)?.label} no message`
                   }
                 </h3>
                 <p className="text-blue-300 text-sm">
                   {filter === 'all'
-                    ? 'Yeni mesajlar burada görünecek'
-                    : 'Farklı filtreler deneyebilirsiniz'}
+                    ? 'New messages will appear here'
+                    : 'You can try different filters'}
                 </p>
               </div>
             )}
@@ -213,13 +212,13 @@ const MessagesPanel = ({ isOpen, onClose }) => {
                     <div className="text-lg font-bold text-red-400">
                       {messages.filter(m => !m.isRead).length}
                     </div>
-                    <div className="text-xs text-blue-300">Okunmamış</div>
+                    <div className="text-xs text-blue-300">Unread</div>
                   </div>
                   <div className="bg-blue-800/30 border border-blue-700/30 rounded-lg p-3">
                     <div className="text-lg font-bold text-green-400">
                       {messages.filter(m => m.isRead).length}
                     </div>
-                    <div className="text-xs text-blue-300">Okunmuş</div>
+                    <div className="text-xs text-blue-300">Read</div>
                   </div>
                 </div>
               </div>

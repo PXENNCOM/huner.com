@@ -31,10 +31,10 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
   ];
 
   const difficulties = [
-    { value: 'all', label: 'Tümü', icon: '⚡' },
-    { value: 'Kolay', label: 'Kolay', icon: '🟢' },
-    { value: 'Orta', label: 'Orta', icon: '🟡' },
-    { value: 'Zor', label: 'Zor', icon: '🔴' }
+    { value: 'all', label: 'All', icon: '⚡' },
+    { value: 'Kolay', label: 'Easy', icon: '🟢' },
+    { value: 'Orta', label: 'Middle', icon: '🟡' },
+    { value: 'Zor', label: 'Hard', icon: '🔴' }
   ];
 
   useEffect(() => {
@@ -117,7 +117,7 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
               </div>
               <div>
                 <h2 className="text-lg font-semibold text-white flex items-center">
-                  🤖 Proje Fikirleri
+                   Project Ideas
                 </h2>
               </div>
             </div>
@@ -149,13 +149,13 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
             <div className="p-4 border-b border-blue-700/30">
               <div className="flex items-center space-x-2 mb-3">
                 <MdFilterList className="w-4 h-4 text-blue-300" />
-                <span className="text-sm text-blue-300">Kategorileri ve Filtreler</span>
+                <span className="text-sm text-blue-300">Categories and Filters</span>
               </div>
 
               {/* Category Filter */}
               <div className="mb-3">
                 <p className="text-xs text-blue-300 mb-2 flex items-center">
-                  <span className="mr-1">🤖</span> Kategoriler
+                  <span className="mr-1">🤖</span> Categories
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {categories.map(category => (
@@ -179,7 +179,7 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
               {/* Difficulty Filter */}
               <div>
                 <p className="text-xs text-blue-300 mb-2 flex items-center">
-                  <span className="mr-1">📊</span> Zorluk Seviyesi
+                  <span className="mr-1">📊</span> Difficulty Level
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {difficulties.map(difficulty => (
@@ -204,7 +204,7 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
             {(selectedCategory !== 'all' || selectedDifficulty !== 'all' || searchTerm) && (
               <div className="p-4 border-b border-blue-700/30">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs text-blue-300">Aktif Filtreler:</p>
+                  <p className="text-xs text-blue-300">Active Filters:</p>
                   <button
                     onClick={() => {
                       setSelectedCategory('all');
@@ -213,7 +213,7 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
                     }}
                     className="text-xs text-yellow-400 hover:text-yellow-300 underline"
                   >
-                    Temizle
+                    Clear
                   </button>
                 </div>
                 <div className="flex flex-wrap gap-1.5">
@@ -240,7 +240,7 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
             {loading && (
               <div className="flex flex-col justify-center items-center p-8">
                 <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-yellow-500 mb-3"></div>
-                <p className="text-blue-300 text-sm">AI projeleri yükleniyor...</p>
+                <p className="text-blue-300 text-sm">AI projects loading...</p>
               </div>
             )}
 
@@ -250,11 +250,11 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
                 <div className="p-4 bg-gradient-to-br from-blue-800/30 to-purple-800/30 border border-blue-700/30 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                   <MdLightbulb className="w-8 h-8 text-blue-300" />
                 </div>
-                <h3 className="text-lg font-medium text-white mb-2">AI projesi bulunamadı</h3>
+                <h3 className="text-lg font-medium text-white mb-2">AI project not found</h3>
                 <p className="text-blue-300 text-sm mb-3">
                   {searchTerm 
-                    ? `"${searchTerm}" için sonuç bulunamadı`
-                    : 'Bu filtrelere uygun proje bulunmuyor'
+                    ? `"${searchTerm}" No results found for`
+                    : 'There are no projects suitable for these filters.'
                   }
                 </p>
                 <button
@@ -265,7 +265,7 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
                   }}
                   className="px-4 py-2 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 rounded-lg text-sm hover:bg-yellow-500/30 transition-all"
                 >
-                  Filtreleri Temizle
+                  Clear Filters
                 </button>
               </div>
             )}
@@ -275,11 +275,11 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
               <div className="p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <div className="text-sm text-blue-300">
-                    <span className="font-medium text-white">{filteredProjects.length}</span> AI projesi bulundu
+                    <span className="font-medium text-white">{filteredProjects.length}</span> AI project found
                   </div>
                   {filteredProjects.length !== projectIdeas.length && (
                     <div className="text-xs text-blue-400">
-                      / {projectIdeas.length} toplam
+                      / {projectIdeas.length} total
                     </div>
                   )}
                 </div>
@@ -300,59 +300,31 @@ const ProjectIdeasPanel = ({ isOpen, onClose }) => {
             {!loading && projectIdeas.length > 0 && (
               <div className="p-4 border-t border-blue-700/30">
                 <p className="text-xs text-blue-300 mb-3 flex items-center">
-                  <span className="mr-1">📊</span> Hızlı İstatistikler
+                  <span className="mr-1">📊</span> Quick Statistics
                 </p>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-gradient-to-br from-green-800/30 to-emerald-800/30 border border-green-700/30 rounded-lg p-3">
                     <div className="text-lg font-bold text-green-400">
                       {projectIdeas.filter(p => p.difficulty === 'Kolay').length}
                     </div>
-                    <div className="text-xs text-green-300">🟢 Kolay</div>
+                    <div className="text-xs text-green-300">🟢 Easy</div>
                   </div>
                   <div className="bg-gradient-to-br from-yellow-800/30 to-amber-800/30 border border-yellow-700/30 rounded-lg p-3">
                     <div className="text-lg font-bold text-yellow-400">
                       {projectIdeas.filter(p => p.difficulty === 'Orta').length}
                     </div>
-                    <div className="text-xs text-yellow-300">🟡 Orta</div>
+                    <div className="text-xs text-yellow-300">🟡 Middle</div>
                   </div>
                   <div className="bg-gradient-to-br from-red-800/30 to-rose-800/30 border border-red-700/30 rounded-lg p-3">
                     <div className="text-lg font-bold text-red-400">
                       {projectIdeas.filter(p => p.difficulty === 'Zor').length}
                     </div>
-                    <div className="text-xs text-red-300">🔴 Zor</div>
+                    <div className="text-xs text-red-300">🔴 Hard</div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* AI Categories Overview */}
-            {!loading && projectIdeas.length > 0 && (
-              <div className="p-4 border-t border-blue-700/30">
-                <p className="text-xs text-blue-300 mb-3 flex items-center">
-                  <span className="mr-1">🤖</span> Popüler AI Kategorileri
-                </p>
-                <div className="space-y-2">
-                  {categories
-                    .filter(cat => cat.value !== 'all')
-                    .map(cat => {
-                      const count = projectIdeas.filter(p => p.category === cat.value).length;
-                      return count > 0 ? (
-                        <div 
-                          key={cat.value}
-                          className="flex items-center justify-between text-xs"
-                        >
-                          <span className="text-blue-200">
-                            {cat.icon} {cat.label}
-                          </span>
-                          <span className="text-blue-400 font-medium">{count}</span>
-                        </div>
-                      ) : null;
-                    })
-                    .filter(Boolean)
-                  }
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>

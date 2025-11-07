@@ -56,8 +56,8 @@ const EventsPreviewCard = ({ events, onOpenPanel }) => {
               <MdCalendarToday className="w-5 h-5 text-purple-300" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Yaklaşan Etkinlikler</h2>
-              <p className="text-sm text-blue-200">Kaçırma, katıl!</p>
+              <h2 className="text-lg font-semibold text-white">Upcoming Events</h2>
+              <p className="text-sm text-blue-200">Don't miss it, join!</p>
             </div>
           </div>
           
@@ -65,7 +65,7 @@ const EventsPreviewCard = ({ events, onOpenPanel }) => {
             onClick={onOpenPanel}
             className="text-purple-300 hover:text-purple-200 text-sm font-medium flex items-center group"
           >
-            Tümünü Gör
+            See All
             <MdArrowForward className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -76,7 +76,7 @@ const EventsPreviewCard = ({ events, onOpenPanel }) => {
               <MdCalendarToday className="w-8 h-8 text-blue-300" />
             </div>
             <p className="text-blue-300 text-sm">
-              Yaklaşan etkinlik bulunmuyor.
+              There are no upcoming events.
             </p>
           </div>
         ) : (
@@ -99,9 +99,9 @@ const EventsPreviewCard = ({ events, onOpenPanel }) => {
                   </div>
                   <div className={`px-2 py-1 rounded-full text-xs font-medium ${getTimeStatusColor(event.timeStatus)}`}>
                     <span className="mr-1">{getStatusIcon(event.timeStatus)}</span>
-                    {event.timeStatus === 'today' ? 'Bugün' : 
-                     event.timeStatus === 'tomorrow' ? 'Yarın' :
-                     'Bu hafta'}
+                    {event.timeStatus === 'today' ? 'Today' : 
+                     event.timeStatus === 'tomorrow' ? 'Tomorrow' :
+                     'This week'}
                   </div>
                 </div>
                 
@@ -118,7 +118,7 @@ const EventsPreviewCard = ({ events, onOpenPanel }) => {
                     }}
                     className="text-purple-300 hover:text-purple-200 font-medium"
                   >
-                    Detay
+                    Details
                   </button>
                 </div>
               </div>
@@ -134,19 +134,19 @@ const EventsPreviewCard = ({ events, onOpenPanel }) => {
                 <div className="text-sm font-bold text-red-400">
                   {events.filter(e => e.timeStatus === 'today').length}
                 </div>
-                <div className="text-xs text-blue-300">Bugün</div>
+                <div className="text-xs text-blue-300">Today</div>
               </div>
               <div className="bg-blue-700/30 rounded-lg p-2 border border-blue-600/30">
                 <div className="text-sm font-bold text-orange-400">
                   {events.filter(e => e.timeStatus === 'tomorrow').length}
                 </div>
-                <div className="text-xs text-blue-300">Yarın</div>
+                <div className="text-xs text-blue-300">Tomorrow</div>
               </div>
               <div className="bg-blue-700/30 rounded-lg p-2 border border-blue-600/30">
                 <div className="text-sm font-bold text-purple-400">
                   {events.length}
                 </div>
-                <div className="text-xs text-blue-300">Toplam</div>
+                <div className="text-xs text-blue-300">Total</div>
               </div>
             </div>
           </div>

@@ -30,9 +30,9 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
 
   const getDifficultyColor = (difficulty) => {
     const colors = {
-      'Kolay': 'bg-green-500/20 text-green-400 border-green-500/30',
-      'Orta': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      'Zor': 'bg-red-500/20 text-red-400 border-red-500/30'
+      'Easy': 'bg-green-500/20 text-green-400 border-green-500/30',
+      'Middle': 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+      'Hard': 'bg-red-500/20 text-red-400 border-red-500/30'
     };
     return colors[difficulty] || 'bg-blue-500/20 text-blue-400 border-blue-500/30';
   };
@@ -91,7 +91,7 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
             </div>
             <div>
               <h2 className="text-2xl font-semibold text-white flex items-center">
-                Proje Detayı
+                Project Details
               </h2>
             </div>
           </div>
@@ -108,7 +108,7 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
           {loading && (
             <div className="flex flex-col justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400 mb-4"></div>
-              <p className="text-blue-300">AI projesi yükleniyor...</p>
+              <p className="text-blue-300">AI project loading...</p>
             </div>
           )}
 
@@ -152,15 +152,15 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
                       </div>
                       
                       <div className={`px-3 py-1.5 rounded-lg text-sm font-medium border ${getDifficultyColor(project.difficulty)}`}>
-                        {project.difficulty === 'Kolay' && '🟢'}
-                        {project.difficulty === 'Orta' && '🟡'}
-                        {project.difficulty === 'Zor' && '🔴'}
+                        {project.difficulty === 'Easy' && '🟢'}
+                        {project.difficulty === 'Middle' && '🟡'}
+                        {project.difficulty === 'Hard' && '🔴'}
                         {' '}{project.difficulty}
                       </div>
                       
                       <div className="flex items-center px-3 py-1.5 bg-purple-700/30 border border-purple-600/30 rounded-lg text-purple-200">
                         <MdAccessTime className="w-4 h-4 mr-2 text-purple-400" />
-                        <span className="text-sm font-medium">{project.estimatedDays} gün</span>
+                        <span className="text-sm font-medium">{project.estimatedDays} day</span>
                         {project.timeCategory && (
                           <span className="ml-2 text-xs text-purple-300">({project.timeCategory})</span>
                         )}
@@ -174,7 +174,7 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
               <div className="bg-gradient-to-br from-blue-800/30 to-purple-800/30 rounded-xl p-6 border border-blue-700/30">
                 <h3 className="text-lg font-semibold text-white mb-3 flex items-center">
                   <span className="mr-2">📋</span>
-                  Proje Açıklaması
+                  Project Description
                 </h3>
                 <div className="text-blue-200 whitespace-pre-line leading-relaxed">
                   {project.description}
@@ -186,7 +186,7 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
                 <div className="bg-gradient-to-br from-blue-800/30 to-purple-800/30 rounded-xl p-6 border border-blue-700/30">
                   <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                     <MdCode className="w-5 h-5 mr-2 text-blue-400" />
-                    Kullanılacak AI Teknolojileri ve Araçları
+                    AI Technologies and Tools to be Used
                   </h3>
                   <div className="flex flex-wrap gap-2">
                     {project.technologiesArray.map((tech, index) => (
@@ -206,7 +206,7 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
                 <div className="bg-gradient-to-br from-blue-800/30 to-purple-800/30 rounded-xl p-6 border border-blue-700/30">
                   <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                     <MdCheckCircle className="w-5 h-5 mr-2 text-green-400" />
-                    Ön Gereksinimler & Bilmeniz Gerekenler
+                    Prerequisites & Things You Need to Know
                   </h3>
                   <ul className="space-y-3">
                     {project.requirementsArray.map((req, index) => (
@@ -226,7 +226,7 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
                 <div className="bg-gradient-to-br from-blue-800/30 to-purple-800/30 rounded-xl p-6 border border-blue-700/30">
                   <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
                     <MdLink className="w-5 h-5 mr-2 text-purple-400" />
-                    Faydalı AI Kaynakları ve Dökümanlar
+                    Useful AI Resources and Documents
                   </h3>
                   <ul className="space-y-3">
                     {project.resourcesArray.map((resource, index) => (
@@ -261,19 +261,19 @@ const ProjectIdeaDetailModal = ({ isOpen, onClose, projectId }) => {
                     <MdRocketLaunch className="w-6 h-6 text-yellow-300" />
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-white font-semibold mb-2">Projeyi Başlatmaya Hazır mısınız?</h4>
+                    <h4 className="text-white font-semibold mb-2">Are You Ready to Start the Project?</h4>
                     <p className="text-yellow-200 text-sm mb-4">
-                      Bu AI projesini gerçekleştirerek yapay zeka alanında deneyim kazanabilir ve portföyünüzü güçlendirebilirsiniz.
+                      By carrying out this AI project, you can gain experience in the field of artificial intelligence and strengthen your portfolio.
                     </p>
                     <div className="flex flex-wrap gap-2">
                       <span className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs">
-                        ✨ Pratik Yapın
+                        ✨ Practice
                       </span>
                       <span className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs">
-                        🎯 Hedef Belirleyin
+                        🎯 Set a Goal
                       </span>
                       <span className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 rounded-lg text-xs">
-                        🚀 Hemen Başlayın
+                        🚀 Get Started Now
                       </span>
                     </div>
                   </div>

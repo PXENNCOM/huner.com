@@ -49,8 +49,8 @@ const JobsPreviewCard = ({ jobs, onOpenPanel }) => {
               <MdWork className="w-5 h-5 text-blue-300" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Devam Eden İşler</h2>
-              <p className="text-sm text-blue-200">Aktif projeleriniz</p>
+              <h2 className="text-lg font-semibold text-white">Work in Progress</h2>
+              <p className="text-sm text-blue-200">Your active projects</p>
             </div>
           </div>
           
@@ -58,7 +58,7 @@ const JobsPreviewCard = ({ jobs, onOpenPanel }) => {
             onClick={onOpenPanel}
             className="text-blue-300 hover:text-blue-200 text-sm font-medium flex items-center group"
           >
-            Tümünü Gör
+            See All
             <MdArrowForward className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -69,7 +69,7 @@ const JobsPreviewCard = ({ jobs, onOpenPanel }) => {
               <MdWork className="w-8 h-8 text-blue-300" />
             </div>
             <p className="text-blue-300 text-sm">
-              Şu anda devam eden işiniz bulunmuyor.
+              You do not currently have any ongoing work.
             </p>
           </div>
         ) : (
@@ -101,13 +101,13 @@ const JobsPreviewCard = ({ jobs, onOpenPanel }) => {
                   </div>
                   
                   <p className="text-sm text-blue-200 mb-2">
-                    {job.EmployerProfile?.companyName || "İşveren"}
+                    {job.EmployerProfile?.companyName || "Employer"}
                   </p>
                   
                   <div className="flex items-center justify-between text-xs text-blue-300">
                     <div className="flex items-center">
                       <MdAccessTime className="w-3 h-3 mr-1" />
-                      <span>Teslim: {formatDate(job.dueDate)}</span>
+                      <span>Delivery: {formatDate(job.dueDate)}</span>
                     </div>
                     
                     <button
@@ -117,7 +117,7 @@ const JobsPreviewCard = ({ jobs, onOpenPanel }) => {
                       }}
                       className="text-blue-300 hover:text-blue-200 font-medium"
                     >
-                      Detay
+                      Detail
                     </button>
                   </div>
                 </div>

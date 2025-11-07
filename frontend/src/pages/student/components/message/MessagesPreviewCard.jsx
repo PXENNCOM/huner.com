@@ -54,9 +54,9 @@ const MessagesPreviewCard = ({ messages, onOpenPanel }) => {
               )}
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Mesajlar</h2>
+              <h2 className="text-lg font-semibold text-white">Messages</h2>
               <p className="text-sm text-blue-300">
-                {unreadCount > 0 ? `${unreadCount} yeni mesaj` : 'Tüm mesajlar okundu'}
+                {unreadCount > 0 ? `${unreadCount} new messagej` : 'All messages read'}
               </p>
             </div>
           </div>
@@ -65,7 +65,7 @@ const MessagesPreviewCard = ({ messages, onOpenPanel }) => {
             onClick={onOpenPanel}
             className="text-green-300 hover:text-green-200 text-sm font-medium flex items-center group"
           >
-            Tümünü Gör
+            See All
             <MdArrowForward className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -76,7 +76,7 @@ const MessagesPreviewCard = ({ messages, onOpenPanel }) => {
               <MdMessage className="w-8 h-8 text-blue-300" />
             </div>
             <p className="text-blue-300 text-sm">
-              Henüz mesaj bulunmuyor.
+              There are no messages yet.
             </p>
           </div>
         ) : (
@@ -98,10 +98,10 @@ const MessagesPreviewCard = ({ messages, onOpenPanel }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium text-white text-sm line-clamp-1">
-                        {messageRecipient.AdminMessage?.title || 'Başlık yok'}
+                        {messageRecipient.AdminMessage?.title || 'no title'}
                       </h3>
                       <p className="text-blue-300 text-xs line-clamp-1 mt-1">
-                        {messageRecipient.AdminMessage?.content || 'İçerik yok'}
+                        {messageRecipient.AdminMessage?.content || 'no content'}
                       </p>
                     </div>
                   </div>
@@ -123,7 +123,7 @@ const MessagesPreviewCard = ({ messages, onOpenPanel }) => {
                     }}
                     className="text-green-300 hover:text-green-200 font-medium"
                   >
-                    Oku
+                    Read
                   </button>
                 </div>
               </div>
@@ -139,13 +139,13 @@ const MessagesPreviewCard = ({ messages, onOpenPanel }) => {
                 <div className="text-sm font-bold text-red-400">
                   {unreadCount}
                 </div>
-                <div className="text-xs text-blue-300">Okunmamış</div>
+                <div className="text-xs text-blue-300">Unread</div>
               </div>
               <div className="bg-blue-700/30 border border-blue-600/30 rounded-lg p-2">
                 <div className="text-sm font-bold text-green-400">
                   {messages.length}
                 </div>
-                <div className="text-xs text-blue-300">Toplam</div>
+                <div className="text-xs text-blue-300">Total</div>
               </div>
             </div>
           </div>

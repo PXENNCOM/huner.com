@@ -12,19 +12,6 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
     return colors[difficulty] || 'bg-blue-500/20 text-blue-400 border-blue-500/30';
   };
 
-  const getCategoryIcon = (category) => {
-    const icons = {
-      'Web Development': '🌐',
-      'Mobile Development': '📱',
-      'Artificial Intelligence': '🤖',
-      'Game Development': '🎮',
-      'Data Science': '📊',
-      'Cybersecurity': '🔐',
-      'Cloud & DevOps': '☁️',
-      'System Design': '🏗️'
-    };
-    return icons[category] || '💻';
-  };
 
   if (compact) {
     return (
@@ -39,7 +26,6 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
               {project.title}
             </h3>
             <div className="flex items-center text-blue-300 text-xs mb-2">
-              <span className="mr-1">{getCategoryIcon(project.category)}</span>
               <span className="line-clamp-1">{project.category}</span>
             </div>
           </div>
@@ -91,7 +77,7 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
         <div className="flex items-center justify-between text-xs text-blue-300">
           <div className="flex items-center">
             <MdAccessTime className="w-3 h-3 mr-1" />
-            <span>{project.estimatedDays} gün</span>
+            <span>{project.estimatedDays} day</span>
           </div>
           <button
             onClick={(e) => {
@@ -100,7 +86,7 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
             }}
             className="text-yellow-300 hover:text-yellow-200 font-medium flex items-center group"
           >
-            Detay
+            Details
             <MdArrowForward className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -130,7 +116,6 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
         {/* Category and Difficulty */}
         <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-blue-200 flex items-center">
-            <span className="mr-1">{getCategoryIcon(project.category)}</span>
             {project.category}
           </span>
           <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getDifficultyColor(project.difficulty)}`}>
@@ -153,7 +138,7 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
         {/* Duration */}
         <div className="flex items-center text-sm text-blue-300 mb-4">
           <MdAccessTime className="w-4 h-4 mr-1" />
-          <span>{project.estimatedDays} gün</span>
+          <span>{project.estimatedDays} day</span>
         </div>
 
         {/* Technologies */}
@@ -187,7 +172,7 @@ const ProjectIdeaCard = ({ project, onViewDetails, compact = false }) => {
             className="inline-flex items-center px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
           >
             <MdCode className="w-4 h-4 mr-2" />
-            Detayları Görüntüle
+           View Details
           </button>
         </div>
       </div>

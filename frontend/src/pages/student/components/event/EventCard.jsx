@@ -46,11 +46,11 @@ const EventCard = ({ event, onViewDetails, compact = false }) => {
           </div>
           <div className={`px-2 py-1 rounded-full text-xs font-medium border ${getTimeStatusColor(event.timeStatus)}`}>
             <span className="mr-1">{getStatusIcon(event.timeStatus)}</span>
-            {event.timeStatus === 'today' ? 'Bugün' : 
-             event.timeStatus === 'tomorrow' ? 'Yarın' :
-             event.timeStatus === 'this-week' ? 'Bu hafta' :
-             event.timeStatus === 'this-month' ? 'Bu ay' :
-             event.timeStatus === 'ended' ? 'Bitti' : 'Gelecek'}
+            {event.timeStatus === 'today' ? 'Today' : 
+             event.timeStatus === 'tomorrow' ? 'Tomorrow' :
+             event.timeStatus === 'this-week' ? 'this Week' :
+             event.timeStatus === 'this-month' ? 'This Month' :
+             event.timeStatus === 'ended' ? 'Finished' : 'Future'}
           </div>
         </div>
 
@@ -85,10 +85,10 @@ const EventCard = ({ event, onViewDetails, compact = false }) => {
         <div className="mt-3 flex items-center justify-between">
           <div className="text-xs text-blue-300">
             {event.daysUntilEvent === 0 
-              ? 'Bugün başlıyor' 
+              ? 'It starts today' 
               : event.daysUntilEvent > 0
                 ? `${event.daysUntilEvent} gün kaldı`
-                : 'Etkinlik bitti'
+                : 'Event is over'
             }
           </div>
           <button
@@ -98,7 +98,7 @@ const EventCard = ({ event, onViewDetails, compact = false }) => {
             }}
             className="text-purple-300 hover:text-purple-200 text-xs font-medium flex items-center group"
           >
-            Detay
+            Detail
             <MdArrowForward className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -164,10 +164,10 @@ const EventCard = ({ event, onViewDetails, compact = false }) => {
         <div className="flex items-center justify-between pt-4 border-t border-blue-700/50">
           <span className="text-sm text-blue-300">
             {event.daysUntilEvent === 0 
-              ? 'Bugün başlıyor' 
+              ? 'It starts today' 
               : event.daysUntilEvent > 0
                 ? `${event.daysUntilEvent} gün kaldı`
-                : 'Etkinlik bitti'
+                : 'Event is over'
             }
           </span>
           <button
@@ -177,7 +177,7 @@ const EventCard = ({ event, onViewDetails, compact = false }) => {
             }}
             className="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
           >
-            Detayları Gör
+            See Details
             <MdArrowForward className="w-4 h-4 ml-2" />
           </button>
         </div>

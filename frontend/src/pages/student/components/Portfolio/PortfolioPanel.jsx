@@ -169,8 +169,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http:
               <MdCollections className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">Portfolyo</h2>
-              <p className="text-sm text-blue-200 hidden sm:block">Projelerinizi yönetin</p>
+              <h2 className="text-lg font-semibold text-white">Portfolio</h2>
             </div>
           </div>
           
@@ -197,8 +196,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http:
               }`}
             >
               <MdList className="w-4 h-4" />
-              <span className="hidden sm:inline">Projeler ({projects.length})</span>
-              <span className="sm:hidden">Projeler</span>
+              <span className="hidden sm:inline">Projects ({projects.length})</span>
+              <span className="sm:hidden">Projects</span>
             </button>
             <button
               onClick={() => {
@@ -212,15 +211,15 @@ const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http:
               }`}
             >
               <MdAdd className="w-4 h-4" />
-              <span className="hidden sm:inline">Yeni Proje</span>
-              <span className="sm:hidden">Yeni</span>
+              <span className="hidden sm:inline">New Projects</span>
+              <span className="sm:hidden">New</span>
             </button>
             {portfolioTab === 'edit' && (
               <button
                 className="py-3 px-3 md:px-4 text-sm font-medium text-blue-300 border-b-2 border-blue-400 flex items-center space-x-2 whitespace-nowrap"
               >
                 <MdEdit className="w-4 h-4" />
-                <span>Düzenle</span>
+                <span>Edit</span>
               </button>
             )}
           </nav>
@@ -262,8 +261,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http:
               {portfolioTab === 'add' && (
                 <div>
                   <div className="mb-4 md:mb-6">
-                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Yeni Proje Ekle</h3>
-                    <p className="text-blue-200 text-sm md:text-base">Portfolyonuza yeni bir proje ekleyin</p>
+                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Add New Project</h3>
+                    <p className="text-blue-200 text-sm md:text-base">Add a new project to your portfolio</p>
                   </div>
                   <ProjectForm 
                     onSubmit={handleAddProject}
@@ -276,8 +275,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http:
               {portfolioTab === 'edit' && editingProject && (
                 <div>
                   <div className="mb-4 md:mb-6">
-                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Proje Düzenle</h3>
-                    <p className="text-blue-200 text-sm md:text-base">"{editingProject.title}" projesini düzenliyorsunuz</p>
+                    <h3 className="text-lg md:text-xl font-semibold text-white mb-2">Edit Project</h3>
+                    <p className="text-blue-200 text-sm md:text-base">"{editingProject.title}" You are editing the project</p>
                   </div>
                   <ProjectForm 
                     initialData={editingProject}

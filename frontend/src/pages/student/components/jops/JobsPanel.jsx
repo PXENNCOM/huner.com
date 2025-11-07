@@ -73,11 +73,11 @@ const JobsPanel = ({ isOpen, onClose }) => {
   };
 
   const filterOptions = [
-    { id: 'all', label: 'Tümü', count: jobs.length },
-    { id: 'assigned', label: 'Atanan', count: jobs.filter(j => j.status === 'assigned').length },
-    { id: 'in_progress', label: 'Devam Eden', count: jobs.filter(j => j.status === 'in_progress').length },
-    { id: 'completed', label: 'Tamamlanan', count: jobs.filter(j => j.status === 'completed').length },
-    { id: 'cancelled', label: 'İptal Edilen', count: jobs.filter(j => j.status === 'cancelled').length }
+    { id: 'all', label: 'All', count: jobs.length },
+    { id: 'assigned', label: 'Appointed', count: jobs.filter(j => j.status === 'assigned').length },
+    { id: 'in_progress', label: 'Continuing', count: jobs.filter(j => j.status === 'in_progress').length },
+    { id: 'completed', label: 'Completed', count: jobs.filter(j => j.status === 'completed').length },
+    { id: 'cancelled', label: 'Cancelled', count: jobs.filter(j => j.status === 'cancelled').length }
   ];
 
   const handleJobClick = (jobId) => {
@@ -111,8 +111,7 @@ const JobsPanel = ({ isOpen, onClose }) => {
                 <MdWork className="w-5 h-5 text-blue-300" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">İşlerim</h2>
-                <p className="text-sm text-blue-200">Atanan işleri görüntüle</p>
+                <h2 className="text-lg font-semibold text-white">My Works</h2>
               </div>
             </div>
             <button
@@ -177,13 +176,13 @@ const JobsPanel = ({ isOpen, onClose }) => {
             {/* Error State */}
             {error && (
               <div className="p-4 m-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
-                <div className="font-medium mb-2">Hata:</div>
+                <div className="font-medium mb-2">Error:</div>
                 <div>{error}</div>
                 <button
                   onClick={fetchJobs}
                   className="mt-3 px-3 py-1 bg-red-500/30 hover:bg-red-500/50 rounded text-xs transition-colors"
                 >
-                  Yeniden Dene
+                 Try Again
                 </button>
               </div>
             )}
@@ -196,13 +195,13 @@ const JobsPanel = ({ isOpen, onClose }) => {
                 </div>
                 <h3 className="text-lg font-medium text-white mb-2">
                   {activeFilter === 'all'
-                    ? 'Henüz iş yok'
+                    ? 'no job yet'
                     : `${filterOptions.find(o => o.id === activeFilter)?.label} iş yok`}
                 </h3>
                 <p className="text-blue-300 text-sm">
                   {activeFilter === 'all'
-                    ? 'Size atanan işler burada görünecek'
-                    : 'Farklı filtreler deneyebilirsiniz'}
+                    ? 'Jobs assigned to you will appear here'
+                    : 'You can try different filters'}
                 </p>
               </div>
             )}
@@ -211,7 +210,7 @@ const JobsPanel = ({ isOpen, onClose }) => {
             {!loading && !error && filteredJobs.length > 0 && (
               <div className="p-4 space-y-3">
                 <div className="text-sm text-blue-300 mb-3">
-                  {filteredJobs.length} iş bulundu
+                  {filteredJobs.length} job found
                 </div>
                 {filteredJobs.map(job => (
                   <JobCard 

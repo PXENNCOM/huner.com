@@ -77,8 +77,8 @@ const JobDetailPanel = ({ isOpen, onClose, jobId }) => {
               <MdBusiness className="w-5 h-5 text-blue-300" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-white">İş Detayı</h2>
-              <p className="text-sm text-blue-200">Detaylı bilgiler ve zaman çizelgesi</p>
+              <h2 className="text-xl font-semibold text-white">Job Detail</h2>
+              <p className="text-sm text-blue-200">Detailed information and timeline</p>
             </div>
           </div>
           <button
@@ -112,7 +112,7 @@ const JobDetailPanel = ({ isOpen, onClose, jobId }) => {
                     <h1 className="text-2xl font-bold text-white mb-2">{job.title}</h1>
                     <div className="flex items-center text-blue-200">
                       <MdBusiness className="w-4 h-4 mr-2" />
-                      <span>{job.EmployerProfile?.companyName || "İşveren"}</span>
+                      <span>{job.EmployerProfile?.companyName || "Employer"}</span>
                     </div>
                   </div>
                   <JobStatusBadge status={job.status} />
@@ -123,14 +123,14 @@ const JobDetailPanel = ({ isOpen, onClose, jobId }) => {
                   <div className="flex items-center text-blue-200">
                     <MdCalendarToday className="w-4 h-4 mr-3 text-blue-400" />
                     <div>
-                      <div className="font-medium">Başlangıç Tarihi</div>
+                      <div className="font-medium">Start Date</div>
                       <div className="text-sm text-blue-300">{formatDate(job.startDate)}</div>
                     </div>
                   </div>
                   <div className="flex items-center text-blue-200">
                     <MdCalendarToday className="w-4 h-4 mr-3 text-green-400" />
                     <div>
-                      <div className="font-medium">Teslim Tarihi</div>
+                      <div className="font-medium">Delivery Date</div>
                       <div className="text-sm text-blue-300">{formatDate(job.dueDate)}</div>
                     </div>
                   </div>
@@ -148,48 +148,48 @@ const JobDetailPanel = ({ isOpen, onClose, jobId }) => {
               <div className="bg-blue-800/30 rounded-xl p-6 border border-blue-700/30">
                 <h3 className="text-lg font-semibold text-white mb-3">İş Açıklaması</h3>
                 <div className="text-blue-200 whitespace-pre-wrap leading-relaxed">
-                  {job.description || "Açıklama bulunmuyor."}
+                  {job.description || "No description available."}
                 </div>
               </div>
 
               {/* Timeline */}
               <div className="bg-blue-800/30 rounded-xl p-6 border border-blue-700/30">
-                <h3 className="text-lg font-semibold text-white mb-4">Zaman Çizelgesi</h3>
+                <h3 className="text-lg font-semibold text-white mb-4">Timeline</h3>
                 <div className="space-y-4">
                   <TimelineItem 
-                    title="İş Oluşturuldu" 
+                    title="Job Created" 
                     date={formatDate(job.createdAt)} 
                     status="completed" 
                   />
                   
                   <TimelineItem 
-                    title="İş Onaylandı" 
+                    title="Job Approved" 
                     date={formatDate(job.updatedAt)} 
-                    description="Admin tarafından onaylandı" 
+                    description="Approved by admin" 
                     status="completed" 
                   />
                   
                   <TimelineItem 
-                    title="Size Atandı" 
+                    title="Assigned to You" 
                     date={formatDate(job.startDate)} 
                     status="completed" 
                   />
                   
                   <TimelineItem 
-                    title="Devam Ediyor" 
+                    title="In Progress" 
                     description={job.timeInfo}
                     status={job.status === 'in_progress' ? 'active' : 'completed'} 
                   />
                   
                   <TimelineItem 
-                    title="Teslim Tarihi" 
+                    title="Delivery Date" 
                     date={formatDate(job.dueDate)} 
                     status={job.status === 'completed' ? 'completed' : 'pending'} 
                   />
                   
                   {job.status === 'completed' && (
                     <TimelineItem 
-                      title="Tamamlandı" 
+                      title="completed" 
                       date={formatDate(job.completedDate)} 
                       status="completed" 
                     />
@@ -197,7 +197,7 @@ const JobDetailPanel = ({ isOpen, onClose, jobId }) => {
                   
                   {job.status === 'cancelled' && (
                     <TimelineItem 
-                      title="İptal Edildi" 
+                      title="Cancelled" 
                       date={formatDate(job.updatedAt)} 
                       description={job.notes} 
                       status="cancelled" 
@@ -209,14 +209,12 @@ const JobDetailPanel = ({ isOpen, onClose, jobId }) => {
               {/* Progress Notes */}
               {job.progressNotes && (
                 <div className="bg-blue-800/30 rounded-xl p-6 border border-blue-700/30">
-                  <h3 className="text-lg font-semibold text-white mb-3">İlerleme Notları</h3>
+                  <h3 className="text-lg font-semibold text-white mb-3">Progress Notes</h3>
                   <div className="text-blue-200 whitespace-pre-line">
                     {job.progressNotes}
                   </div>
                 </div>
               )}
-
-             
             </div>
           )}
         </div>

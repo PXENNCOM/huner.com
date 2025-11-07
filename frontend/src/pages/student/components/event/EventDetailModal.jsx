@@ -26,13 +26,13 @@ const EventDetailModal = ({ isOpen, onClose, eventId }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Etkinlik detayları getirilemedi');
+        throw new Error('Event details could not be retrieved');
       }
 
       const data = await response.json();
       setEvent(data);
     } catch (error) {
-      console.error('Etkinlik detayı getirme hatası:', error);
+      console.error('Event details could not be retrieved:', error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -82,8 +82,8 @@ const EventDetailModal = ({ isOpen, onClose, eventId }) => {
               <MdEvent className="w-5 h-5 text-purple-300" />
             </div>
             <div>
-              <h2 className="text-lg sm:text-xl font-semibold text-white">Etkinlik Detayı</h2>
-              <p className="text-xs sm:text-sm text-blue-200 hidden sm:block">Detaylı bilgiler ve katılım</p>
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Event Details</h2>
+              <p className="text-xs sm:text-sm text-blue-200 hidden sm:block">Detailed information and participation</p>
             </div>
           </div>
           <button
@@ -145,7 +145,7 @@ const EventDetailModal = ({ isOpen, onClose, eventId }) => {
                         <div className="bg-blue-700/30 border border-blue-600/30 rounded-lg p-3">
                           <div className="flex items-center text-purple-400 mb-2">
                             <MdCalendarToday className="w-4 h-4 mr-2" />
-                            <span className="font-medium text-sm">Tarih</span>
+                            <span className="font-medium text-sm">Date</span>
                           </div>
                           <div className="text-white font-medium text-sm">{event.formattedDate}</div>
                         </div>
@@ -153,7 +153,7 @@ const EventDetailModal = ({ isOpen, onClose, eventId }) => {
                         <div className="bg-blue-700/30 border border-blue-600/30 rounded-lg p-3">
                           <div className="flex items-center text-blue-400 mb-2">
                             <MdAccessTime className="w-4 h-4 mr-2" />
-                            <span className="font-medium text-sm">Saat</span>
+                            <span className="font-medium text-sm">Hour</span>
                           </div>
                           <div className="text-white font-medium text-sm">{event.formattedTime}</div>
                         </div>
@@ -161,7 +161,7 @@ const EventDetailModal = ({ isOpen, onClose, eventId }) => {
                         <div className="bg-blue-700/30 border border-blue-600/30 rounded-lg p-3">
                           <div className="flex items-center text-green-400 mb-2">
                             <MdLocationOn className="w-4 h-4 mr-2" />
-                            <span className="font-medium text-sm">Konum</span>
+                            <span className="font-medium text-sm">Location</span>
                           </div>
                           <div className="text-white font-medium text-sm line-clamp-1">{event.location}</div>
                         </div>
@@ -169,7 +169,7 @@ const EventDetailModal = ({ isOpen, onClose, eventId }) => {
                         <div className="bg-blue-700/30 border border-blue-600/30 rounded-lg p-3">
                           <div className="flex items-center text-orange-400 mb-2">
                             <MdPerson className="w-4 h-4 mr-2" />
-                            <span className="font-medium text-sm">Organizatör</span>
+                            <span className="font-medium text-sm">Organizer</span>
                           </div>
                           <div className="text-white font-medium text-sm line-clamp-1">{event.organizer}</div>
                         </div>
@@ -185,7 +185,7 @@ const EventDetailModal = ({ isOpen, onClose, eventId }) => {
               <div className="bg-blue-800/30 rounded-lg sm:rounded-xl p-4 sm:p-6 border border-blue-700/30">
                 <h3 className="text-base sm:text-lg font-semibold text-white mb-3 flex items-center">
                   <span className="mr-2">📄</span>
-                  Etkinlik Açıklaması
+                  Event Description
                 </h3>
                 <div className="text-blue-200 whitespace-pre-wrap leading-relaxed text-sm sm:text-base">
                   {event.description}

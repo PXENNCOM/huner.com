@@ -8,31 +8,31 @@ const JobStatusBadge = ({ status, compact = false }) => {
       bg: 'bg-yellow-500/20',
       text: 'text-yellow-400',
       border: 'border-yellow-500/30',
-      label: 'Beklemede'
+      label: 'Pending'
     },
     approved: {
       bg: 'bg-blue-500/20',
       text: 'text-blue-400',
       border: 'border-blue-500/30',
-      label: 'Onaylandı'
+      label: 'Approved'
     },
     in_progress: {
       bg: 'bg-green-500/20',
       text: 'text-green-400',
       border: 'border-green-500/30',
-      label: 'Devam Ediyor'
+      label: 'In Progress'
     },
     completed: {
       bg: 'bg-teal-500/20',
       text: 'text-teal-400',
       border: 'border-teal-500/30',
-      label: 'Tamamlandı'
+      label: 'completed'
     },
     cancelled: {
       bg: 'bg-red-500/20',
       text: 'text-red-400',
       border: 'border-red-500/30',
-      label: 'İptal Edildi'
+      label: 'Cancelled'
     }
   };
 

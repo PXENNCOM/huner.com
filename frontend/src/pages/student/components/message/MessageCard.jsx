@@ -42,13 +42,13 @@ const MessageCard = ({ messageRecipient, onViewDetails, compact = false }) => {
               <h3 className="text-white font-medium text-sm mb-1 line-clamp-1">
                 {messageRecipient.AdminMessage?.title || 'Başlık yok'}
               </h3>
-              <p className="text-blue-300 text-xs">Admin Mesajı</p>
+              <p className="text-blue-300 text-xs">Message</p>
             </div>
           </div>
           {!messageRecipient.isRead && (
             <div className="flex items-center space-x-1">
               <MdCircle className="w-2 h-2 text-green-400" />
-              <span className="text-xs text-green-400 font-medium">Yeni</span>
+              <span className="text-xs text-green-400 font-medium">New</span>
             </div>
           )}
         </div>
@@ -56,7 +56,7 @@ const MessageCard = ({ messageRecipient, onViewDetails, compact = false }) => {
         {/* Content Preview */}
         <div className="mb-3">
           <p className="text-blue-200 text-xs line-clamp-2">
-            {messageRecipient.AdminMessage?.content || 'İçerik yok'}
+            {messageRecipient.AdminMessage?.content || 'no content'}
           </p>
         </div>
 
@@ -75,7 +75,7 @@ const MessageCard = ({ messageRecipient, onViewDetails, compact = false }) => {
             }}
             className="text-green-400 hover:text-green-300 font-medium flex items-center group"
           >
-            Oku
+            Read
             <MdArrowForward className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

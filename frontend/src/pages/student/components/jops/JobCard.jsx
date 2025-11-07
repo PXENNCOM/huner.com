@@ -51,7 +51,7 @@ const JobCard = ({ job, onViewDetails, compact = false }) => {
         <div className="flex items-center justify-between text-xs text-blue-300">
           <div className="flex items-center">
             <MdCalendarToday className="w-3 h-3 mr-1" />
-            <span>Teslim: {formatDate(job.dueDate)}</span>
+            <span>Delivery: {formatDate(job.dueDate)}</span>
           </div>
           
           {daysLeft !== null && job.status === 'in_progress' && (
@@ -75,7 +75,7 @@ const JobCard = ({ job, onViewDetails, compact = false }) => {
             }}
             className="text-blue-300 hover:text-blue-200 text-xs font-medium flex items-center group"
           >
-            Detayları Gör
+            See Details
             <MdArrowForward className="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -109,12 +109,12 @@ const JobCard = ({ job, onViewDetails, compact = false }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm mb-4">
           <div className="flex items-center text-blue-200">
             <MdCalendarToday className="w-4 h-4 mr-2" />
-            <span>Başlangıç: {formatDate(job.startDate)}</span>
+            <span>Beginning: {formatDate(job.startDate)}</span>
           </div>
           
           <div className="flex items-center text-blue-200">
             <MdCalendarToday className="w-4 h-4 mr-2" />
-            <span>Teslim: {formatDate(job.dueDate)}</span>
+            <span>Delivery: {formatDate(job.dueDate)}</span>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ const JobCard = ({ job, onViewDetails, compact = false }) => {
             }}
             className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200"
           >
-            Detayları Görüntüle
+            View Details
             <MdArrowForward className="w-4 h-4 ml-2" />
           </button>
         </div>

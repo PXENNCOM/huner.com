@@ -64,15 +64,15 @@ const EventsPanel = ({ isOpen, onClose }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Etkinlikler getirilemedi');
+        throw new Error('Events could not be fetched');
       }
 
       const data = await response.json();
       setEvents(data);
       setFilteredEvents(data);
     } catch (error) {
-      console.error('Etkinlikleri getirme hatası:', error);
-      setError('Etkinlikler yüklenirken bir hata oluştu');
+      console.error('EAn error occurred while loading events:', error);
+      setError('An error occurred while loading events');
     } finally {
       setLoading(false);
     }
@@ -81,25 +81,25 @@ const EventsPanel = ({ isOpen, onClose }) => {
   const filterOptions = [
     { 
       id: 'all', 
-      label: 'Tümü', 
+      label: 'All', 
       count: events.length,
       icon: '📅'
     },
     { 
       id: 'today', 
-      label: 'Bugün', 
+      label: 'Today', 
       count: events.filter(e => e.timeStatus === 'today').length,
       icon: '🔥'
     },
     { 
       id: 'week', 
-      label: 'Bu Hafta', 
+      label: 'This week', 
       count: events.filter(e => ['today', 'tomorrow', 'this-week'].includes(e.timeStatus)).length,
       icon: '📅'
     },
     { 
       id: 'month', 
-      label: 'Bu Ay', 
+      label: 'This Month', 
       count: events.filter(e => e.daysUntilEvent <= 30).length,
       icon: '🗓️'
     }
@@ -135,8 +135,7 @@ const EventsPanel = ({ isOpen, onClose }) => {
                 <MdCalendarToday className="w-5 h-5 text-purple-300" />
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-white">Etkinlikler</h2>
-                <p className="text-sm text-blue-200">Yaklaşan etkinlikleri keşfet</p>
+                <h2 className="text-lg font-semibold text-white">Events</h2>
               </div>
             </div>
             <button
@@ -155,7 +154,7 @@ const EventsPanel = ({ isOpen, onClose }) => {
                 <MdSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-300 w-5 h-5" />
                 <input
                   type="text"
-                  placeholder="Etkinlik ara..."
+                  placeholder="Search for events..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-blue-900/40 border border-blue-600/50 rounded-lg text-white placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
@@ -167,7 +166,7 @@ const EventsPanel = ({ isOpen, onClose }) => {
             <div className="p-4 border-b border-blue-700/30">
               <div className="flex items-center space-x-2 mb-3">
                 <MdFilterList className="w-4 h-4 text-blue-300" />
-                <span className="text-sm text-blue-300">Filtrele</span>
+                <span className="text-sm text-blue-300">Filter</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {filterOptions.map(option => (
@@ -190,7 +189,7 @@ const EventsPanel = ({ isOpen, onClose }) => {
                           ? 'text-purple-100'
                           : 'text-blue-300'
                       }`}>
-                        {option.count} etkinlik
+                        {option.count} event
                       </div>
                     )}
                   </button>
@@ -220,14 +219,14 @@ const EventsPanel = ({ isOpen, onClose }) => {
                 </div>
                 <h3 className="text-lg font-medium text-white mb-2">
                   {filter === 'all' 
-                    ? 'Henüz etkinlik yok'
-                    : `${filterOptions.find(o => o.id === filter)?.label} etkinlik yok`
+                    ? 'No events yet'
+                    : `${filterOptions.find(o => o.id === filter)?.label} no activity`
                   }
                 </h3>
                 <p className="text-blue-300 text-sm">
                   {filter === 'all'
-                    ? 'Yeni etkinlikler burada görünecek'
-                    : 'Farklı filtreler deneyebilirsiniz'}
+                    ? 'New events will appear here'
+                    : 'You can try different filters'}
                 </p>
               </div>
             )}
@@ -254,13 +253,13 @@ const EventsPanel = ({ isOpen, onClose }) => {
                     <div className="text-lg font-bold text-red-400">
                       {events.filter(e => e.timeStatus === 'today').length}
                     </div>
-                    <div className="text-xs text-blue-300">Bugün</div>
+                    <div className="text-xs text-blue-300">Today</div>
                   </div>
                   <div className="bg-blue-800/30 rounded-lg p-3 border border-blue-700/30">
                     <div className="text-lg font-bold text-orange-400">
                       {events.filter(e => e.timeStatus === 'tomorrow').length}
                     </div>
-                    <div className="text-xs text-blue-300">Yarın</div>
+                    <div className="text-xs text-blue-300">Tomorrow</div>
                   </div>
                 </div>
               </div>
